@@ -80,11 +80,8 @@ input[type=date], input[type=time] { color-scheme: dark; }
   display: flex; flex-direction: column; font-size: 10pt; line-height: 1.5;
 }
 .doc__head { display: flex; justify-content: space-between; gap: 2rem; padding-bottom: 8mm; border-bottom: 1px solid #e8dfcf; }
-.doc__brand { display: flex; align-items: center; gap: 12px; }
-.mark { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--gold-dark); display: grid; place-items: center; font: 600 1.5rem var(--serif); color: var(--gold-dark); }
-.brand { display: block; font: 600 1.6rem/1 var(--serif); }
-.brand em { color: var(--gold-dark); }
-.doc__brand div span { font-size: 8pt; letter-spacing: .2em; text-transform: uppercase; color: #8a8072; }
+.doc__brand { display: flex; align-items: center; }
+.doc__logo { height: 30mm; width: auto; display: block; }
 .doc__me { text-align: right; font-size: 8.5pt; color: #5c5449; white-space: pre-line; }
 .doc__title { display: flex; justify-content: space-between; align-items: flex-end; margin: 10mm 0 8mm; }
 .doc__title h2 { font: 500 2.6rem/1 var(--serif); margin: 0; }

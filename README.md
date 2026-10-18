@@ -27,6 +27,13 @@ bovenaan `assets/js/main.js` (voor de calculator).
 
 Kleuren en lettertypes staan als variabelen bovenaan `assets/css/style.css`.
 
+## Logo
+- `assets/img/logo-mark.png`: alleen het beeldmerk (B met cocktailglas), transparant. Gebruikt in menu en footer.
+- `assets/img/logo-dark.png`: volledig logo voor donkere achtergronden (homepage).
+- `assets/img/logo-light.png`: volledig logo voor lichte achtergronden (offertes en facturen).
+- `assets/icons/`: favicon en app-iconen, gemaakt van het beeldmerk.
+- `assets/img/origineel/`: de originele logobestanden.
+
 ## Offertes & facturen (`documenten.html`)
 Een eigen hulpmiddel om offertes en facturen te maken. Niet gelinkt vanaf de website;
 open het via `documenten.html` (bijv. `rutger0201.github.io/Beck-On-The-Rocks/documenten.html`).

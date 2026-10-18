@@ -1,5 +1,5 @@
 // Service worker voor de offerte- en factuurmaker: werkt ook offline.
-const CACHE = 'beck-documenten-v1';
+const CACHE = 'beck-documenten-v2';
 const BASIS = [
   'documenten.html',
   'documenten.webmanifest',
@@ -7,7 +7,9 @@ const BASIS = [
   'assets/js/documenten.js',
   'assets/js/analyse.js',
   'assets/icons/icon-192.png',
-  'assets/icons/icon-512.png'
+  'assets/icons/icon-512.png',
+  'assets/icons/favicon-48.png',
+  'assets/img/logo-light.png'
 ];
 
 self.addEventListener('install', e => {
