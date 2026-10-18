@@ -65,8 +65,38 @@ window.BeckAnalyse = (() => {
       langPath: basis + 'tesseract/lang',
       logger: m => { if (m.status === 'recognizing text') voortgang(`Tekst herkennen… ${Math.round(m.progress * 100)}%`); }
     });
-    try { return (await worker.recognize(bron)).data.text; }
+    try { return (await worker.recognize(await voorbewerk(bron))).data.text; }
     finally { await worker.terminate(); }
+  }
+
+  // Beeld klaarmaken voor tekstherkenning: vergroten, grijs, donkere modus omdraaien, contrast oprekken
+  async function voorbewerk(bron) {
+    try {
+      const img = bron instanceof HTMLCanvasElement ? bron : await createImageBitmap(bron);
+      const schaal = Math.min(3, Math.max(1, 1800 / img.width));
+      const c = Object.assign(document.createElement('canvas'), { width: Math.round(img.width * schaal), height: Math.round(img.height * schaal) });
+      const ctx = c.getContext('2d', { willReadFrequently: true });
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      const data = ctx.getImageData(0, 0, c.width, c.height), px = data.data;
+      let som = 0;
+      const grijs = new Uint8ClampedArray(px.length / 4);
+      for (let i = 0, j = 0; i < px.length; i += 4, j++) {
+        // max-kanaal houdt gekleurde tekst (bijv. paarse labels) goed zichtbaar
+        const g = Math.max(px[i], px[i + 1], px[i + 2]) * 0.6 + (0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2]) * 0.4;
+        grijs[j] = g; som += g;
+      }
+      const donker = som / grijs.length < 110;
+      let lo = 255, hi = 0;
+      for (const g of grijs) { const v = donker ? 255 - g : g; if (v < lo) lo = v; if (v > hi) hi = v; }
+      const bereik = Math.max(1, hi - lo);
+      for (let i = 0, j = 0; i < px.length; i += 4, j++) {
+        const v = ((donker ? 255 - grijs[j] : grijs[j]) - lo) * 255 / bereik;
+        px[i] = px[i + 1] = px[i + 2] = v;
+      }
+      ctx.putImageData(data, 0, 0);
+      return c;
+    } catch { return bron; }
   }
 
   const htmlNaarTekst = html => {
@@ -223,10 +253,19 @@ window.BeckAnalyse = (() => {
     return `${pad(Math.floor(tot / 60))}:${pad(tot % 60)}`;
   };
 
+  // Labels zoals ze in de aanvraagmail staan: waarde mag op dezelfde regel of op de regel eronder
+  const LABELS_MAIL = /^(naam|e-?mail|telefoon(?: klant)?|datum|aantal uur|gasten|soort feest|locatie|cocktails op de kaart|fruitpers|glazen via \w+|spoedboeking|bericht)$/i;
   function label(t, namen) {
-    const re = new RegExp(`^[ \\t>*-]*(?:${namen})[ \\t]*(?:[:=]|\\t)\\s*(.+)$`, 'im'); // ook tabel-kopie (tab)
-    const m = re.exec(t);
-    return m ? m[1].trim().replace(/\s{2,}/g, ' ') : null;
+    const re = new RegExp(`^[ \\t>*-]*(?:${namen})[ \\t]*(?:[:=]|\\t)[ \\t]*(\\S.*)$`, 'im'); // ook tabel-kopie (tab)
+    let m = re.exec(t);
+    if (m) return m[1].trim().replace(/\s{2,}/g, ' ');
+    // Label alleen op een regel, waarde op de eerstvolgende niet-lege regel (mail als screenshot)
+    const re2 = new RegExp(`^[ \\t>*-]*(?:${namen})[ \\t]*:?[ \\t]*\\n(?:[ \\t]*\\n)*[ \\t]*(\\S.*)$`, 'im');
+    m = re2.exec(t);
+    if (!m) return null;
+    const w = m[1].trim();
+    if (LABELS_MAIL.test(w) || /^[-–—]$/.test(w)) return null; // lege waarde: volgende regel is al een ander label
+    return w.replace(/\s{2,}/g, ' ');
   }
 
   // WhatsApp-export: "12-06-2026 14:03 - Naam: bericht" of "[12-06-2026, 14:03:22] Naam: bericht"
@@ -251,7 +290,8 @@ window.BeckAnalyse = (() => {
     const v = {}; // veld -> { waarde, bron }
     const zet = (k, waarde, bron) => { if (waarde && !v[k]) v[k] = { waarde: String(waarde).trim(), bron: (bron || '').trim().slice(0, 80) }; };
 
-    let t = ruw.replace(/\r/g, '').replace(/\u00a0/g, ' ');
+    let t = ruw.replace(/\r/g, '').replace(/\u00a0/g, ' ')
+      .replace(/[®©]\s*@/g, '@').replace(/\s+@\s+/g, '@'); // OCR-ruis rond @
     const wa = whatsapp(t, eigenNamen);
     if (wa) { zet('k-naam', wa.afzender, 'Afzender WhatsApp'); t = wa.tekst; }
 
@@ -321,14 +361,18 @@ window.BeckAnalyse = (() => {
     // Tijden en uren
     const tijden = vindTijden(t);
     if (tijden) { zet('f-van', tijden.van, tijden.snippet); zet('f-tot', tijden.tot, tijden.snippet); }
-    const uren = lUren ? parseFloat(lUren.replace(',', '.')) : ((/\b(\d{1,2}(?:[.,]5)?)\s*uur\b(?!\s*(?:[:.]\d|tot|-))/i.exec(t) || [])[1] || '').replace(',', '.');
+    const uren = lUren ? parseFloat(lUren.replace(',', '.')) : ((/\b(\d{1,2}(?:[.,]5)?)[ \t]*uur\b(?!\s*(?:[:.]\d|tot|-))/i.exec(t) || [])[1] || '').replace(',', '.');
     if (+uren > 0 && +uren <= 16) {
       if (v['f-van'] && !v['f-tot']) zet('f-tot', plusUren(v['f-van'].waarde, +uren), `${uren} uur`);
-      else if (!v['f-van']) v._uren = { waarde: String(uren), bron: `${uren} uur` };
+      else if (!v['f-van']) {
+        // Alleen een aantal uur bekend: starttijd 20:00 aannemen (in het overzicht aan te passen)
+        zet('f-van', '20:00', `aanname: ${uren} uur, begintijd niet genoemd`);
+        zet('f-tot', plusUren('20:00', +uren), `aanname: 20:00 + ${uren} uur`);
+      }
     }
 
     // Gasten
-    const gasten = lGasten ? parseInt(lGasten, 10) : +((/\b(\d{1,4})\s*(?:gasten|personen|mensen|pers\.?|man|genodigden|collega'?s|vrienden)\b/i.exec(t) || [])[1] || 0);
+    const gasten = lGasten ? parseInt(lGasten, 10) : +((/\b(\d{1,4})[ \t]*(?:gasten|personen|mensen|pers\.?|man|genodigden|collega'?s|vrienden)\b/i.exec(t) || [])[1] || 0);
     if (gasten > 0) zet('f-gasten', String(gasten), `${gasten} gasten`);
 
     // Soort feest
@@ -356,6 +400,10 @@ window.BeckAnalyse = (() => {
     if (glazenGewenst) opm.push('Glazen via Beck on the Rocks gewenst');
     if (opm.length) zet('opmerking', opm.join('\n'), [...gezien].join(', ') || 'gasten/uren');
 
+    if (v['k-email']) {
+      const e = (v['k-email'].waarde.match(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/) || [])[0];
+      if (e) v['k-email'].waarde = e.toLowerCase(); else delete v['k-email'];
+    }
     delete v._uren;
     return v;
   }
