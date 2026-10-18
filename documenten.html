@@ -9,6 +9,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/documenten.css">
+  <link rel="manifest" href="documenten.webmanifest">
+  <meta name="theme-color" content="#0f0d0b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Offertes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="icon" href="assets/icons/icon-192.png">
 </head>
 <body>
 
@@ -25,6 +32,26 @@
     <button type="button" data-type="factuur">Factuur</button>
     <button type="button" data-type="annulering">Annulering</button>
   </div>
+
+  <section class="slim">
+    <h2>Slim invullen</h2>
+    <p>Sleep een mail, WhatsApp-export, PDF, Word-bestand of screenshot hierheen. Ik haal er de gegevens uit.</p>
+    <label class="drop" id="drop">
+      <input type="file" id="bestand" accept=".pdf,.docx,.txt,.eml,.html,.htm,.csv,image/*" hidden>
+      <span>📎 Kies een bestand of sleep het hier</span>
+    </label>
+    <textarea id="plak" rows="3" placeholder="…of plak hier de tekst van een mail of appje"></textarea>
+    <button type="button" class="btn btn--ghost btn--small" id="plak-go">Analyseer tekst</button>
+    <p class="slim__status" id="slim-status" aria-live="polite"></p>
+    <div class="slim__result" id="slim-result" hidden>
+      <h3>Gevonden</h3>
+      <div id="slim-velden"></div>
+      <div class="slim__knoppen">
+        <button type="button" class="btn btn--small" id="slim-ok">Overnemen</button>
+        <button type="button" class="link" id="slim-weg">Annuleren</button>
+      </div>
+    </div>
+  </section>
 
   <div class="row">
     <label>Opgeslagen documenten
@@ -50,6 +77,7 @@
       <label class="full">Adres<input id="k-adres" placeholder="Straat en huisnummer"></label>
       <label>Postcode & plaats<input id="k-plaats"></label>
       <label>E-mail<input id="k-email" type="email"></label>
+      <label>Telefoon<input id="k-tel" type="tel"></label>
     </div>
   </details>
 
@@ -116,6 +144,18 @@
     <button type="button" class="link danger" id="wis" hidden>Dit document verwijderen</button>
   </div>
   <p class="tip">Tip: kies bij printen "Opslaan als PDF" en zet "Kop- en voetteksten" uit.</p>
+
+  <details class="app">
+    <summary>Snelkoppeling / app</summary>
+    <button type="button" class="btn btn--small" id="installeer" hidden>Installeer als app</button>
+    <p id="app-al" hidden>✓ Je gebruikt de app-versie.</p>
+    <ul class="app__uitleg">
+      <li><strong>Android (Chrome):</strong> menu ⋮ → <em>App installeren</em> of <em>Toevoegen aan startscherm</em>.</li>
+      <li><strong>iPhone (Safari):</strong> deelknop □↑ → <em>Zet op beginscherm</em>.</li>
+      <li><strong>Computer (Chrome/Edge):</strong> klik op het installeer-icoon rechts in de adresbalk, of gebruik de knop hierboven. Je krijgt een icoon op je bureaublad en in het startmenu.</li>
+      <li>Houd het app-icoon ingedrukt (of rechtsklik) voor <em>Nieuwe offerte</em> en <em>Nieuwe factuur</em>.</li>
+    </ul>
+  </details>
 </aside>
 
 <!-- ================= A4-document ================= -->
@@ -163,6 +203,7 @@
   </article>
 </main>
 
+<script src="assets/js/analyse.js"></script>
 <script src="assets/js/documenten.js"></script>
 </body>
 </html>

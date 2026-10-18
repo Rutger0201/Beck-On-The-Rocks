@@ -50,6 +50,28 @@ input[type=date], input[type=time] { color-scheme: dark; }
 .btn--ghost { background: transparent; color: var(--gold); }
 .tip { font-size: .75rem; color: var(--muted); margin-top: 1rem; }
 
+/* Slim invullen */
+.slim { border: 1px dashed rgba(201,164,92,.45); border-radius: 14px; padding: 14px; margin-bottom: 1rem; background: rgba(201,164,92,.05); display: grid; gap: .6rem; }
+.slim h2 { font: 500 1.25rem var(--serif); margin: 0; }
+.slim h2::before { content: "✦ "; color: var(--gold); font-size: .9rem; }
+.slim > p { margin: 0; font-size: .8rem; color: var(--muted); }
+.drop { display: block; text-align: center; border: 1px solid var(--line); border-radius: 10px; padding: 1rem; cursor: pointer; color: var(--text); font-size: .85rem; transition: border-color .2s, background .2s; }
+.drop:hover, .drop.is-over { border-color: var(--gold); background: rgba(201,164,92,.1); }
+.btn--small { padding: .55em 1em; font-size: .82rem; justify-self: start; }
+.slim__status { margin: 0; font-size: .8rem; color: var(--gold); min-height: 1em; }
+.slim__status.is-fout { color: #d0614a; }
+.slim__result h3 { font: 500 1rem var(--serif); margin: 0 0 .4rem; }
+.slim__veld { display: grid; grid-template-columns: 18px 1fr; gap: .2rem .6rem; align-items: start; padding: .45rem 0; border-top: 1px solid var(--line); }
+.slim__veld input[type=checkbox] { margin-top: .5rem; accent-color: var(--gold); }
+.slim__veld span { font-size: .72rem; color: var(--muted); }
+.slim__veld textarea, .slim__veld input:not([type=checkbox]) { grid-column: 2; font-size: .85rem; padding: .45em .6em; }
+.slim__veld small { grid-column: 2; font-size: .7rem; color: var(--muted); font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.slim__knoppen { display: flex; gap: 1rem; align-items: center; margin-top: .6rem; }
+.app__uitleg { padding-left: 1.1em; margin: .6rem 0 0; font-size: .8rem; color: var(--muted); }
+.app__uitleg li { margin-bottom: .4rem; }
+.app__uitleg strong { color: var(--text); font-weight: 500; }
+#app-al { color: var(--gold); font-size: .85rem; margin: 0; }
+
 /* ---------- Document (A4) ---------- */
 .stage { padding: 40px 24px; display: flex; justify-content: center; overflow-x: auto; }
 .paper {

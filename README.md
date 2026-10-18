@@ -39,6 +39,19 @@ open het via `documenten.html` (bijv. `rutger0201.github.io/Beck-On-The-Rocks/do
 - **Maak factuur van deze offerte** neemt alle gegevens over en verwijst naar het offertenummer.
 - Nummers lopen automatisch op: `O-2026-001` voor offertes, `F-2026-001` voor facturen.
 
+### Slim invullen
+Sleep een bestand in het blok **Slim invullen** (of plak tekst / een screenshot met Ctrl+V).
+De generator zoekt naam, bedrijf, e-mail, telefoon, adres, datum, begin- en eindtijd, soort feest,
+locatie, aantal gasten en gewenste cocktails, en laat je eerst controleren wat hij overneemt.
+Werkt met: mails (.eml of geplakte tekst), WhatsApp-export (.txt), PDF, Word (.docx), HTML en
+screenshots/foto's (tekstherkenning in het Nederlands). Alles gebeurt lokaal in de browser.
+De bibliotheken hiervoor staan in `assets/vendor/` (zie de README daar).
+
+### Snelkoppeling / app
+De generator is installeerbaar als app (`documenten.webmanifest` + `sw.js`), werkt daarna ook
+offline en heeft snelkoppelingen voor *Nieuwe offerte* en *Nieuwe factuur*. Uitleg staat in de
+generator onder **Snelkoppeling / app**. Directe links: `documenten.html?type=offerte` of `?type=factuur`.
+
 Vul eenmalig je gegevens in onder **Mijn gegevens & tarieven** (adres, KvK, IBAN, btw).
 Alles wordt alleen in je eigen browser opgeslagen, dus gebruik steeds dezelfde browser
 en bewaar de PDF's zelf (bijv. in een map per jaar).

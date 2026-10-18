@@ -47,7 +47,7 @@
   }
 
   /* ================= Documentstatus ================= */
-  const VELDEN = ['nummer', 'datum', 'termijn', 'referentie', 'k-naam', 'k-bedrijf', 'k-adres', 'k-plaats', 'k-email',
+  const VELDEN = ['nummer', 'datum', 'termijn', 'referentie', 'k-naam', 'k-bedrijf', 'k-adres', 'k-plaats', 'k-email', 'k-tel',
     'f-datum', 'f-soort', 'f-van', 'f-tot', 'f-locatie', 'opmerking'];
   let type = 'offerte', extra = [];
 
@@ -170,7 +170,7 @@
     $('#d-meta').innerHTML = meta.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v) || '<span class="leeg">…</span>'}</dd>`).join('');
 
     // Klant + feest
-    const klant = [d['k-bedrijf'], d['k-bedrijf'] && d['k-naam'] ? 't.a.v. ' + d['k-naam'] : d['k-naam'], d['k-adres'], d['k-plaats'], d['k-email']].filter(Boolean);
+    const klant = [d['k-bedrijf'], d['k-bedrijf'] && d['k-naam'] ? 't.a.v. ' + d['k-naam'] : d['k-naam'], d['k-adres'], d['k-plaats'], d['k-email'], d['k-tel']].filter(Boolean);
     $('#d-klant').innerHTML = klant.length ? klant.map(esc).join('<br>') : '<span class="leeg">Gegevens klant</span>';
     $('#d-aan-label').textContent = factuur ? 'Factuur aan' : 'Voor';
     const feest = [
@@ -282,7 +282,89 @@
   $('.editor').addEventListener('input', e => { if (!e.target.closest('#extra') && !e.target.dataset.set) teken(); });
   $('.editor').addEventListener('change', e => { if (e.target.type === 'checkbox') teken(); });
 
+  /* ================= Slim invullen ================= */
+  const LABELS = {
+    'k-naam': 'Naam klant', 'k-bedrijf': 'Bedrijf', 'k-email': 'E-mail', 'k-tel': 'Telefoon', 'k-adres': 'Adres klant',
+    'k-plaats': 'Postcode & plaats', 'f-datum': 'Datum feest', 'f-van': 'Begintijd', 'f-tot': 'Eindtijd',
+    'f-soort': 'Soort feest', 'f-locatie': 'Locatie', 'opmerking': 'Opmerking'
+  };
+  const status = (tekst, fout) => { const el = $('#slim-status'); el.textContent = tekst; el.classList.toggle('is-fout', !!fout); };
+
+  function toonResultaat(velden) {
+    const keys = Object.keys(LABELS).filter(k => velden[k]);
+    if (!keys.length) { status('Ik kon geen bruikbare gegevens vinden. Probeer de tekst te plakken of vul het zelf in.', true); $('#slim-result').hidden = true; return; }
+    status(`${keys.length} ${keys.length === 1 ? 'gegeven' : 'gegevens'} gevonden. Controleer en neem over.`);
+    $('#slim-velden').innerHTML = keys.map(k => {
+      const { waarde, bron } = velden[k];
+      const type = k === 'f-datum' ? 'date' : (k === 'f-van' || k === 'f-tot') ? 'time' : 'text';
+      const huidig = $('#' + k).value;
+      const invoer = k === 'opmerking'
+        ? `<textarea data-k="${k}" rows="2">${esc(waarde)}</textarea>`
+        : `<input data-k="${k}" type="${type}" value="${esc(waarde)}">`;
+      return `<label class="slim__veld"><input type="checkbox" data-v="${k}" checked>
+        <span>${LABELS[k]}${huidig && huidig !== waarde && !['f-van', 'f-tot', 'f-soort'].includes(k) ? ' (vervangt "' + esc(huidig) + '")' : ''}</span>
+        ${invoer}${bron && bron !== waarde ? `<small>uit: "${esc(bron)}"</small>` : ''}</label>`;
+    }).join('');
+    $('#slim-result').hidden = false;
+  }
+
+  async function analyseerBron(leesTekst) {
+    $('#slim-result').hidden = true;
+    try {
+      const tekst = await leesTekst();
+      if (!tekst || !tekst.trim()) throw new Error('Er stond geen leesbare tekst in.');
+      status('Analyseren…');
+      toonResultaat(BeckAnalyse.analyseer(tekst, { eigen: [ins.email, ins.naam] }));
+    } catch (e) { status(e.message || 'Analyseren is mislukt.', true); }
+  }
+  const verwerkBestand = file => file && analyseerBron(() => BeckAnalyse.leesBestand(file, status));
+
+  $('#bestand').addEventListener('change', e => { verwerkBestand(e.target.files[0]); e.target.value = ''; });
+  const drop = $('#drop');
+  ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('is-over'); }));
+  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, () => drop.classList.remove('is-over')));
+  drop.addEventListener('drop', e => { e.preventDefault(); verwerkBestand(e.dataTransfer.files[0]); });
+  // Ook ergens in het paneel loslaten of een screenshot plakken (Ctrl/Cmd+V)
+  $('.editor').addEventListener('dragover', e => e.preventDefault());
+  $('.editor').addEventListener('drop', e => { if (!e.target.closest('#drop')) { e.preventDefault(); verwerkBestand(e.dataTransfer.files[0]); } });
+  document.addEventListener('paste', e => {
+    const f = [...(e.clipboardData?.files || [])][0];
+    if (f) { e.preventDefault(); verwerkBestand(f); }
+  });
+  $('#plak-go').addEventListener('click', () => analyseerBron(async () => $('#plak').value));
+
+  $('#slim-ok').addEventListener('click', () => {
+    $$('#slim-velden [data-v]').forEach(cb => {
+      if (!cb.checked) return;
+      const k = cb.dataset.v, w = $(`#slim-velden [data-k="${k}"]`).value;
+      if (k === 'opmerking' && $('#opmerking').value && !$('#opmerking').value.includes(w)) $('#opmerking').value += '\n' + w;
+      else if (k === 'f-soort') { const o = [...$('#f-soort').options].find(o => o.text === w); if (o) $('#f-soort').value = o.value; }
+      else $('#' + k).value = w;
+    });
+    $('#slim-result').hidden = true; $('#plak').value = '';
+    status('Overgenomen ✓');
+    teken();
+  });
+  $('#slim-weg').addEventListener('click', () => { $('#slim-result').hidden = true; status(''); });
+
+  /* ================= App / snelkoppeling ================= */
+  const losseApp = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  $('#app-al').hidden = !losseApp;
+  let installPrompt = null;
+  addEventListener('beforeinstallprompt', e => { e.preventDefault(); installPrompt = e; $('#installeer').hidden = false; });
+  $('#installeer').addEventListener('click', async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    await installPrompt.userChoice;
+    installPrompt = null; $('#installeer').hidden = true;
+  });
+  addEventListener('appinstalled', () => { $('#installeer').hidden = true; $('#app-al').hidden = false; });
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
   /* ================= Start ================= */
   tekenLijst();
-  nieuw('offerte');
+  const startType = new URLSearchParams(location.search).get('type');
+  nieuw(['offerte', 'factuur', 'annulering'].includes(startType) ? startType : 'offerte');
 })();
