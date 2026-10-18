@@ -305,7 +305,21 @@
     $('#opgeslagen').value = '';
     teken();
   });
-  $('#print').addEventListener('click', () => { bewaar(); teken(); window.print(); });
+  // Bestandsnaam van de PDF = paginatitel tijdens het printen, bijv. "Offerte O-2026-001 Jarno Klein"
+  function pdfNaam() {
+    const d = leesForm();
+    const soort = type === 'offerte' ? 'Offerte' : type === 'annulering' ? 'Factuur annulering' : 'Factuur';
+    const klant = (d['k-bedrijf'] || d['k-naam'] || '').trim();
+    return [soort, d.nummer, klant].filter(Boolean).join(' ').replace(/[\\/:*?"<>|#%&]+/g, '').replace(/\s+/g, ' ').slice(0, 80);
+  }
+  const titelOrigineel = document.title;
+  addEventListener('beforeprint', () => { document.title = pdfNaam(); });
+  addEventListener('afterprint', () => { document.title = titelOrigineel; });
+  $('#print').addEventListener('click', () => {
+    bewaar(); teken();
+    document.title = pdfNaam();
+    window.print(); // titel gaat terug via 'afterprint'
+  });
   $('#nieuw').addEventListener('click', () => nieuw());
   $('#wis').addEventListener('click', () => {
     const n = $('#nummer').value;
