@@ -1,4 +1,5 @@
-// Beck on the Rocks: interactie
+// Beck on the Rocks: interactie voor de homepage, de Engelse versie, de landingspagina's en het visitekaartje.
+// Elk onderdeel draait alleen als de bijbehorende HTML op de pagina staat.
 (() => {
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -88,7 +89,11 @@
     ? { klassiek: 'Classic', fris: 'Fresh & fruity', mocktail: 'Alcohol-free', creatie: 'Bespoke' }
     : { klassiek: 'Klassieker', fris: 'Fris & fruitig', mocktail: 'Alcoholvrij', creatie: 'Op maat' };
   // Soort feest blijft in het Nederlands opgeslagen (mail, generator, reviews); dit is alleen de weergave
-  const SOORT_EN = { Bruiloft: 'Wedding', Bedrijfsfeest: 'Corporate event', 'Privéfeest': 'Private party', Verjaardag: 'Birthday', Diner: 'Dinner', 'Horeca-inval': 'Bar cover', Anders: 'Other' };
+  const SOORT_EN = {
+    Verjaardag: 'Birthday', Tuinfeest: 'Garden party', Bruiloft: 'Wedding', Jubileum: 'Anniversary', 'Privéfeest': 'Private party', Diner: 'Dinner',
+    Bedrijfsborrel: 'Company drinks', Personeelsfeest: 'Staff party', 'Netwerkevenement of receptie': 'Networking event or reception',
+    Bedrijfsfeest: 'Corporate event', 'Horeca-inval': 'Bar cover', Anders: 'Other'
+  };
   const soortTekst = s => EN ? (SOORT_EN[s] || s) : s;
 
   // Tarieven (zelfde bedragen als op de prijzenpagina in index.html)
@@ -129,39 +134,28 @@
     }
   }
 
-  /* ================= Cocktailkaart ================= */
-  const grid = $('#cocktail-grid');
-  grid.innerHTML = COCKTAILS.map(c => `
-    <article class="card reveal" data-cat="${c.cat}">
-      <div class="card__visual" style="--c1:${c.c1};--c2:${c.c2}">
-        <span class="card__tag">${LABELS[c.cat]}</span>
-        ${glasSvg(c.glas)}
-      </div>
-      <div class="card__body">
-        <h3>${c.titel || c.naam}</h3>
-        <p>${c.tekst}</p>
-        <div class="card__ing">${c.ing.map(i => `<span>${i}</span>`).join('')}</div>
-      </div>
-    </article>`).join('');
-
-  $$('.filter').forEach(btn => btn.addEventListener('click', () => {
-    $$('.filter').forEach(b => { b.classList.toggle('is-active', b === btn); b.setAttribute('aria-selected', b === btn); });
-    const f = btn.dataset.filter;
-    $$('.card', grid).forEach(card => card.classList.toggle('is-hidden', f !== 'alle' && card.dataset.cat !== f));
-  }));
-
-  /* ================= Navigatie: één pagina tegelijk ================= */
-  const nav = $('.nav'), toggle = $('.nav__toggle'), menu = $('#menu'), fab = $('.fab');
-  const pages = $$('.page');
-  let huidige = null;
+  const MAIL = CONFIG.mail || 'rutger@beck.nl';
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const vandaagIso = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  const euro = n => '€ ' + n.toLocaleString(LOCALE, { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
+  const isSpoed = datum => {
+    if (!datum) return false;
+    const grens = new Date(); grens.setHours(0, 0, 0, 0); grens.setMonth(grens.getMonth() + 1);
+    return new Date(datum + 'T00:00') < grens;
+  };
+  const params = new URLSearchParams(location.search);
 
   /* ================= Statistieken (GoatCounter, zonder cookies) ================= */
   // Zet je GoatCounter-code in assets/js/config.js (goatcounter: 'beckontherocks'). Leeg = uit.
+  // ?ref=nfc of ?ref=qr in een link telt als bron, zo zie je hoeveel mensen via je NFC-tag of QR-code komen.
   const gcCode = (CONFIG.goatcounter || '').trim();
   const gcWacht = [];
+  let bron = params.get('ref') || '';
   function telBezoek(pad, titel, event = false) {
     if (!gcCode || location.hostname === 'localhost') return;
-    const stuur = () => window.goatcounter.count({ path: pad, title: titel, event });
+    const data = { path: pad, title: titel, event };
+    if (bron && !event) { data.referrer = bron; bron = ''; }
+    const stuur = () => window.goatcounter.count(data);
     if (window.goatcounter && window.goatcounter.count) stuur(); else gcWacht.push(stuur);
   }
   if (gcCode && location.hostname !== 'localhost') {
@@ -173,315 +167,389 @@
     document.head.append(sc);
   }
 
-  function route() {
-    const id = decodeURIComponent(location.hash.slice(1)) || 'home';
-    const doel = document.getElementById(id);
-    const page = (doel && doel.closest('.page')) || $('#home');
-    if (page !== huidige) {
-      pages.forEach(p => { p.hidden = p !== page; });
-      page.classList.remove('page--in'); void page.offsetWidth; page.classList.add('page--in');
-      huidige = page;
-      document.title = page.id === 'home' ? 'Beck on the Rocks · Freelance bartender'
-        : `${$(`#menu a[href="#${page.id}"]`)?.textContent || ''} · Beck on the Rocks`;
-      telBezoek(t('/', '/en/') + (page.id === 'home' ? '' : '#' + page.id), document.title);
-    }
-    // Taalknop: blijf op dezelfde pagina in de andere taal
-    $$('.taal').forEach(a => { a.href = a.dataset.basis + (page.id === 'home' ? '' : '#' + page.id); });
-    $$('#menu a').forEach(a => a.toggleAttribute('aria-current', a.getAttribute('href') === '#' + page.id));
-    nav.classList.toggle('is-solid', page.id !== 'home');
-    fab.classList.toggle('is-hidden', page.id === 'boeken');
-    if (doel && doel !== page) doel.scrollIntoView();
-    else scrollTo(0, 0);
-  }
-  addEventListener('hashchange', route);
-  route();
-
-  addEventListener('scroll', () => nav.classList.toggle('is-scrolled', scrollY > 40), { passive: true });
-
-  toggle.addEventListener('click', () => {
-    const open = toggle.getAttribute('aria-expanded') !== 'true';
-    toggle.setAttribute('aria-expanded', open);
-    toggle.setAttribute('aria-label', open ? t('Menu sluiten', 'Close menu') : t('Menu openen', 'Open menu'));
-    menu.classList.toggle('is-open', open);
-  });
-  $$('a', menu).forEach(a => a.addEventListener('click', () => {
+  /* ================= Menu ================= */
+  const nav = $('.nav'), toggle = $('.nav__toggle'), menu = $('#menu'), fab = $('.fab');
+  function sluitMenu() {
+    if (!toggle) return;
     toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-label', t('Menu openen', 'Open menu'));
     menu.classList.remove('is-open');
+  }
+  if (toggle && menu) {
+    toggle.addEventListener('click', () => {
+      const open = toggle.getAttribute('aria-expanded') !== 'true';
+      toggle.setAttribute('aria-expanded', open);
+      toggle.setAttribute('aria-label', open ? t('Menu sluiten', 'Close menu') : t('Menu openen', 'Open menu'));
+      menu.classList.toggle('is-open', open);
+    });
+    $$('a', menu).forEach(a => a.addEventListener('click', sluitMenu));
+    addEventListener('keydown', e => {
+      if (e.key === 'Escape' && menu.classList.contains('is-open')) { sluitMenu(); toggle.focus(); }
+    });
+  }
+  // "Naar de inhoud": focus op de inhoud zonder de #pagina te wisselen
+  $$('.skiplink').forEach(a => a.addEventListener('click', e => {
+    const doel = $('main'); if (!doel) return;
+    e.preventDefault(); doel.tabIndex = -1; doel.focus();
   }));
+  if (nav) addEventListener('scroll', () => nav.classList.toggle('is-scrolled', scrollY > 40), { passive: true });
 
-  /* ================= Scroll-animaties & tellers ================= */
-  const io = new IntersectionObserver(entries => entries.forEach(e => {
-    if (!e.isIntersecting) return;
-    e.target.classList.add('is-visible');
-    io.unobserve(e.target);
-  }), { threshold: .12, rootMargin: '0px 0px -40px 0px' });
-  $$('.reveal').forEach((el, i) => { el.style.transitionDelay = `${(i % 4) * 80}ms`; io.observe(el); });
-
-  const tel = el => {
-    const doel = +el.dataset.count, start = performance.now(), duur = 1600;
-    const stap = t => {
-      const p = Math.min(1, (t - start) / duur);
-      el.textContent = Math.round(doel * (1 - Math.pow(1 - p, 3)));
-      if (p < 1) requestAnimationFrame(stap);
+  /* ================= Homepage: één pagina tegelijk (via #hash) ================= */
+  const pages = $$('.page');
+  const basisTitel = document.title;
+  if (pages.length) {
+    let huidige = null;
+    const route = () => {
+      const id = decodeURIComponent(location.hash.slice(1)) || 'home';
+      const doel = document.getElementById(id);
+      const page = (doel && doel.closest('.page')) || $('#home');
+      if (page !== huidige) {
+        pages.forEach(p => { p.hidden = p !== page; });
+        page.classList.remove('page--in'); void page.offsetWidth; page.classList.add('page--in');
+        huidige = page;
+        document.title = page.id === 'home' ? basisTitel : `${page.dataset.titel || page.id} · Beck on the Rocks`;
+        telBezoek(t('/', '/en/') + (page.id === 'home' ? '' : '#' + page.id), document.title);
+      }
+      // Taalknop: blijf op dezelfde pagina in de andere taal
+      $$('.taal').forEach(a => { a.href = a.dataset.basis + (page.id === 'home' ? '' : '#' + page.id); });
+      $$('#menu a').forEach(a => {
+        if (a.getAttribute('href') === '#' + page.id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+      });
+      if (nav) nav.classList.toggle('is-solid', page.id !== 'home');
+      if (fab) fab.classList.toggle('is-hidden', page.id === 'boeken');
+      if (doel && doel !== page) doel.scrollIntoView();
+      else scrollTo(0, 0);
     };
-    requestAnimationFrame(stap);
-  };
-  const io2 = new IntersectionObserver(entries => entries.forEach(e => {
-    if (e.isIntersecting) { tel(e.target); io2.unobserve(e.target); }
-  }));
-  $$('[data-count]').forEach(el => io2.observe(el));
+    addEventListener('hashchange', route);
+    route();
+  } else {
+    // Losse pagina (landingspagina, visitekaartje): menu-item van deze pagina markeren
+    $$('#menu a').forEach(a => { const u = new URL(a.href); if (!u.hash && u.pathname === location.pathname) a.setAttribute('aria-current', 'page'); });
+    telBezoek(location.pathname, document.title);
+  }
+
+  /* ================= Scroll-animaties ================= */
+  // Zonder JavaScript of met "minder beweging" is alles meteen zichtbaar (zie .js .reveal in style.css)
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(entries => entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('is-visible');
+      io.unobserve(e.target);
+    }), { threshold: .12, rootMargin: '0px 0px -40px 0px' });
+    $$('.reveal').forEach((el, i) => { el.style.transitionDelay = `${(i % 4) * 80}ms`; io.observe(el); });
+  } else $$('.reveal').forEach(el => el.classList.add('is-visible'));
+
+  /* ================= Cocktailkaart ================= */
+  const grid = $('#cocktail-grid');
+  if (grid) {
+    grid.innerHTML = COCKTAILS.map(c => `
+      <article class="card reveal is-visible" data-cat="${c.cat}">
+        <div class="card__visual" style="--c1:${c.c1};--c2:${c.c2}" aria-hidden="true">
+          <span class="card__tag">${LABELS[c.cat]}</span>
+          ${glasSvg(c.glas)}
+        </div>
+        <div class="card__body">
+          <h3>${c.titel || c.naam}</h3>
+          <p>${c.tekst}</p>
+          <ul class="card__ing" aria-label="${t('Ingrediënten', 'Ingredients')}">${c.ing.map(i => `<li>${i}</li>`).join('')}</ul>
+        </div>
+      </article>`).join('');
+    $$('.filter').forEach(btn => btn.addEventListener('click', () => {
+      $$('.filter').forEach(b => { b.classList.toggle('is-active', b === btn); b.setAttribute('aria-pressed', b === btn); });
+      const f = btn.dataset.filter;
+      $$('.card', grid).forEach(card => { card.hidden = f !== 'alle' && card.dataset.cat !== f; });
+    }));
+  }
+
+  /* ================= Formulieren: controle met duidelijke meldingen ================= */
+  // Elk verplicht veld krijgt bij een fout een melding eronder (data-fout bepaalt de tekst).
+  // Ingevulde gegevens blijven altijd staan.
+  function zetFout(el, tekst) {
+    if (!el.id) el.id = `${el.form ? el.form.id : 'veld'}-${el.name}`;
+    let melding = document.getElementById(el.id + '-fout');
+    if (tekst && !melding) {
+      melding = document.createElement('span');
+      melding.className = 'veldfout'; melding.id = el.id + '-fout';
+      (el.type === 'checkbox' ? el.closest('label') : el).insertAdjacentElement(el.type === 'checkbox' ? 'beforeend' : 'afterend', melding);
+      el.setAttribute('aria-describedby', melding.id);
+    }
+    if (melding) melding.textContent = tekst;
+    el.classList.toggle('is-invalid', !!tekst);
+    if (tekst) el.setAttribute('aria-invalid', 'true'); else el.removeAttribute('aria-invalid');
+  }
+  const isGeldig = el => el.type === 'checkbox' ? el.checked : el.checkValidity() && el.value.trim() !== '';
+  const foutTekst = el => el.dataset.fout || t('Dit veld is verplicht.', 'This field is required.');
+  function valideer(form) {
+    let eerste = null;
+    $$('[required]', form).forEach(el => {
+      const ok = isGeldig(el);
+      zetFout(el, ok ? '' : foutTekst(el));
+      if (!ok && !eerste) eerste = el;
+    });
+    if (eerste) eerste.focus();
+    return !eerste;
+  }
+  function liveControle(form) {
+    const check = e => { const el = e.target; if (el.classList && el.classList.contains('is-invalid')) zetFout(el, isGeldig(el) ? '' : foutTekst(el)); };
+    form.addEventListener('input', check);
+    form.addEventListener('change', check);
+  }
+  async function verstuur(json) {
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ access_key: WEB3FORMS_SLEUTEL, botcheck: false, ...json })
+    });
+    const antwoord = await res.json().catch(() => ({}));
+    if (!res.ok || antwoord.success === false) throw new Error(antwoord.message || 'Versturen mislukt');
+  }
 
   /* ================= Prijscalculator ================= */
-  const euro = n => '€ ' + n.toLocaleString(LOCALE, { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
-  const isSpoed = datum => {
-    if (!datum) return false;
-    const grens = new Date(); grens.setHours(0, 0, 0, 0); grens.setMonth(grens.getMonth() + 1);
-    return new Date(datum + 'T00:00') < grens;
-  };
-  const vandaag = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-  const cU = $('#c-uren'), cD = $('#c-datum');
-  cD.min = vandaag;
-  $('#boek-form [name=datum]').min = vandaag;
+  const boekForm = $('#boek-form');
+  const cU = $('#c-uren');
+  if (cU) {
+    const cD = $('#c-datum'), cC = $('#c-cocktails'), cF = $('#c-fruitpers'), cK = $('#c-km'), cG = $('#c-glazen');
+    cD.min = vandaagIso();
+    const bereken = () => {
+      const uren = +cU.value, spoed = isSpoed(cD.value), fp = cF.checked;
+      const uurprijs = TARIEF.uur * (fp ? 1 + TARIEF.fruitpers : 1);
+      const km = Math.max(0, +cK.value || 0), glazen = Math.max(0, +cG.value || 0);
+      $('#c-uren-out').textContent = uren;
+      const regels = [
+        [t(`${uren} uur achter de bar × ${euro(uurprijs)}`, `${uren} ${uren === 1 ? 'hour' : 'hours'} behind the bar × ${euro(uurprijs)}`), uren * uurprijs],
+        [t(`Voorbereiding (${TARIEF.voorbereiding} uur, altijd)`, `Preparation (${TARIEF.voorbereiding} hour, always)`), TARIEF.voorbereiding * uurprijs],
+        [t(`Cocktailmenu (${cC.value} ${+cC.value === 1 ? 'cocktail' : 'cocktails'}) & materialen, vanaf`,
+          `Cocktail menu (${cC.value} ${+cC.value === 1 ? 'cocktail' : 'cocktails'}) & equipment, from`), fp ? TARIEF.menuFruitpers : TARIEF.menu]
+      ];
+      if (km) regels.push([t(`Reiskosten ${km} km × ${euro(TARIEF.km)}`, `Travel ${km} km × ${euro(TARIEF.km)}`), km * TARIEF.km]);
+      if (glazen) regels.push([t(`${glazen} glazen × ${euro(TARIEF.glas)}`, `${glazen} glasses × ${euro(TARIEF.glas)}`), glazen * TARIEF.glas]);
+      const basis = regels.reduce((s, r) => s + r[1], 0);
+      if (spoed) regels.push([t(`Spoedtoeslag (+${TARIEF.spoed * 100}%)`, `Short-notice surcharge (+${TARIEF.spoed * 100}%)`), basis * TARIEF.spoed, true]);
+      const totaal = regels.reduce((s, r) => s + r[1], 0);
+      $('#c-lines').innerHTML = regels.map(([l, b, isSpoedRegel]) => `<li${isSpoedRegel ? ' class="is-spoed"' : ''}><span>${l}</span><b>${euro(b)}</b></li>`).join('');
+      $('#c-totaal').textContent = euro(totaal);
+      $('#c-detail').textContent = (spoed
+        ? t('Spoedboeking: je feest is binnen een maand.', 'Short-notice booking: your party is within a month.')
+        : cD.value ? t('Normaal tarief: meer dan een maand vooruit geboekt.', 'Standard rate: booked more than a month ahead.')
+          : t('Vul een datum in om te zien of er spoedtoeslag geldt.', 'Enter a date to see whether a short-notice surcharge applies.'))
+        + (km ? '' : t(' Reiskosten (€0,25 per km) komen er nog bij.', ' Travel costs (€0.25 per km) are added on top.'));
+    };
+    [cU, cD, cC, cF, cK, cG].forEach(el => { el.addEventListener('input', bereken); el.addEventListener('change', bereken); });
+    bereken();
 
-  const cC = $('#c-cocktails'), cF = $('#c-fruitpers'), cK = $('#c-km'), cG = $('#c-glazen');
-  function bereken() {
-    const uren = +cU.value, spoed = isSpoed(cD.value), fp = cF.checked;
-    const uurprijs = TARIEF.uur * (fp ? 1 + TARIEF.fruitpers : 1);
-    const km = Math.max(0, +cK.value || 0), glazen = Math.max(0, +cG.value || 0);
-    $('#c-uren-out').textContent = uren;
-    const regels = [
-      [t(`${uren} uur bartender × ${euro(uurprijs)}`, `${uren} ${uren === 1 ? 'hour' : 'hours'} bartender × ${euro(uurprijs)}`), uren * uurprijs],
-      [t(`Voorbereiding (${TARIEF.voorbereiding} uur)`, `Preparation (${TARIEF.voorbereiding} hour)`), TARIEF.voorbereiding * uurprijs],
-      [t(`Cocktailmenu (${cC.value} ${+cC.value === 1 ? 'cocktail' : 'cocktails'}) & materialen, vanaf`,
-        `Cocktail menu (${cC.value} ${+cC.value === 1 ? 'cocktail' : 'cocktails'}) & equipment, from`), fp ? TARIEF.menuFruitpers : TARIEF.menu]
-    ];
-    if (km) regels.push([t(`Reiskosten ${km} km × ${euro(TARIEF.km)}`, `Travel ${km} km × ${euro(TARIEF.km)}`), km * TARIEF.km]);
-    if (glazen) regels.push([t(`${glazen} glazen × ${euro(TARIEF.glas)}`, `${glazen} glasses × ${euro(TARIEF.glas)}`), glazen * TARIEF.glas]);
-    const basis = regels.reduce((s, r) => s + r[1], 0);
-    if (spoed) regels.push([t(`Spoedtoeslag (+${TARIEF.spoed * 100}%)`, `Short-notice surcharge (+${TARIEF.spoed * 100}%)`), basis * TARIEF.spoed, true]);
-    const totaal = regels.reduce((s, r) => s + r[1], 0);
-    $('#c-lines').innerHTML = regels.map(([l, b, isSpoedRegel]) => `<li${isSpoedRegel ? ' class="is-spoed"' : ''}><span>${l}</span><b>${euro(b)}</b></li>`).join('');
-    $('#c-totaal').textContent = euro(totaal);
-    $('#c-detail').textContent = (spoed
-      ? t('Spoedboeking: je feest is binnen een maand.', 'Short-notice booking: your party is within a month.')
-      : cD.value ? t('Normaal tarief: meer dan een maand vooruit geboekt.', 'Standard rate: booked more than a month ahead.')
-        : t('Vul een datum in om te zien of er spoedtoeslag geldt.', 'Enter a date to see whether a short-notice surcharge applies.'))
-      + (km ? '' : t(' Reiskosten: €0,25 per km.', ' Travel costs: €0.25 per km.'));
+    // "Vraag dit aan": neem de berekening mee naar het aanvraagformulier
+    $('#c-cta').addEventListener('click', () => {
+      if (!boekForm) return;
+      const f = boekForm.elements;
+      f.uren.value = cU.value;
+      f.cocktails.value = cC.value;
+      f.fruitpers.checked = cF.checked;
+      f.glazen.checked = +cG.value > 0;
+      if (cD.value) f.datum.value = cD.value;
+      f.datum.dispatchEvent(new Event('input'));
+      const meer = $('.form__meer', boekForm); if (meer) meer.open = true;
+    });
   }
-  [cU, cD, cC, cF, cK, cG].forEach(el => el.addEventListener('input', bereken));
-  cF.addEventListener('change', bereken);
-  bereken();
-
-  $('#c-cta').addEventListener('click', () => {
-    const f = $('#boek-form');
-    f.elements.uren.value = cU.value;
-    f.elements.cocktails.value = cC.value;
-    f.elements.fruitpers.checked = cF.checked;
-    f.elements.glazen.checked = +cG.value > 0;
-    if (cD.value) f.elements.datum.value = cD.value;
-    f.elements.datum.dispatchEvent(new Event('input'));
-  });
 
   /* ================= Reviews ================= */
-  const zetLink = (id, url) => { const a = $(id); if (url) { a.href = url; a.hidden = false; } };
-  zetLink('#google-review', GOOGLE_REVIEW_SCHRIJVEN);
-  zetLink('#google-profiel', GOOGLE_REVIEWS_BEKIJKEN);
-  const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const sterren = n => '★'.repeat(n) + '☆'.repeat(5 - n);
-  const maandJaar = d => { const x = new Date(d + 'T00:00'); return isNaN(x) ? '' : x.toLocaleDateString(LOCALE, { month: 'long', year: 'numeric' }); };
+  const reviewLijst = $('#reviews-lijst');
+  if (reviewLijst) {
+    const zetLink = (id, url) => { const a = $(id); if (a && url) { a.href = url; a.hidden = false; } };
+    zetLink('#google-review', GOOGLE_REVIEW_SCHRIJVEN);
+    zetLink('#google-profiel', GOOGLE_REVIEWS_BEKIJKEN);
+    const sterren = n => '★'.repeat(n) + '☆'.repeat(5 - n);
+    const maandJaar = d => { const x = new Date(d + 'T00:00'); return isNaN(x) ? '' : x.toLocaleDateString(LOCALE, { month: 'long', year: 'numeric' }); };
 
-  // Lijst met goedgekeurde reviews ophalen: 1 verzoek voor de map, daarna de bestanden zelf
-  async function laadReviews() {
-    let reviews = null;
-    try { const c = JSON.parse(sessionStorage.getItem('beck-reviews')); if (c && Date.now() - c.t < 5 * 60e3) reviews = c.r; } catch { /* geen cache */ }
-    if (!reviews) {
-      const res = await fetch(`https://api.github.com/repos/${REVIEWS_REPO}/contents/${REVIEWS_MAP}?ref=main`, { headers: { Accept: 'application/vnd.github+json' } });
-      if (!res.ok) return;
-      const bestanden = (await res.json()).filter(f => f.type === 'file' && f.name.endsWith('.json'));
-      reviews = (await Promise.all(bestanden.map(f => fetch(f.download_url).then(r => r.ok ? r.json() : null).catch(() => null))))
-        .filter(r => r && r.tekst && r.naam);
-      try { sessionStorage.setItem('beck-reviews', JSON.stringify({ t: Date.now(), r: reviews })); } catch { /* privémodus */ }
-    }
-    toonReviews(reviews);
+    // Lijst met goedgekeurde reviews ophalen: 1 verzoek voor de map, daarna de bestanden zelf
+    const laadReviews = async () => {
+      let reviews = null;
+      try { const c = JSON.parse(sessionStorage.getItem('beck-reviews')); if (c && Date.now() - c.t < 5 * 60e3) reviews = c.r; } catch { /* geen cache */ }
+      if (!reviews) {
+        const res = await fetch(`https://api.github.com/repos/${REVIEWS_REPO}/contents/${REVIEWS_MAP}?ref=main`, { headers: { Accept: 'application/vnd.github+json' } });
+        if (!res.ok) return;
+        const bestanden = (await res.json()).filter(f => f.type === 'file' && f.name.endsWith('.json'));
+        reviews = (await Promise.all(bestanden.map(f => fetch(f.download_url).then(r => r.ok ? r.json() : null).catch(() => null))))
+          .filter(r => r && r.tekst && r.naam);
+        try { sessionStorage.setItem('beck-reviews', JSON.stringify({ t: Date.now(), r: reviews })); } catch { /* privémodus */ }
+      }
+      toonReviews(reviews);
+    };
+    const toonReviews = reviews => {
+      if (!reviews.length) return;
+      reviews.sort((a, b) => String(b.datum).localeCompare(String(a.datum)));
+      reviewLijst.innerHTML = reviews.map(r => {
+        const n = Math.min(5, Math.max(1, Math.round(+r.sterren) || 5));
+        return `<blockquote class="review">
+          <div class="stars" role="img" aria-label="${t(`${n} van 5 sterren`, `${n} out of 5 stars`)}">${sterren(n)}</div>
+          <p>${esc(r.tekst)}</p>
+          <footer><strong>${esc(r.naam)}</strong><span>${esc(soortTekst(r.soort || ''))}${r.datum ? ' · ' + esc(maandJaar(r.datum)) : ''}</span></footer>
+        </blockquote>`;
+      }).join('');
+      reviewLijst.hidden = false;
+      const gem = reviews.reduce((s, r) => s + (Math.min(5, Math.max(1, +r.sterren || 5))), 0) / reviews.length;
+      const score = $('#review-score');
+      score.innerHTML = `<strong>${gem.toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</strong>
+        <div><div class="stars" aria-hidden="true">${sterren(Math.round(gem))}</div><span>${t('Gemiddeld uit', 'Average of')} ${reviews.length} ${reviews.length === 1 ? 'review' : 'reviews'}</span></div>`;
+      score.hidden = false;
+      $('#review-intro').textContent = t('Ik hoor graag hoe jij het vond. Je review helpt anderen kiezen.', 'I would love to hear what you thought. Your review helps others choose.');
+    };
+    laadReviews().catch(() => { /* geen verbinding met GitHub: alleen de oproep tonen */ });
   }
-  function toonReviews(reviews) {
-    const lijst = $('#reviews-lijst');
-    if (!reviews.length) return;
-    reviews.sort((a, b) => String(b.datum).localeCompare(String(a.datum)));
-    lijst.innerHTML = reviews.map(r => {
-      const n = Math.min(5, Math.max(1, Math.round(+r.sterren) || 5));
-      return `<blockquote class="review">
-        <div class="stars" aria-label="${t(`${n} van 5 sterren`, `${n} out of 5 stars`)}">${sterren(n)}</div>
-        <p>${esc(r.tekst)}</p>
-        <footer><strong>${esc(r.naam)}</strong><span>${esc(soortTekst(r.soort || ''))}${r.datum ? ' · ' + esc(maandJaar(r.datum)) : ''}</span></footer>
-      </blockquote>`;
-    }).join('');
-    lijst.hidden = false;
-    const gem = reviews.reduce((t, r) => t + (Math.min(5, Math.max(1, +r.sterren || 5))), 0) / reviews.length;
-    const score = $('#review-score');
-    score.innerHTML = `<strong>${gem.toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</strong>
-      <div><div class="stars">${sterren(Math.round(gem))}</div><span>${t('Gemiddeld uit', 'Average of')} ${reviews.length} ${reviews.length === 1 ? 'review' : 'reviews'}</span></div>`;
-    score.hidden = false;
-    $('#review-intro').textContent = t('Ik hoor graag hoe jij het vond. Je review helpt anderen kiezen.', 'I would love to hear what you thought. Your review helps others choose.');
-  }
-  laadReviews().catch(() => { /* geen verbinding met GitHub: alleen de oproep tonen */ });
 
   // Review schrijven
-  $('#review-schrijf').addEventListener('click', () => {
-    $('#review-form').hidden = false; $('#review-knoppen').hidden = true;
-    $('#review-form [name=naam]').focus();
-  });
-  const slug = t => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'review';
-  $('#review-form').addEventListener('submit', async e => {
-    e.preventDefault();
-    const form = e.target, note = $('#review-note');
-    let ok = true;
-    $$('[required]', form).forEach(el => {
-      const geldig = el.type === 'checkbox' ? el.checked : el.checkValidity() && el.value.trim() !== '';
-      el.classList.toggle('is-invalid', !geldig);
-      if (!geldig) ok = false;
+  const reviewForm = $('#review-form');
+  if (reviewForm) {
+    liveControle(reviewForm);
+    $('#review-schrijf').addEventListener('click', () => {
+      reviewForm.hidden = false; $('#review-knoppen').hidden = true;
+      $('[name=naam]', reviewForm).focus();
     });
-    note.classList.remove('is-fout');
-    if (!ok) { note.textContent = t('Vul je naam en review in (minstens 10 tekens) en geef toestemming om hem te plaatsen.', 'Please fill in your name and review (at least 10 characters) and give permission to publish it.'); note.classList.add('is-fout'); return; }
-    const d = Object.fromEntries(new FormData(form));
-    if (d.botcheck) return;
+    const slug = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'review';
+    reviewForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const note = $('#review-note');
+      note.classList.remove('is-fout');
+      if (!valideer(reviewForm)) { note.textContent = t('Controleer de gemarkeerde velden.', 'Please check the highlighted fields.'); note.classList.add('is-fout'); return; }
+      const d = Object.fromEntries(new FormData(reviewForm));
+      if (d.botcheck) return;
 
-    const vandaagIso = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-    const review = { naam: d.naam.trim(), sterren: +d.sterren, soort: d.soort, tekst: d.tekst.trim(), datum: vandaagIso };
-    const pad = `${REVIEWS_MAP}/${vandaagIso}-${slug(review.naam)}-${Math.random().toString(36).slice(2, 6)}.json`;
-    const goedkeuren = `https://github.com/${REVIEWS_REPO}/new/main?filename=${encodeURIComponent(pad)}`
-      + `&value=${encodeURIComponent(JSON.stringify(review, null, 2) + '\n')}`
-      + `&message=${encodeURIComponent('Review van ' + review.naam + ' goedgekeurd')}`;
-    const velden = {
-      'Naam': review.naam, 'Sterren': `${sterren(review.sterren)} (${review.sterren}/5)`, 'Soort feest': review.soort,
-      'Review': review.tekst, 'E-mail reviewer': d.email || '-', ...(EN ? { 'Taal': 'Engels' } : {}),
-      'GOEDKEUREN (publiceren op de site)': goedkeuren,
-      'Afwijzen': 'Doe niets: de review verschijnt dan niet.'
-    };
-    const onderwerp = `Nieuwe review van ${review.naam} (${review.sterren}/5)`;
-    const knop = $('#review-knop');
-    if (!WEB3FORMS_SLEUTEL) {
-      location.href = `mailto:${MAIL}?subject=${encodeURIComponent(onderwerp)}&body=${encodeURIComponent(Object.entries(velden).map(([k, v]) => `${k}: ${v}`).join('\n'))}`;
-      return;
-    }
-    knop.disabled = true; knop.textContent = t('Versturen…', 'Sending…');
-    try {
-      const res = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ access_key: WEB3FORMS_SLEUTEL, subject: onderwerp, from_name: 'Beck on the Rocks · reviews', ...(d.email ? { replyto: d.email } : {}), botcheck: false, ...velden })
-      });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok || json.success === false) throw new Error(json.message || 'Versturen mislukt');
-      form.hidden = true; form.reset();
-      telBezoek('review-verstuurd', 'Review verstuurd', true);
-      const klaar = $('#review-klaar'); klaar.hidden = false; klaar.focus();
-    } catch {
-      note.textContent = t('Het versturen is niet gelukt. Probeer het later nog eens, of mail je review naar rutger@beck.nl.', 'Sending failed. Please try again later, or email your review to rutger@beck.nl.');
-      note.classList.add('is-fout');
-    } finally {
-      knop.disabled = false; knop.textContent = t('Verstuur review', 'Send review');
-    }
-  });
+      const datum = vandaagIso();
+      const review = { naam: d.naam.trim(), sterren: +d.sterren, soort: d.soort, tekst: d.tekst.trim(), datum };
+      const pad = `${REVIEWS_MAP}/${datum}-${slug(review.naam)}-${Math.random().toString(36).slice(2, 6)}.json`;
+      const goedkeuren = `https://github.com/${REVIEWS_REPO}/new/main?filename=${encodeURIComponent(pad)}`
+        + `&value=${encodeURIComponent(JSON.stringify(review, null, 2) + '\n')}`
+        + `&message=${encodeURIComponent('Review van ' + review.naam + ' goedgekeurd')}`;
+      const velden = {
+        'Naam': review.naam, 'Sterren': `${'★'.repeat(review.sterren)} (${review.sterren}/5)`, 'Soort feest': review.soort,
+        'Review': review.tekst, 'E-mail reviewer': d.email || '-', ...(EN ? { 'Taal': 'Engels' } : {}),
+        'GOEDKEUREN (publiceren op de site)': goedkeuren,
+        'Afwijzen': 'Doe niets: de review verschijnt dan niet.'
+      };
+      const onderwerp = `Nieuwe review van ${review.naam} (${review.sterren}/5)`;
+      if (!WEB3FORMS_SLEUTEL) {
+        location.href = `mailto:${MAIL}?subject=${encodeURIComponent(onderwerp)}&body=${encodeURIComponent(Object.entries(velden).map(([k, v]) => `${k}: ${v}`).join('\n'))}`;
+        return;
+      }
+      const knop = $('#review-knop');
+      knop.disabled = true; knop.textContent = t('Versturen…', 'Sending…');
+      try {
+        await verstuur({ subject: onderwerp, from_name: 'Beck on the Rocks · reviews', ...(d.email ? { replyto: d.email } : {}), ...velden });
+        reviewForm.hidden = true; reviewForm.reset();
+        telBezoek('review-verstuurd', 'Review verstuurd', true);
+        const klaar = $('#review-klaar'); klaar.hidden = false; klaar.focus();
+      } catch {
+        note.textContent = t(`Het versturen is niet gelukt. Probeer het later nog eens, of mail je review naar ${MAIL}.`, `Sending failed. Please try again later, or email your review to ${MAIL}.`);
+        note.classList.add('is-fout');
+      } finally {
+        knop.disabled = false; knop.textContent = t('Verstuur review', 'Send review');
+      }
+    });
+  }
 
   /* ================= Quiz ================= */
-  const UITSLAG = {
-    'zoet-ja': 'Pornstar Martini', 'zuur-ja': 'Daiquiri', 'bitter-ja': 'Negroni',
-    'zoet-nee': 'Virgin Colada', 'zuur-nee': 'Virgin Mojito', 'bitter-nee': 'Virgin Mule'
-  };
-  const SFEER = EN
-    ? { strand: 'With your toes in the sand:', lounge: 'Sunk deep into a jazz lounge:', feest: 'Between two dances:' }
-    : { strand: 'Met je tenen in het zand,', lounge: 'Lekker weggezakt bij de jazz,', feest: 'Tussen twee dansjes door,' };
-  $('#quiz-form').addEventListener('submit', e => {
-    e.preventDefault();
-    const f = new FormData(e.target);
-    let naam = UITSLAG[`${f.get('q1')}-${f.get('q3')}`];
-    if (f.get('q2') === 'lounge' && f.get('q3') === 'ja' && f.get('q1') !== 'zuur') naam = 'Old Fashioned';
-    if (f.get('q2') === 'strand' && f.get('q3') === 'ja' && f.get('q1') === 'zoet') naam = 'Piña Colada';
-    const c = COCKTAILS.find(x => x.naam === naam);
-    const res = $('#quiz-result');
-    res.innerHTML = `<p class="eyebrow">${t('Jouw match', 'Your match')}</p><h3>${c.titel || c.naam}</h3><p>${SFEER[f.get('q2')]} ${c.tekst.charAt(0).toLowerCase() + c.tekst.slice(1)}</p>`;
-    res.hidden = false;
-  });
-
-  /* ================= Boekingsformulier ================= */
-  // Aanvragen gaan via Web3Forms (zie WEB3FORMS_SLEUTEL bovenaan) direct naar je mail.
-  const MAIL = CONFIG.mail || 'rutger@beck.nl';
-  const fDatum = $('#boek-form [name=datum]');
-  fDatum.addEventListener('input', () => { $('#form-spoed').hidden = !isSpoed(fDatum.value); });
-  $('#boek-form').addEventListener('submit', async e => {
-    e.preventDefault();
-    const form = e.target;
-    let ok = true;
-    $$('[required]', form).forEach(el => {
-      const geldig = el.checkValidity() && el.value.trim() !== '';
-      el.classList.toggle('is-invalid', !geldig);
-      if (!geldig) ok = false;
+  const quiz = $('#quiz-form');
+  if (quiz) {
+    const UITSLAG = {
+      'zoet-ja': 'Pornstar Martini', 'zuur-ja': 'Daiquiri', 'bitter-ja': 'Negroni',
+      'zoet-nee': 'Virgin Colada', 'zuur-nee': 'Virgin Mojito', 'bitter-nee': 'Virgin Mule'
+    };
+    const SFEER = EN
+      ? { strand: 'With your toes in the sand:', lounge: 'Sunk deep into a jazz lounge:', feest: 'Between two dances:' }
+      : { strand: 'Met je tenen in het zand,', lounge: 'Lekker weggezakt bij de jazz,', feest: 'Tussen twee dansjes door,' };
+    quiz.addEventListener('submit', e => {
+      e.preventDefault();
+      const f = new FormData(quiz);
+      const res = $('#quiz-result');
+      if (!f.get('q1') || !f.get('q2') || !f.get('q3')) {
+        res.innerHTML = `<p>${t('Beantwoord eerst alle drie de vragen.', 'Please answer all three questions first.')}</p>`;
+        res.hidden = false; return;
+      }
+      let naam = UITSLAG[`${f.get('q1')}-${f.get('q3')}`];
+      if (f.get('q2') === 'lounge' && f.get('q3') === 'ja' && f.get('q1') !== 'zuur') naam = 'Old Fashioned';
+      if (f.get('q2') === 'strand' && f.get('q3') === 'ja' && f.get('q1') === 'zoet') naam = 'Piña Colada';
+      const c = COCKTAILS.find(x => x.naam === naam);
+      res.innerHTML = `<p class="eyebrow">${t('Jouw match', 'Your match')}</p><h3>${c.titel || c.naam}</h3><p>${SFEER[f.get('q2')]} ${c.tekst.charAt(0).toLowerCase() + c.tekst.slice(1)}</p>`
+        + `<a class="btn btn--small" href="#boeken">${t('Zet hem op jouw kaart', 'Put it on your menu')}</a>`;
+      res.hidden = false;
     });
-    const note = $('#form-note');
-    note.classList.remove('is-fout');
-    if (!ok) { note.textContent = t('Vul je naam, een geldig e-mailadres en de datum in.', 'Please fill in your name, a valid email address and the date.'); note.classList.add('is-fout'); return; }
-    const d = Object.fromEntries(new FormData(form));
-    if (d.botcheck) return; // spambot
-
-    // Velden met duidelijke namen: zo staan ze ook zo in je mail (en leest de generator ze in)
-    const velden = {
-      'Naam': d.naam, 'E-mail': d.email, 'Telefoon klant': d.telefoon || '-', 'Datum': d.datum, 'Aantal uur': d.uren || '-',
-      'Gasten': d.gasten || '-', 'Soort feest': d.soort, 'Locatie': d.locatie || '-',
-      'Cocktails op de kaart': d.cocktails, 'Fruitpers': d.fruitpers ? 'ja' : 'nee', 'Glazen via Rutger': d.glazen ? 'ja' : 'nee',
-      'Spoedboeking': isSpoed(d.datum) ? 'ja (binnen 1 maand)' : 'nee', 'Bericht': d.bericht || '-',
-      ...(EN ? { 'Taal': 'Engels (antwoord in het Engels)' } : {})
-    };
-    const onderwerp = `Aanvraag ${d.soort} op ${d.datum}`;
-    const naarMail = () => {
-      const body = Object.entries(velden).map(([k, v]) => `${k}: ${v}`).join('\n');
-      location.href = `mailto:${MAIL}?subject=${encodeURIComponent(onderwerp)}&body=${encodeURIComponent(body)}`;
-    };
-    if (!WEB3FORMS_SLEUTEL) { naarMail(); note.textContent = t('Dank je! Je mailprogramma opent nu met je aanvraag.', 'Thank you! Your email app will now open with your request.'); return; }
-
-    const knop = $('#form-knop');
-    knop.disabled = true; knop.textContent = t('Versturen…', 'Sending…');
-    try {
-      const res = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          access_key: WEB3FORMS_SLEUTEL, subject: onderwerp, from_name: 'Beck on the Rocks · website',
-          replyto: d.email, botcheck: false, ...velden
-        })
-      });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok || json.success === false) throw new Error(json.message || 'Versturen mislukt');
-      toonBedankt(velden);
-      telBezoek('aanvraag-verstuurd', 'Boekingsaanvraag verstuurd', true);
-      form.reset();
-      $('#form-spoed').hidden = true;
-    } catch (err) {
-      note.innerHTML = t('Het versturen is niet gelukt. Probeer het nog eens, of <a href="#" id="form-mail">verstuur je aanvraag via je mail</a>.',
-        'Sending failed. Please try again, or <a href="#" id="form-mail">send your request by email</a>.');
-      note.classList.add('is-fout');
-      $('#form-mail').addEventListener('click', ev => { ev.preventDefault(); naarMail(); });
-    } finally {
-      knop.disabled = false; knop.textContent = t('Verstuur aanvraag', 'Send request');
-    }
-  });
-
-  function toonBedankt(velden) {
-    const toon = ['Datum', 'Soort feest', 'Aantal uur', 'Gasten', 'Locatie', 'Cocktails op de kaart'];
-    const KOP_EN = { Datum: 'Date', 'Soort feest': 'Type of event', 'Aantal uur': 'Hours', Gasten: 'Guests', Locatie: 'Location', 'Cocktails op de kaart': 'Cocktails on the menu' };
-    const waarde = k => k === 'Datum' ? new Date(velden[k] + 'T00:00').toLocaleDateString(LOCALE, { day: 'numeric', month: 'long', year: 'numeric' })
-      : k === 'Soort feest' ? soortTekst(velden[k]) : velden[k];
-    $('#form-samenvatting').innerHTML = toon.filter(k => velden[k] && velden[k] !== '-')
-      .map(k => `<li><span>${EN ? KOP_EN[k] : k}</span><b>${String(waarde(k)).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))}</b></li>`).join('');
-    $('#boek-form').hidden = true;
-    const klaar = $('#form-klaar');
-    klaar.hidden = false; klaar.focus();
-    klaar.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
-  $('#form-opnieuw').addEventListener('click', () => {
-    $('#form-klaar').hidden = true; $('#boek-form').hidden = false;
-    $('#form-note').textContent = t('Je kunt ook mailen naar rutger@beck.nl, bellen of appen naar 06 39 65 86 62.', 'You can also email rutger@beck.nl, or call or WhatsApp +31 6 39 65 86 62.');
-  });
 
-  $('#jaar').textContent = new Date().getFullYear();
+  /* ================= Aanvraagformulier ================= */
+  // Aanvragen gaan via Web3Forms (sleutel in assets/js/config.js) direct naar je mail.
+  // De veldnamen in de mail blijven Nederlands: zo leest de generator ze in.
+  if (boekForm) {
+    liveControle(boekForm);
+    const fDatum = boekForm.elements.datum;
+    fDatum.min = vandaagIso();
+    fDatum.addEventListener('input', () => { $('#form-spoed').hidden = !isSpoed(fDatum.value); });
+    // Vanaf een landingspagina: /?soort=Bedrijfsborrel#boeken vult het type feest alvast in
+    const soort = params.get('soort');
+    if (soort && [...boekForm.elements.soort.options].some(o => o.value === soort)) boekForm.elements.soort.value = soort;
+
+    const note = $('#form-note'), noteTekst = note.textContent;
+    boekForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      note.classList.remove('is-fout');
+      if (!valideer(boekForm)) {
+        note.textContent = t('Controleer de gemarkeerde velden. Wat je al hebt ingevuld blijft staan.', 'Please check the highlighted fields. Everything you entered is kept.');
+        note.classList.add('is-fout');
+        return;
+      }
+      const d = Object.fromEntries(new FormData(boekForm));
+      if (d.botcheck) return; // spambot
+
+      const velden = {
+        'Naam': d.naam.trim(), 'E-mail': d.email.trim(), 'Telefoon klant': d.telefoon || '-', 'Datum': d.datum, 'Aantal uur': d.uren || '-',
+        'Gasten': d.gasten || '-', 'Soort feest': d.soort, 'Locatie': d.locatie || '-',
+        'Cocktails op de kaart': d.cocktails, 'Fruitpers': d.fruitpers ? 'ja' : 'nee', 'Glazen via Rutger': d.glazen ? 'ja' : 'nee',
+        'Spoedboeking': isSpoed(d.datum) ? 'ja (binnen 1 maand)' : 'nee', 'Bericht': d.bericht || '-',
+        ...(params.get('via') ? { 'Via pagina': params.get('via') } : {}),
+        ...(EN ? { 'Taal': 'Engels (antwoord in het Engels)' } : {})
+      };
+      const onderwerp = `Aanvraag ${d.soort} op ${d.datum}`;
+      const naarMail = () => {
+        const body = Object.entries(velden).map(([k, v]) => `${k}: ${v}`).join('\n');
+        location.href = `mailto:${MAIL}?subject=${encodeURIComponent(onderwerp)}&body=${encodeURIComponent(body)}`;
+      };
+      if (!WEB3FORMS_SLEUTEL) { naarMail(); note.textContent = t('Dank je! Je mailprogramma opent nu met je aanvraag.', 'Thank you! Your email app will now open with your request.'); return; }
+
+      const knop = $('#form-knop'), knopTekst = knop.textContent;
+      knop.disabled = true; knop.textContent = t('Versturen…', 'Sending…');
+      try {
+        await verstuur({ subject: onderwerp, from_name: 'Beck on the Rocks · website', replyto: d.email, ...velden });
+        toonBedankt(velden);
+        telBezoek('aanvraag-verstuurd', 'Aanvraag verstuurd', true);
+        boekForm.reset();
+        $('#form-spoed').hidden = true;
+        note.textContent = noteTekst;
+      } catch {
+        note.innerHTML = t('Het versturen is niet gelukt. Je gegevens staan er nog. Probeer het opnieuw, of <a href="#" id="form-mail">verstuur je aanvraag via je mail</a>.',
+          'Sending failed. Your details are still there. Please try again, or <a href="#" id="form-mail">send your request by email</a>.');
+        note.classList.add('is-fout');
+        $('#form-mail').addEventListener('click', ev => { ev.preventDefault(); naarMail(); });
+      } finally {
+        knop.disabled = false; knop.textContent = knopTekst;
+      }
+    });
+
+    const toonBedankt = velden => {
+      const toon = ['Datum', 'Soort feest', 'Gasten', 'Locatie', 'Aantal uur', 'Cocktails op de kaart'];
+      const KOP_EN = { Datum: 'Date', 'Soort feest': 'Type of event', 'Aantal uur': 'Hours', Gasten: 'Guests', Locatie: 'Location', 'Cocktails op de kaart': 'Cocktails on the menu' };
+      const KOP_NL = { 'Soort feest': 'Type feest' };
+      const waarde = k => k === 'Datum' ? new Date(velden[k] + 'T00:00').toLocaleDateString(LOCALE, { day: 'numeric', month: 'long', year: 'numeric' })
+        : k === 'Soort feest' ? soortTekst(velden[k]) : velden[k];
+      $('#form-samenvatting').innerHTML = toon.filter(k => velden[k] && velden[k] !== '-')
+        .map(k => `<li><span>${EN ? KOP_EN[k] : KOP_NL[k] || k}</span><b>${esc(waarde(k))}</b></li>`).join('');
+      boekForm.hidden = true;
+      const klaar = $('#form-klaar');
+      klaar.hidden = false; klaar.focus();
+      klaar.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+    };
+    $('#form-opnieuw').addEventListener('click', () => {
+      $('#form-klaar').hidden = true; boekForm.hidden = false;
+      boekForm.elements.naam.focus();
+    });
+  }
+
+  $$('[data-jaar]').forEach(el => { el.textContent = new Date().getFullYear(); });
 })();

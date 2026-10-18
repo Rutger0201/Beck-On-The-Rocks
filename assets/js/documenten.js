@@ -106,7 +106,7 @@
   };
   function zetType(t, nieuwNummer) {
     type = t;
-    $$('.seg button').forEach(b => b.classList.toggle('is-on', b.dataset.type === t));
+    $$('.seg button').forEach(b => { b.classList.toggle('is-on', b.dataset.type === t); b.setAttribute('aria-pressed', b.dataset.type === t); });
     $('#lbl-termijn').firstChild.textContent = t === 'offerte' ? 'Geldig (dagen)' : 'Betaaltermijn (dagen)';
     $('#lbl-ref').hidden = t === 'offerte';
     $('#kopieer-akkoord').hidden = t !== 'offerte';
