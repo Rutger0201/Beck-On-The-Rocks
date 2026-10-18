@@ -247,7 +247,7 @@ window.BeckAnalyse = (() => {
   function analyseer(ruw, opties = {}) {
     const vandaag = opties.vandaag || new Date();
     const eigen = (opties.eigen || []).map(s => s.toLowerCase()).filter(Boolean);
-    const eigenNamen = ['beck', ...eigen];
+    const eigenNamen = ['beck', 'rutger', ...eigen];
     const v = {}; // veld -> { waarde, bron }
     const zet = (k, waarde, bron) => { if (waarde && !v[k]) v[k] = { waarde: String(waarde).trim(), bron: (bron || '').trim().slice(0, 80) }; };
 
@@ -335,6 +335,15 @@ window.BeckAnalyse = (() => {
     const soortBron = lSoort || t;
     for (const [naam, re] of SOORTEN) { const m = re.exec(soortBron); if (m) { zet('f-soort', naam, m[0]); break; } }
 
+    // Aantal cocktails, fruitpers en glazen (o.a. uit het boekingsformulier van de website)
+    const lCocktails = label(t, 'cocktails op de kaart|aantal cocktails');
+    const nC = lCocktails ? parseInt(lCocktails, 10) : +((/\b([1-5])\s*(?:verschillende\s+)?cocktails\b/i.exec(t) || [])[1] || 0);
+    if (nC >= 1 && nC <= 5) zet('f-cocktails', String(nC), `${nC} cocktails`);
+    const lFruit = label(t, 'fruitpers');
+    if (lFruit ? /^ja/i.test(lFruit) : /\b(fruitpers|vers geperst\w*|verse sappen)\b/i.test(t)) zet('f-fruitpers', 'ja', lFruit ? 'Fruitpers: ja' : 'vers geperst');
+    const lGlas = label(t, 'glazen via \\w+|glazen');
+    const glazenGewenst = lGlas ? /^ja/i.test(lGlas) : /\bglazen\b[^.\n]{0,40}\b(regelen|meenemen|nodig|huren)\b/i.test(t);
+
     // Gewenste cocktails
     const gezien = new Set();
     for (const c of COCKTAILS) {
@@ -344,6 +353,7 @@ window.BeckAnalyse = (() => {
     const opm = [];
     if (gezien.size) opm.push('Gewenste cocktails: ' + [...gezien].join(', '));
     if (v._uren) opm.push('Gewenst aantal uur: ' + v._uren.waarde);
+    if (glazenGewenst) opm.push('Glazen via Beck on the Rocks gewenst');
     if (opm.length) zet('opmerking', opm.join('\n'), [...gezien].join(', ') || 'gasten/uren');
 
     delete v._uren;

@@ -95,6 +95,12 @@
       <label>Eindtijd<input id="f-tot" type="time" value="00:00"></label>
       <label>Aantal gasten<input id="f-gasten" type="number" min="1" placeholder="bijv. 80"></label>
       <label>Locatie<input id="f-locatie" placeholder="Adres of naam locatie"></label>
+      <label>Cocktails op de kaart
+        <select id="f-cocktails"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select>
+      </label>
+      <label>Reiskosten (km, heen en terug)<input id="f-km" type="number" min="0" step="1" placeholder="0"></label>
+      <label>Glazen via mij (aantal)<input id="f-glazen" type="number" min="0" step="1" placeholder="0"></label>
+      <label class="check full"><input type="checkbox" id="f-fruitpers"> Met fruitpers (uurtarief +20%, menu vanaf €99)</label>
       <label class="check full"><input type="checkbox" id="spoed-auto" checked> Spoedtoeslag automatisch (feest binnen 1 maand na documentdatum)</label>
       <label class="check full" id="lbl-spoed-hand" hidden><input type="checkbox" id="spoed-hand"> Spoedtoeslag toepassen</label>
     </div>
@@ -108,13 +114,14 @@
 
   <details>
     <summary>Opmerking op document</summary>
-    <textarea id="opmerking" rows="3" placeholder="Bijv. cocktails: Old Fashioned, Basil Smash, Virgin Garden"></textarea>
+    <textarea id="opmerking" rows="3" placeholder="Bijv. cocktails: Old Fashioned, Mojito, Virgin Colada"></textarea>
   </details>
 
   <details>
     <summary>Mijn gegevens & tarieven</summary>
     <div class="grid">
-      <label class="full">Naam / bedrijfsnaam<input data-set="naam"></label>
+      <label>Bedrijfsnaam<input data-set="naam"></label>
+      <label>Jouw naam<input data-set="contact"></label>
       <label class="full">Adres<input data-set="adres"></label>
       <label>Postcode & plaats<input data-set="plaats"></label>
       <label>Telefoon<input data-set="tel"></label>
@@ -132,9 +139,14 @@
       <label>Uurtarief (€)<input data-set="uur" type="number" step="0.01"></label>
       <label>Voorbereiding (uur)<input data-set="prep" type="number" step="0.5"></label>
       <label>Menu & materialen (€)<input data-set="menu" type="number" step="0.01"></label>
+      <label>Fruitpers: uur + (%)<input data-set="fruitpers" type="number"></label>
+      <label>Menu met fruitpers (€)<input data-set="menuFp" type="number" step="0.01"></label>
+      <label>Reiskosten per km (€)<input data-set="km" type="number" step="0.01"></label>
+      <label>Glazen per stuk (€)<input data-set="glas" type="number" step="0.01"></label>
       <label>Spoedtoeslag (%)<input data-set="spoed" type="number"></label>
       <label>Annulering (%)<input data-set="annul" type="number"></label>
       <label>Betaaltermijn factuur (dagen)<input data-set="betaal" type="number"></label>
+      <label class="full">Google review-link (komt op de factuur)<input data-set="review" placeholder="https://g.page/r/…/review"></label>
     </div>
   </details>
 

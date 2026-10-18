@@ -11,11 +11,14 @@
 
   /* ================= Instellingen ================= */
   const STANDAARD = {
-    naam: 'Beck on the Rocks', adres: '', plaats: '', tel: '', email: 'info@beckontherocks.nl', web: 'beckontherocks.nl',
-    kvk: '', iban: '', btw: 'kor', btwnr: '',
-    uur: 45, prep: 1, menu: 75, spoed: 25, annul: 20, betaal: 14
+    naam: 'Beck on the Rocks', contact: 'Rutger', adres: '', plaats: '', tel: '', email: 'rutger@beck.nl', web: '',
+    kvk: '', iban: '', btw: 'kor', btwnr: '', review: '',
+    uur: 45, prep: 1, menu: 75, fruitpers: 20, menuFp: 99, km: 0.25, glas: 0.5, spoed: 25, annul: 20, betaal: 14
   };
   let ins = { ...STANDAARD, ...opslag.lees('beck-instellingen', {}) };
+  // Oude standaardwaarden uit een eerdere versie bijwerken
+  if (ins.email === 'info@beckontherocks.nl') ins.email = STANDAARD.email;
+  if (ins.web === 'beckontherocks.nl') ins.web = STANDAARD.web;
   $$('[data-set]').forEach(el => {
     el.value = ins[el.dataset.set];
     el.addEventListener('input', () => {
@@ -48,7 +51,7 @@
 
   /* ================= Documentstatus ================= */
   const VELDEN = ['nummer', 'datum', 'termijn', 'referentie', 'k-naam', 'k-bedrijf', 'k-adres', 'k-plaats', 'k-email', 'k-tel',
-    'f-datum', 'f-soort', 'f-van', 'f-tot', 'f-gasten', 'f-locatie', 'opmerking'];
+    'f-datum', 'f-soort', 'f-van', 'f-tot', 'f-gasten', 'f-locatie', 'f-cocktails', 'f-km', 'f-glazen', 'opmerking'];
   let type = 'offerte', extra = [];
 
   const alleDocs = () => opslag.lees('beck-documenten', {});
@@ -60,7 +63,7 @@
   }
 
   function leesForm() {
-    const d = { type, extra: extra.map(r => ({ ...r })), spoedAuto: $('#spoed-auto').checked, spoedHand: $('#spoed-hand').checked };
+    const d = { type, extra: extra.map(r => ({ ...r })), spoedAuto: $('#spoed-auto').checked, spoedHand: $('#spoed-hand').checked, fruitpers: $('#f-fruitpers').checked };
     VELDEN.forEach(id => { d[id] = $('#' + id).value; });
     return d;
   }
@@ -69,6 +72,8 @@
     VELDEN.forEach(id => { if (d[id] !== undefined) $('#' + id).value = d[id]; });
     $('#spoed-auto').checked = d.spoedAuto !== false;
     $('#spoed-hand').checked = !!d.spoedHand;
+    $('#f-fruitpers').checked = !!d.fruitpers;
+    if (!d['f-cocktails']) $('#f-cocktails').value = '3';
     extra = (d.extra || []).map(r => ({ ...r }));
     tekenExtra(); teken();
   }
@@ -76,6 +81,7 @@
     VELDEN.forEach(id => { $('#' + id).value = ''; });
     $('#f-van').value = '20:00'; $('#f-tot').value = '00:00'; $('#f-soort').selectedIndex = 0;
     $('#spoed-auto').checked = true; $('#spoed-hand').checked = false;
+    $('#f-fruitpers').checked = false; $('#f-cocktails').value = '3';
     extra = []; tekenExtra();
     zetType(t, true);
     $('#opgeslagen').value = '';
@@ -117,11 +123,16 @@
   /* ================= Berekening ================= */
   function bereken(d) {
     const u = uren(d['f-van'], d['f-tot']);
+    const fp = d.fruitpers;
+    const uurprijs = Math.round(ins.uur * (fp ? 1 + ins.fruitpers / 100 : 1) * 100) / 100;
+    const n = +d['f-cocktails'] || 3;
     const regels = [
-      { oms: 'Bartender', sub: `${d['f-van'] || '?'} – ${d['f-tot'] || '?'}`, aantal: u, eenheid: 'uur', prijs: ins.uur },
-      { oms: 'Voorbereiding', sub: 'Afstemmen inkopen, siropen en garnituren, opbouwen', aantal: ins.prep, eenheid: 'uur', prijs: ins.uur },
-      { oms: 'Cocktailmenu & gebruik materialen', sub: 'Kaart op maat, boodschappenlijst en bartools', aantal: 1, eenheid: '', prijs: ins.menu }
+      { oms: 'Bartender', sub: `${d['f-van'] || '?'} – ${d['f-tot'] || '?'}${fp ? ' · incl. fruitpers en vers geperste sappen' : ''}`, aantal: u, eenheid: 'uur', prijs: uurprijs },
+      { oms: 'Voorbereiding', sub: 'Afstemmen inkopen, siropen en garnituren, opbouwen', aantal: ins.prep, eenheid: 'uur', prijs: uurprijs },
+      { oms: 'Cocktailmenu & gebruik materialen', sub: `Kaart met ${n} ${n === 1 ? 'cocktail' : 'cocktails'}, boodschappenlijst en bartools${fp ? ', fruitpers' : ''}`, aantal: 1, eenheid: '', prijs: fp ? ins.menuFp : ins.menu }
     ];
+    if (+d['f-km'] > 0) regels.push({ oms: 'Reiskosten', sub: 'Heen en terug', aantal: +d['f-km'], eenheid: 'km', prijs: ins.km });
+    if (+d['f-glazen'] > 0) regels.push({ oms: 'Glazen', sub: 'Geregeld via Beck on the Rocks', aantal: +d['f-glazen'], eenheid: 'st.', prijs: ins.glas });
     d.extra.filter(r => r.oms || +r.prijs).forEach(r => regels.push({ oms: r.oms || 'Overig', aantal: +r.aantal || 1, eenheid: '', prijs: +r.prijs || 0 }));
     regels.forEach(r => { r.bedrag = r.aantal * r.prijs; });
     const spoed = d.spoedAuto ? isSpoed(d.datum, d['f-datum']) : d.spoedHand;
@@ -157,7 +168,7 @@
     $('[data-show=btw21]').hidden = !btw;
 
     // Afzender
-    $('#d-me').innerHTML = [ins.naam, ins.adres, ins.plaats, ins.tel, ins.email, ins.web].filter(Boolean).map(esc).join('<br>');
+    $('#d-me').innerHTML = [ins.naam, ins.contact, ins.adres, ins.plaats, ins.tel, ins.email, ins.web].filter(Boolean).map(esc).join('<br>');
 
     // Titel + meta
     $('#d-titel').textContent = type === 'offerte' ? 'Offerte' : type === 'annulering' ? 'Factuur · annulering' : 'Factuur';
@@ -224,7 +235,7 @@
         <p class="pay">Graag het totaalbedrag van <strong>${euro(totaal)}</strong> vóór <strong>${lang(tot) || '…'}</strong> overmaken op
         <strong>${esc(iban)}</strong> t.n.v. ${esc(ins.naam)}, onder vermelding van factuurnummer <strong>${esc(d.nummer)}</strong>.</p>
         <h3>Bedankt!</h3>
-        <ul><li>${type === 'annulering' ? 'Jammer dat het feest niet doorgaat. Hopelijk tot een volgende keer!' : 'Bedankt voor de fijne samenwerking. Een review stel ik enorm op prijs!'}</li></ul>`;
+        <ul><li>${type === 'annulering' ? 'Jammer dat het feest niet doorgaat. Hopelijk tot een volgende keer!' : 'Bedankt voor de fijne samenwerking. Een review stel ik enorm op prijs' + (ins.review ? ': ' + esc(ins.review) : '!')}</li></ul>`;
     }
 
     // Voet
@@ -308,7 +319,7 @@
   const LABELS = {
     'k-naam': 'Naam klant', 'k-bedrijf': 'Bedrijf', 'k-email': 'E-mail', 'k-tel': 'Telefoon', 'k-adres': 'Adres klant',
     'k-plaats': 'Postcode & plaats', 'f-datum': 'Datum feest', 'f-van': 'Begintijd', 'f-tot': 'Eindtijd',
-    'f-soort': 'Soort feest', 'f-gasten': 'Aantal gasten', 'f-locatie': 'Locatie', 'opmerking': 'Opmerking'
+    'f-soort': 'Soort feest', 'f-gasten': 'Aantal gasten', 'f-locatie': 'Locatie', 'f-cocktails': 'Cocktails op de kaart', 'f-fruitpers': 'Fruitpers', 'opmerking': 'Opmerking'
   };
   const status = (tekst, fout) => { const el = $('#slim-status'); el.textContent = tekst; el.classList.toggle('is-fout', !!fout); };
 
@@ -324,7 +335,7 @@
         ? `<textarea data-k="${k}" rows="2">${esc(waarde)}</textarea>`
         : `<input data-k="${k}" type="${type}" value="${esc(waarde)}">`;
       return `<label class="slim__veld"><input type="checkbox" data-v="${k}" checked>
-        <span>${LABELS[k]}${huidig && huidig !== waarde && !['f-van', 'f-tot', 'f-soort'].includes(k) ? ' (vervangt "' + esc(huidig) + '")' : ''}</span>
+        <span>${LABELS[k]}${huidig && huidig !== waarde && !['f-van', 'f-tot', 'f-soort', 'f-fruitpers', 'f-cocktails'].includes(k) ? ' (vervangt "' + esc(huidig) + '")' : ''}</span>
         ${invoer}${bron && bron !== waarde ? `<small>uit: "${esc(bron)}"</small>` : ''}</label>`;
     }).join('');
     $('#slim-result').hidden = false;
@@ -360,6 +371,7 @@
       if (!cb.checked) return;
       const k = cb.dataset.v, w = $(`#slim-velden [data-k="${k}"]`).value;
       if (k === 'opmerking' && $('#opmerking').value && !$('#opmerking').value.includes(w)) $('#opmerking').value += '\n' + w;
+      else if (k === 'f-fruitpers') $('#f-fruitpers').checked = /^ja/i.test(w);
       else if (k === 'f-soort') { const o = [...$('#f-soort').options].find(o => o.text === w); if (o) $('#f-soort').value = o.value; }
       else $('#' + k).value = w;
     });
