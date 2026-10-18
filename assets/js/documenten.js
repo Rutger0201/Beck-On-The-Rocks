@@ -52,7 +52,7 @@
 
   /* ================= Documentstatus ================= */
   const VELDEN = ['nummer', 'datum', 'termijn', 'referentie', 'k-naam', 'k-bedrijf', 'k-adres', 'k-plaats', 'k-email', 'k-tel',
-    'f-datum', 'f-soort', 'f-van', 'f-tot', 'f-gasten', 'f-locatie', 'f-cocktails', 'f-km', 'f-glazen', 'opmerking'];
+    'f-datum', 'f-soort', 'f-van', 'f-tot', 'f-gasten', 'f-locatie', 'f-cocktails', 'f-km', 'f-glazen', 'opmerking', 'status'];
   let type = 'offerte', extra = [];
 
   const alleDocs = () => opslag.lees('beck-documenten', {});
@@ -75,6 +75,7 @@
     $('#spoed-hand').checked = !!d.spoedHand;
     $('#f-fruitpers').checked = !!d.fruitpers;
     if (!d['f-cocktails']) $('#f-cocktails').value = '3';
+    if (!d.status) $('#status').value = 'concept';
     extra = (d.extra || []).map(r => ({ ...r }));
     tekenExtra(); teken();
   }
@@ -85,16 +86,31 @@
     $('#f-fruitpers').checked = false; $('#f-cocktails').value = '3';
     extra = []; tekenExtra();
     zetType(t, true);
+    if (t !== 'offerte') $('#spoed-auto').checked = false; // spoed hoort bij het boekmoment (offerte), niet bij de factuurdatum
     $('#opgeslagen').value = '';
     teken();
   }
+  // Van offerte naar factuur: spoed overnemen zoals die op de offerte stond
+  function spoedVastzetten() {
+    const d = leesForm();
+    const sp = d.spoedAuto ? isSpoed(d.datum, d['f-datum']) : d.spoedHand;
+    return () => { $('#spoed-auto').checked = false; $('#spoed-hand').checked = sp; };
+  }
 
+  const STATUS = {
+    offerte: { concept: 'Concept', verstuurd: 'Verstuurd', akkoord: 'Akkoord', afgewezen: 'Afgewezen' },
+    factuur: { concept: 'Concept', verstuurd: 'Verstuurd', betaald: 'Betaald' }
+  };
   function zetType(t, nieuwNummer) {
     type = t;
     $$('.seg button').forEach(b => b.classList.toggle('is-on', b.dataset.type === t));
     $('#lbl-termijn').firstChild.textContent = t === 'offerte' ? 'Geldig (dagen)' : 'Betaaltermijn (dagen)';
     $('#lbl-ref').hidden = t === 'offerte';
+    const huidig = $('#status').value;
+    $('#status').innerHTML = Object.entries(STATUS[t === 'offerte' ? 'offerte' : 'factuur']).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
+    $('#status').value = STATUS[t === 'offerte' ? 'offerte' : 'factuur'][huidig] ? huidig : 'concept';
     if (nieuwNummer) {
+      $('#status').value = 'concept';
       $('#nummer').value = volgendNummer(t);
       $('#datum').value = vandaag();
       $('#termijn').value = t === 'offerte' ? 14 : ins.betaal;
@@ -280,8 +296,10 @@
   function bewaar() {
     const d = leesForm();
     if (!d.nummer) return;
+    d.bijgewerkt = new Date().toISOString();
     const docs = alleDocs(); docs[d.nummer] = d; opslag.schrijf('beck-documenten', docs);
     tekenLijst(); $('#opgeslagen').value = d.nummer;
+    toonBackupInfo();
   }
 
   $('#opgeslagen').addEventListener('change', e => {
@@ -292,7 +310,10 @@
     if (b.dataset.type === type) return;
     // Van type wisselen: gegevens blijven staan, nummer/datum worden nieuw
     const ref = $('#nummer').value;
+    const vanOfferte = type === 'offerte' && b.dataset.type !== 'offerte';
+    const zetSpoed = spoedVastzetten();
     zetType(b.dataset.type, true);
+    if (vanOfferte) zetSpoed();
     if (b.dataset.type !== 'offerte' && ref && !$('#referentie').value) $('#referentie').value = ref;
     $('#opgeslagen').value = '';
     teken();
@@ -300,7 +321,9 @@
   $('#naar-factuur').addEventListener('click', () => {
     bewaar();
     const ref = $('#nummer').value;
+    const zetSpoed = spoedVastzetten();
     zetType('factuur', true);
+    zetSpoed();
     $('#referentie').value = ref;
     $('#opgeslagen').value = '';
     teken();
@@ -321,6 +344,7 @@
     window.print(); // titel gaat terug via 'afterprint'
   });
   $('#nieuw').addEventListener('click', () => nieuw());
+  $('#status').addEventListener('change', () => { if (alleDocs()[$('#nummer').value]) bewaar(); });
   $('#wis').addEventListener('click', () => {
     const n = $('#nummer').value;
     if (!confirm(`Document ${n} verwijderen?`)) return;
@@ -329,6 +353,172 @@
   });
   $('.editor').addEventListener('input', e => { if (!e.target.closest('#extra') && !e.target.dataset.set) teken(); });
   $('.editor').addEventListener('change', e => { if (e.target.type === 'checkbox') teken(); });
+
+  /* ================= Bedragen, versturen en online akkoord ================= */
+  function cijfers(d) {
+    const b = bereken(d);
+    const btw = ins.btw === '21' ? b.sub * .21 : 0;
+    const termijn = +d.termijn || (d.type !== 'offerte' ? ins.betaal : 14);
+    return { b, btw, totaal: b.sub + btw, verval: d.datum ? plusDagen(d.datum, termijn) : '' };
+  }
+  const voornaam = d => (d['k-naam'] || '').trim().split(/\s+/)[0] || '';
+
+  // Offerte als compacte link: alles wat de klant moet zien zit in de link zelf
+  const b64 = str => btoa(String.fromCharCode(...new TextEncoder().encode(str))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  function akkoordLink(d) {
+    const c = cijfers(d);
+    const data = {
+      v: 1, n: d.nummer, dt: d.datum, gt: c.verval, k: d['k-naam'], bd: d['k-bedrijf'], s: d['f-soort'], fd: d['f-datum'],
+      t: d['f-van'] && d['f-tot'] ? `${d['f-van']} – ${d['f-tot']}` : '', u: c.b.u, g: d['f-gasten'], l: d['f-locatie'],
+      r: c.b.regels.map(r => [r.oms, r.sub || '', `${getal(r.aantal)}${r.eenheid ? ' ' + r.eenheid : ''}`, Math.round(r.bedrag * 100) / 100]),
+      sub: Math.round(c.b.sub * 100) / 100, btw: Math.round(c.btw * 100) / 100, tot: Math.round(c.totaal * 100) / 100,
+      kor: ins.btw !== '21', sp: ins.spoed, an: ins.annul, bt: ins.betaal, o: d.opmerking || ''
+    };
+    const basis = location.href.replace(/[?#].*$/, '').replace(/documenten\.html$/, '');
+    return basis + 'akkoord.html?o=' + b64(JSON.stringify(data));
+  }
+
+  function bericht(d) {
+    const c = cijfers(d), vn = voornaam(d);
+    const feest = `${(d['f-soort'] || 'feest').toLowerCase()}${d['f-datum'] ? ' op ' + lang(d['f-datum']) : ''}`;
+    const groet = `\n\nGroet,\n${ins.contact || ''}\n${ins.naam}${ins.web ? '\n' + ins.web : ''}`;
+    if (d.type === 'offerte') {
+      return {
+        onderwerp: `Offerte ${d.nummer} · ${ins.naam}`,
+        tekst: `Hoi${vn ? ' ' + vn : ''},\n\nBedankt voor je aanvraag! Hierbij mijn offerte ${d.nummer} voor je ${feest}: ${euro(c.totaal)}. De offerte stuur ik als PDF mee.`
+          + `\n\nAkkoord? Dat kun je hier direct online aangeven (ook als je nog iets wilt toevoegen):\n${akkoordLink(d)}`
+          + `\n\nDe offerte is geldig tot ${lang(c.verval)}. Heb je vragen, laat het gerust weten.` + groet
+      };
+    }
+    const annul = d.type === 'annulering';
+    return {
+      onderwerp: `Factuur ${d.nummer} · ${ins.naam}`,
+      tekst: `Hoi${vn ? ' ' + vn : ''},\n\n${annul ? 'Hierbij de factuur voor de annuleringskosten van je ' + feest : 'Bedankt voor het fijne feest! Hierbij de factuur voor je ' + feest}: ${euro(c.totaal)}. De factuur stuur ik als PDF mee.`
+        + `\n\nGraag overmaken vóór ${lang(c.verval)}${ins.iban ? ' op ' + ins.iban + ' t.n.v. ' + ins.naam : ''}, onder vermelding van ${d.nummer}.`
+        + (!annul && ins.review ? `\n\nWas je tevreden? Een review stel ik enorm op prijs: ${ins.review}` : '') + groet
+    };
+  }
+  function markeerVerstuurd() {
+    if ($('#status').value === 'concept') $('#status').value = 'verstuurd';
+    bewaar(); teken();
+  }
+  const telIntl = t => { let n = String(t || '').replace(/[^\d+]/g, ''); if (n.startsWith('+')) n = n.slice(1); else if (n.startsWith('00')) n = n.slice(2); else if (n.startsWith('0')) n = '31' + n.slice(1); return n.length >= 10 ? n : ''; };
+  $('#stuur-wa').addEventListener('click', () => {
+    const d = leesForm(), m = bericht(d), nr = telIntl(d['k-tel']);
+    open(`https://wa.me/${nr}?text=${encodeURIComponent(m.tekst)}`, '_blank', 'noopener');
+    markeerVerstuurd();
+  });
+  $('#stuur-mail').addEventListener('click', () => {
+    const d = leesForm(), m = bericht(d);
+    location.href = `mailto:${encodeURIComponent(d['k-email'] || '')}?subject=${encodeURIComponent(m.onderwerp)}&body=${encodeURIComponent(m.tekst)}`;
+    markeerVerstuurd();
+  });
+  $('#kopieer-akkoord').addEventListener('click', async () => {
+    const link = akkoordLink(leesForm());
+    try { await navigator.clipboard.writeText(link); $('#verstuur-tip').textContent = 'Akkoordlink gekopieerd ✓ Plak hem in je bericht aan de klant.'; }
+    catch { prompt('Kopieer deze link:', link); }
+  });
+
+  /* ================= Overzicht ================= */
+  let ovFilter = 'alle';
+  function overzichtRijen() {
+    const nu = vandaag();
+    return Object.values(alleDocs()).map(d => {
+      const c = cijfers(d);
+      const st = d.status || 'concept';
+      const isFactuur = d.type !== 'offerte';
+      const teLaat = isFactuur && st !== 'betaald' && st !== 'concept' && c.verval && c.verval < nu;
+      return { d, c, st, isFactuur, teLaat };
+    }).sort((a, b) => String(b.d.datum).localeCompare(String(a.d.datum)) || String(b.d.nummer).localeCompare(String(a.d.nummer)));
+  }
+  function tekenOverzicht() {
+    const rijen = overzichtRijen(), jaar = String(new Date().getFullYear());
+    const som = f => rijen.filter(f).reduce((t, r) => t + r.c.totaal, 0);
+    const open_ = som(r => r.isFactuur && r.st !== 'betaald');
+    const laat = som(r => r.teLaat);
+    const betaald = som(r => r.isFactuur && r.st === 'betaald' && String(r.d.datum).startsWith(jaar));
+    const wachtend = rijen.filter(r => !r.isFactuur && r.st === 'verstuurd').length;
+    $('#ov-cijfers').innerHTML = `
+      <div><span>Openstaand</span><strong>${euro(open_)}</strong></div>
+      <div class="${laat ? 'is-laat' : ''}"><span>Te laat</span><strong>${euro(laat)}</strong></div>
+      <div><span>Betaald ${jaar}</span><strong>${euro(betaald)}</strong></div>
+      <div><span>Offertes wachten</span><strong>${wachtend}</strong></div>`;
+    const zicht = rijen.filter(r => ovFilter === 'alle' || (ovFilter === 'offerte' && !r.isFactuur)
+      || (ovFilter === 'open' && r.isFactuur && r.st !== 'betaald') || (ovFilter === 'telaat' && r.teLaat)
+      || (ovFilter === 'betaald' && r.st === 'betaald'));
+    $('#ov-lijst').innerHTML = zicht.length ? zicht.map(r => {
+      const opties = STATUS[r.isFactuur ? 'factuur' : 'offerte'];
+      return `<div class="ov-rij${r.teLaat ? ' is-laat' : ''}">
+        <button type="button" class="ov-open" data-open="${esc(r.d.nummer)}">
+          <strong>${esc(r.d.nummer)}</strong>
+          <span>${esc(r.d['k-bedrijf'] || r.d['k-naam'] || 'zonder naam')}</span>
+          <small>${r.d['f-datum'] ? 'Feest ' + esc(lang(r.d['f-datum'])) : ''}${r.isFactuur && r.c.verval ? ' · vervalt ' + esc(lang(r.c.verval)) : ''}</small>
+        </button>
+        <b>${euro(r.c.totaal)}</b>
+        <span class="ov-status">${r.teLaat ? '<em>Te laat</em>' : ''}
+          <select data-status="${esc(r.d.nummer)}" aria-label="Status ${esc(r.d.nummer)}">${Object.entries(opties).map(([k, v]) => `<option value="${k}"${k === r.st ? ' selected' : ''}>${v}</option>`).join('')}</select>
+        </span>
+      </div>`;
+    }).join('') : '<p class="ov-leeg">Nog geen documenten in deze lijst.</p>';
+  }
+  $('#open-overzicht').addEventListener('click', () => { tekenOverzicht(); $('#overzicht').showModal(); });
+  $('#sluit-overzicht').addEventListener('click', () => $('#overzicht').close());
+  $('#overzicht').addEventListener('click', e => { if (e.target.id === 'overzicht') $('#overzicht').close(); });
+  $('#ov-filters').addEventListener('click', e => {
+    const b = e.target.closest('[data-f]'); if (!b) return;
+    ovFilter = b.dataset.f; $$('#ov-filters button').forEach(x => x.classList.toggle('is-on', x === b)); tekenOverzicht();
+  });
+  $('#ov-lijst').addEventListener('change', e => {
+    const n = e.target.dataset.status; if (!n) return;
+    const docs = alleDocs(); if (!docs[n]) return;
+    docs[n].status = e.target.value; opslag.schrijf('beck-documenten', docs);
+    if ($('#nummer').value === n) $('#status').value = e.target.value;
+    tekenOverzicht();
+  });
+  $('#ov-lijst').addEventListener('click', e => {
+    const b = e.target.closest('[data-open]'); if (!b) return;
+    const d = alleDocs()[b.dataset.open]; if (!d) return;
+    vulForm(d); $('#opgeslagen').value = d.nummer; $('#overzicht').close();
+  });
+
+  /* ================= Back-up ================= */
+  function toonBackupInfo() {
+    const laatste = opslag.lees('beck-laatste-backup', null);
+    const n = Object.keys(alleDocs()).length;
+    const dagen = laatste ? Math.floor((Date.now() - new Date(laatste)) / 864e5) : null;
+    const oud = n && (dagen === null || dagen > 30);
+    $('#backup-info').innerHTML = `${n} ${n === 1 ? 'document' : 'documenten'} opgeslagen. Laatste back-up: <strong>${laatste ? lang(isoVan(new Date(laatste))) : 'nog nooit'}</strong>.`
+      + (oud ? ' <span class="backup__let">Tijd voor een nieuwe back-up!</span>' : '');
+    $('.backup').classList.toggle('is-oud', !!oud);
+  }
+  $('#backup-download').addEventListener('click', () => {
+    const data = { app: 'beck-documenten', versie: 1, gemaakt: new Date().toISOString(), instellingen: ins, documenten: alleDocs() };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+    const a = Object.assign(document.createElement('a'), { href: url, download: `beck-on-the-rocks-backup-${vandaag()}.json` });
+    document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+    opslag.schrijf('beck-laatste-backup', new Date().toISOString());
+    toonBackupInfo();
+  });
+  $('#backup-terug').addEventListener('change', async e => {
+    const f = e.target.files[0]; e.target.value = '';
+    if (!f) return;
+    try {
+      const data = JSON.parse(await f.text());
+      if (data.app !== 'beck-documenten' || typeof data.documenten !== 'object') throw new Error('Dit is geen back-up van de generator.');
+      const nieuw_ = Object.keys(data.documenten), bestaand = alleDocs();
+      const dubbel = nieuw_.filter(n => bestaand[n]).length;
+      if (!confirm(`Back-up van ${lang(isoVan(new Date(data.gemaakt)))} met ${nieuw_.length} documenten terugzetten?`
+        + (dubbel ? `\n${dubbel} daarvan bestaan al en worden vervangen door de versie uit de back-up.` : '')
+        + '\nJe gegevens & tarieven worden ook teruggezet.')) return;
+      opslag.schrijf('beck-documenten', { ...bestaand, ...data.documenten });
+      if (data.instellingen) {
+        ins = { ...STANDAARD, ...data.instellingen }; opslag.schrijf('beck-instellingen', ins);
+        $$('[data-set]').forEach(el => { el.value = ins[el.dataset.set] ?? ''; });
+      }
+      tekenLijst(); toonBackupInfo(); teken();
+      alert(`Klaar: ${nieuw_.length} documenten teruggezet.`);
+    } catch (err) { alert('Terugzetten mislukt: ' + (err.message || err)); }
+  });
 
   /* ================= Slim invullen ================= */
   const LABELS = {
@@ -414,6 +604,7 @@
 
   /* ================= Start ================= */
   tekenLijst();
+  toonBackupInfo();
   const startType = new URLSearchParams(location.search).get('type');
   nieuw(['offerte', 'factuur', 'annulering'].includes(startType) ? startType : 'offerte');
 })();

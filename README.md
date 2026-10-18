@@ -24,7 +24,7 @@ bovenaan `assets/js/main.js` (voor de calculator).
 ## Boekingsformulier (Web3Forms)
 Aanvragen gaan via [Web3Forms](https://web3forms.com) direct naar je mail, zonder dat de klant
 zijn mailprogramma opent. Vraag op web3forms.com gratis een *Access Key* aan met rutger@beck.nl
-en zet die bij `WEB3FORMS_SLEUTEL` bovenaan het formulier-deel in `assets/js/main.js`.
+en zet die bij `web3forms` in `assets/js/config.js`.
 Zonder sleutel opent het formulier het mailprogramma van de klant (zoals voorheen).
 Kopieer een binnengekomen aanvraag in **Slim invullen** van de generator voor een offerte.
 
@@ -76,6 +76,15 @@ De bibliotheken hiervoor staan in `assets/vendor/` (zie de README daar).
 De generator is installeerbaar als app (`documenten.webmanifest` + `sw.js`), werkt daarna ook
 offline en heeft snelkoppelingen voor *Nieuwe offerte* en *Nieuwe factuur*. Uitleg staat in de
 generator onder **Snelkoppeling / app**. Directe links: `documenten.html?type=offerte` of `?type=factuur`.
+
+### Overzicht, versturen en back-up
+- **📋 Overzicht**: alle offertes en facturen met bedrag en status (concept, verstuurd, akkoord, betaald).
+  Facturen over de vervaldatum zijn rood ("te laat"). Bovenaan: openstaand, te laat, betaald dit jaar.
+- **WhatsApp / Mail**: opent een kant-en-klaar bericht aan de klant (voeg zelf de PDF toe) en zet de status op *verstuurd*.
+- **Online akkoord** (`akkoord.html`): bij een offerte zit in het bericht een link waarmee de klant de offerte
+  bekijkt en akkoord geeft, eventueel met een opmerking, of eerst een vraag stelt. Het antwoord komt via Web3Forms
+  in je mail; zet daarna zelf de status op *akkoord*.
+- **Back-up**: download al je documenten en gegevens als bestand en zet ze terug op een andere telefoon/computer.
 
 Vul eenmalig je gegevens in onder **Mijn gegevens & tarieven** (adres, KvK, IBAN, btw).
 Alles wordt alleen in je eigen browser opgeslagen, dus gebruik steeds dezelfde browser

@@ -53,10 +53,11 @@
     </div>
   </section>
 
-  <div class="row">
+  <div class="row row--knop">
     <label>Opgeslagen documenten
       <select id="opgeslagen"><option value="">Nieuw document</option></select>
     </label>
+    <button type="button" class="btn btn--ghost btn--small" id="open-overzicht">📋 Overzicht</button>
   </div>
 
   <details open>
@@ -66,6 +67,7 @@
       <label>Datum<input id="datum" type="date"></label>
       <label id="lbl-termijn">Geldig (dagen)<input id="termijn" type="number" min="1" value="14"></label>
       <label id="lbl-ref" hidden>Bij offerte/factuur nr.<input id="referentie" placeholder="bijv. O-2026-001"></label>
+      <label>Status<select id="status"></select></label>
     </div>
   </details>
 
@@ -152,12 +154,28 @@
 
   <div class="actions">
     <button type="button" class="btn" id="print">Opslaan & printen / PDF</button>
+    <div class="verstuur">
+      <button type="button" class="btn btn--ghost" id="stuur-wa">WhatsApp</button>
+      <button type="button" class="btn btn--ghost" id="stuur-mail">Mail</button>
+      <button type="button" class="btn btn--ghost" id="kopieer-akkoord" title="Link waarmee de klant online akkoord geeft">Akkoordlink</button>
+    </div>
+    <p class="verstuur__tip" id="verstuur-tip">Versturen opent WhatsApp of je mail met een kant-en-klaar bericht. Voeg daar de PDF aan toe.</p>
     <button type="button" class="btn btn--ghost" id="naar-factuur" hidden>Maak factuur van deze offerte</button>
     <button type="button" class="btn btn--ghost" id="nieuw">Nieuw document</button>
     <button type="button" class="link danger" id="wis" hidden>Dit document verwijderen</button>
   </div>
   <div class="waarschuwing" id="ontbreekt" hidden></div>
   <p class="tip">Tip: kies bij printen "Opslaan als PDF" en zet "Kop- en voetteksten" uit.</p>
+
+  <details class="backup">
+    <summary>Back-up</summary>
+    <p class="backup__info" id="backup-info"></p>
+    <div class="backup__knoppen">
+      <button type="button" class="btn btn--small" id="backup-download">Back-up downloaden</button>
+      <label class="btn btn--ghost btn--small">Back-up terugzetten<input type="file" id="backup-terug" accept=".json,application/json" hidden></label>
+    </div>
+    <p class="backup__uitleg">De back-up bevat al je documenten en je gegevens. Bewaar hem bijvoorbeeld in je Google Drive of mail hem naar jezelf.</p>
+  </details>
 
   <details class="app">
     <summary>Snelkoppeling / app</summary>
@@ -171,6 +189,23 @@
     </ul>
   </details>
 </aside>
+
+<!-- ================= Overzicht ================= -->
+<dialog class="overzicht" id="overzicht">
+  <header class="overzicht__kop">
+    <h2>Overzicht</h2>
+    <button type="button" class="overzicht__sluit" id="sluit-overzicht" aria-label="Sluiten">×</button>
+  </header>
+  <div class="overzicht__cijfers" id="ov-cijfers"></div>
+  <div class="overzicht__filters" id="ov-filters">
+    <button type="button" data-f="alle" class="is-on">Alles</button>
+    <button type="button" data-f="offerte">Offertes</button>
+    <button type="button" data-f="open">Openstaand</button>
+    <button type="button" data-f="telaat">Te laat</button>
+    <button type="button" data-f="betaald">Betaald</button>
+  </div>
+  <div class="overzicht__lijst" id="ov-lijst"></div>
+</dialog>
 
 <!-- ================= A4-document ================= -->
 <main class="stage">

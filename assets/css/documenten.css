@@ -74,6 +74,56 @@ input[type=date], input[type=time] { color-scheme: dark; }
 .app__uitleg strong { color: var(--text); font-weight: 500; }
 #app-al { color: var(--gold); font-size: .85rem; margin: 0; }
 
+/* Opgeslagen + overzichtknop */
+.row--knop { display: grid; grid-template-columns: 1fr auto; gap: .6rem; align-items: end; }
+
+/* Versturen */
+.verstuur { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+.verstuur .btn { padding: .7em .4em; font-size: .82rem; }
+.verstuur__tip { margin: -.2rem 0 0; font-size: .75rem; color: var(--muted); }
+
+/* Back-up */
+.backup__info { font-size: .82rem; color: var(--muted); margin: 0 0 .7rem; }
+.backup__info strong { color: var(--text); font-weight: 500; }
+.backup__let { color: #f0b27a; }
+.backup.is-oud summary { color: #f0b27a; }
+.backup__knoppen { display: flex; flex-wrap: wrap; gap: .5rem; }
+.backup__knoppen label.btn { display: inline-flex; color: var(--gold); font-size: .82rem; }
+.backup__uitleg { font-size: .75rem; color: var(--muted); margin: .7rem 0 0; }
+
+/* Overzicht */
+.overzicht { width: min(860px, 100vw - 24px); max-height: calc(100vh - 40px); border: 1px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--text); padding: 0; }
+.overzicht::backdrop { background: rgba(0,0,0,.65); }
+.overzicht__kop { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px 8px; position: sticky; top: 0; background: var(--surface); }
+.overzicht__kop h2 { font: 500 1.8rem var(--serif); margin: 0; }
+.overzicht__sluit { background: none; border: 0; color: var(--muted); font-size: 2rem; line-height: 1; cursor: pointer; }
+.overzicht__cijfers { display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem; padding: 6px 22px 14px; }
+.overzicht__cijfers div { border: 1px solid var(--line); border-radius: 12px; padding: .7rem .9rem; }
+.overzicht__cijfers span { display: block; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.overzicht__cijfers strong { font: 500 1.4rem var(--serif); color: var(--gold); }
+.overzicht__cijfers .is-laat strong { color: #e08a74; }
+.overzicht__filters { display: flex; flex-wrap: wrap; gap: .4rem; padding: 0 22px 12px; }
+.overzicht__filters button { background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: .4em 1em; font: 400 .82rem var(--sans); cursor: pointer; }
+.overzicht__filters button.is-on { background: var(--gold); border-color: var(--gold); color: #17120b; }
+.overzicht__lijst { padding: 0 22px 22px; }
+.ov-rij { display: grid; grid-template-columns: 1fr auto auto; gap: .8rem; align-items: center; padding: .7rem 0; border-top: 1px solid var(--line); }
+.ov-rij.is-laat b { color: #e08a74; }
+.ov-open { background: none; border: 0; color: var(--text); text-align: left; cursor: pointer; padding: 0; display: grid; gap: .1rem; font: inherit; }
+.ov-open strong { font-weight: 500; }
+.ov-open span { font-size: .9rem; }
+.ov-open small { font-size: .75rem; color: var(--muted); }
+.ov-open:hover strong { color: var(--gold); }
+.ov-rij b { font: 500 1.15rem var(--serif); white-space: nowrap; }
+.ov-status { display: flex; align-items: center; gap: .5rem; }
+.ov-status em { font-style: normal; font-size: .72rem; color: #17120b; background: #e08a74; border-radius: 999px; padding: .15em .6em; }
+.ov-status select { width: auto; padding: .4em .5em; font-size: .82rem; }
+.ov-leeg { color: var(--muted); font-size: .9rem; }
+@media (max-width: 640px) {
+  .overzicht__cijfers { grid-template-columns: 1fr 1fr; }
+  .ov-rij { grid-template-columns: 1fr auto; }
+  .ov-status { grid-column: 1 / -1; }
+}
+
 /* ---------- Document (A4) ---------- */
 .stage { padding: 40px 24px; display: flex; justify-content: center; overflow-x: auto; }
 .paper {
@@ -137,6 +187,7 @@ input[type=date], input[type=time] { color-scheme: dark; }
 /* ---------- Printen ---------- */
 @page { size: A4; margin: 0; }
 @media print {
+  .overzicht { display: none !important; }
   html, body { margin: 0; padding: 0; height: auto; }
   body { display: block; background: #fff; }
   .editor { display: none; }

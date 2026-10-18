@@ -1,5 +1,5 @@
 // Service worker voor de offerte- en factuurmaker: werkt ook offline.
-const CACHE = 'beck-documenten-v8';
+const CACHE = 'beck-documenten-v9';
 const BASIS = [
   'documenten.html',
   'documenten.webmanifest',

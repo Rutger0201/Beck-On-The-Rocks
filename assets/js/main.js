@@ -75,7 +75,8 @@
 
   // Web3Forms (web3forms.com): boekingen en reviews gaan direct naar je mail.
   // Zonder sleutel opent het formulier het mailprogramma van de bezoeker.
-  const WEB3FORMS_SLEUTEL = 'd1f82d89-0590-4f10-a8ec-3da82a5164e9';
+  const CONFIG = window.BECK_CONFIG || {};
+  const WEB3FORMS_SLEUTEL = CONFIG.web3forms || '';  // staat in assets/js/config.js
 
   // Goedgekeurde reviews staan als losse .json-bestanden in deze map van de repository
   const REVIEWS_REPO = 'Rutger0201/Beck-On-The-Rocks';
@@ -350,7 +351,7 @@
 
   /* ================= Boekingsformulier ================= */
   // Aanvragen gaan via Web3Forms (zie WEB3FORMS_SLEUTEL bovenaan) direct naar je mail.
-  const MAIL = 'rutger@beck.nl';
+  const MAIL = CONFIG.mail || 'rutger@beck.nl';
   const fDatum = $('#boek-form [name=datum]');
   fDatum.addEventListener('input', () => { $('#form-spoed').hidden = !isSpoed(fDatum.value); });
   $('#boek-form').addEventListener('submit', async e => {
