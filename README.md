@@ -1,6 +1,7 @@
 # Beck on the Rocks · website
 
 Eerste versie van de website voor Beck on the Rocks, freelance bartender.
+Live op **https://beckontherocks.nl** (GitHub Pages, domein via `CNAME`).
 Gewone HTML, CSS en JavaScript: geen build-stap nodig. Open `index.html` in je browser
 of zet de map op een host als Netlify, Vercel of GitHub Pages.
 
@@ -53,7 +54,7 @@ Kleuren en lettertypes staan als variabelen bovenaan `assets/css/style.css`.
 
 ## Offertes & facturen (`documenten.html`)
 Een eigen hulpmiddel om offertes en facturen te maken. Niet gelinkt vanaf de website;
-open het via `documenten.html` (bijv. `rutger0201.github.io/Beck-On-The-Rocks/documenten.html`).
+open het via `documenten.html` (https://beckontherocks.nl/documenten.html).
 
 - Kies **Offerte**, **Factuur** of **Annulering** (factuur voor 20% annuleringskosten).
 - Vul klant en feest in; de uren worden berekend uit begin- en eindtijd (ook over middernacht).
