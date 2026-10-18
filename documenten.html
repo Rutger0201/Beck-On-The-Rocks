@@ -93,7 +93,8 @@
       </label>
       <label>Begintijd<input id="f-van" type="time" value="20:00"></label>
       <label>Eindtijd<input id="f-tot" type="time" value="00:00"></label>
-      <label class="full">Locatie<input id="f-locatie" placeholder="Adres of naam locatie"></label>
+      <label>Aantal gasten<input id="f-gasten" type="number" min="1" placeholder="bijv. 80"></label>
+      <label>Locatie<input id="f-locatie" placeholder="Adres of naam locatie"></label>
       <label class="check full"><input type="checkbox" id="spoed-auto" checked> Spoedtoeslag automatisch (feest binnen 1 maand na documentdatum)</label>
       <label class="check full" id="lbl-spoed-hand" hidden><input type="checkbox" id="spoed-hand"> Spoedtoeslag toepassen</label>
     </div>
@@ -143,6 +144,7 @@
     <button type="button" class="btn btn--ghost" id="nieuw">Nieuw document</button>
     <button type="button" class="link danger" id="wis" hidden>Dit document verwijderen</button>
   </div>
+  <div class="waarschuwing" id="ontbreekt" hidden></div>
   <p class="tip">Tip: kies bij printen "Opslaan als PDF" en zet "Kop- en voetteksten" uit.</p>
 
   <details class="app">
@@ -183,7 +185,8 @@
     </section>
 
     <table class="doc__table">
-      <thead><tr><th>Omschrijving</th><th class="num">Aantal</th><th class="num">Prijs</th><th class="num">Bedrag</th></tr></thead>
+      <colgroup><col><col class="c-aantal"><col class="c-prijs"><col class="c-bedrag"></colgroup>
+      <thead><tr><th>Omschrijving</th><th class="num"><span>Aantal</span></th><th class="num"><span>Prijs</span></th><th class="num"><span>Bedrag</span></th></tr></thead>
       <tbody id="d-regels"></tbody>
     </table>
 
