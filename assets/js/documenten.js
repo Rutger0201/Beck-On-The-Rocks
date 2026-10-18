@@ -109,6 +109,8 @@
     $$('.seg button').forEach(b => b.classList.toggle('is-on', b.dataset.type === t));
     $('#lbl-termijn').firstChild.textContent = t === 'offerte' ? 'Geldig (dagen)' : 'Betaaltermijn (dagen)';
     $('#lbl-ref').hidden = t === 'offerte';
+    $('#kopieer-akkoord').hidden = t !== 'offerte';
+    $('#herinner').hidden = t === 'offerte';
     const huidig = $('#status').value;
     $('#status').innerHTML = Object.entries(STATUS[t === 'offerte' ? 'offerte' : 'factuur']).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
     $('#status').value = STATUS[t === 'offerte' ? 'offerte' : 'factuur'][huidig] ? huidig : 'concept';
@@ -302,7 +304,9 @@
     const d = leesForm();
     if (!d.nummer) return;
     d.bijgewerkt = new Date().toISOString();
-    const docs = alleDocs(); docs[d.nummer] = d; opslag.schrijf('beck-documenten', docs);
+    const docs = alleDocs();
+    if (docs[d.nummer]?.herinnerd) d.herinnerd = docs[d.nummer].herinnerd;
+    docs[d.nummer] = d; opslag.schrijf('beck-documenten', docs);
     tekenLijst(); $('#opgeslagen').value = d.nummer;
     toonBackupInfo();
   }
@@ -403,9 +407,39 @@
         + (!annul && ins.review ? `\n\nWas je tevreden? Een review stel ik enorm op prijs: ${ins.review}` : '') + groet
     };
   }
+  // Betaalherinnering: klaar vanaf de vervaldatum (factuurdatum + betaaltermijn, standaard 14 dagen)
+  function herinnering(d) {
+    const c = cijfers(d), vn = voornaam(d);
+    const feest = `${(d['f-soort'] || 'feest').toLowerCase()}${d['f-datum'] ? ' op ' + lang(d['f-datum']) : ''}`;
+    return {
+      onderwerp: `Herinnering factuur ${d.nummer} · ${ins.naam}`,
+      tekst: `Hoi${vn ? ' ' + vn : ''},\n\nEven een vriendelijke herinnering: de betaaltermijn van factuur ${d.nummer} (${euro(c.totaal)}) voor je ${feest} liep tot ${lang(c.verval)}. Waarschijnlijk is het je even ontschoten.`
+        + `\n\nWil je het bedrag binnen 7 dagen overmaken${ins.iban ? ' op ' + ins.iban + ' t.n.v. ' + ins.naam : ''}, onder vermelding van ${d.nummer}? Heb je al betaald, dan kun je dit bericht negeren.`
+        + `\n\nDank je wel!\n\nGroet,\n${ins.contact || ''}\n${ins.naam}${ins.web ? '\n' + ins.web : ''}`
+    };
+  }
+  const herinnerNodig = (d, c) => d.type !== 'offerte' && d.status === 'verstuurd' && c.verval && c.verval <= vandaag();
+  function stuurHerinnering(d, via) {
+    const m = herinnering(d);
+    if (via === 'wa') open(`https://wa.me/${telIntl(d['k-tel'])}?text=${encodeURIComponent(m.tekst)}`, '_blank', 'noopener');
+    else location.href = `mailto:${encodeURIComponent(d['k-email'] || '')}?subject=${encodeURIComponent(m.onderwerp)}&body=${encodeURIComponent(m.tekst)}`;
+    const docs = alleDocs();
+    if (docs[d.nummer]) { docs[d.nummer].herinnerd = vandaag(); opslag.schrijf('beck-documenten', docs); }
+  }
+  // Afspraak in Google Agenda op de vervaldatum, met een link die deze factuur in de generator opent
+  function agendaLink(d) {
+    const c = cijfers(d);
+    const dag = (c.verval || vandaag()).replace(/-/g, '');
+    const basis = location.href.replace(/[?#].*$/, '');
+    const details = `Is factuur ${d.nummer} (${euro(c.totaal)}) van ${d['k-bedrijf'] || d['k-naam'] || 'de klant'} nog niet betaald? Stuur de herinnering met één klik:\n${basis}?herinner=${encodeURIComponent(d.nummer)}`;
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+      + `&text=${encodeURIComponent(`Betaling checken: ${d.nummer} ${d['k-naam'] || ''}`.trim())}`
+      + `&dates=${dag}T090000/${dag}T091500&details=${encodeURIComponent(details)}`;
+  }
   function markeerVerstuurd() {
     if ($('#status').value === 'concept') $('#status').value = 'verstuurd';
     bewaar(); teken();
+    if (type !== 'offerte') $('#verstuur-tip').textContent = `Verstuurd ✓ Zet hieronder meteen de betaalherinnering voor ${lang(cijfers(leesForm()).verval)} in je agenda.`;
   }
   const telIntl = t => { let n = String(t || '').replace(/[^\d+]/g, ''); if (n.startsWith('+')) n = n.slice(1); else if (n.startsWith('00')) n = n.slice(2); else if (n.startsWith('0')) n = '31' + n.slice(1); return n.length >= 10 ? n : ''; };
   $('#stuur-wa').addEventListener('click', () => {
@@ -418,6 +452,13 @@
     location.href = `mailto:${encodeURIComponent(d['k-email'] || '')}?subject=${encodeURIComponent(m.onderwerp)}&body=${encodeURIComponent(m.tekst)}`;
     markeerVerstuurd();
   });
+  $('#herinner-agenda').addEventListener('click', () => {
+    const d = leesForm();
+    if (!d.datum) { alert('Vul eerst de factuurdatum in.'); return; }
+    open(agendaLink(d), '_blank', 'noopener');
+  });
+  $('#herinner-wa').addEventListener('click', () => { bewaar(); stuurHerinnering(leesForm(), 'wa'); });
+  $('#herinner-mail').addEventListener('click', () => { bewaar(); stuurHerinnering(leesForm(), 'mail'); });
   $('#kopieer-akkoord').addEventListener('click', async () => {
     const link = akkoordLink(leesForm());
     try { await navigator.clipboard.writeText(link); $('#verstuur-tip').textContent = 'Akkoordlink gekopieerd ✓ Plak hem in je bericht aan de klant.'; }
@@ -508,7 +549,7 @@
       const st = d.status || 'concept';
       const isFactuur = d.type !== 'offerte';
       const teLaat = isFactuur && st !== 'betaald' && st !== 'concept' && c.verval && c.verval < nu;
-      return { d, c, st, isFactuur, teLaat };
+      return { d, c, st, isFactuur, teLaat, herinner: herinnerNodig(d, c) };
     }).sort((a, b) => String(b.d.datum).localeCompare(String(a.d.datum)) || String(b.d.nummer).localeCompare(String(a.d.nummer)));
   }
   function tekenOverzicht() {
@@ -518,11 +559,13 @@
     const laat = som(r => r.teLaat);
     const betaald = som(r => r.isFactuur && r.st === 'betaald' && String(r.d.datum).startsWith(jaar));
     const wachtend = rijen.filter(r => !r.isFactuur && r.st === 'verstuurd').length;
+    const teHerinneren = rijen.filter(r => r.herinner && !r.d.herinnerd).length;
     $('#ov-cijfers').innerHTML = `
       <div><span>Openstaand</span><strong>${euro(open_)}</strong></div>
       <div class="${laat ? 'is-laat' : ''}"><span>Te laat</span><strong>${euro(laat)}</strong></div>
       <div><span>Betaald ${jaar}</span><strong>${euro(betaald)}</strong></div>
-      <div><span>Offertes wachten</span><strong>${wachtend}</strong></div>`;
+      <div><span>Offertes wachten</span><strong>${wachtend}</strong></div>`
+      + (teHerinneren ? `<p class="ov-melding">${teHerinneren === 1 ? '1 factuur is' : teHerinneren + ' facturen zijn'} over de betaaltermijn. Stuur een herinnering met de knoppen hieronder.</p>` : '');
     const zicht = rijen.filter(r => ovFilter === 'alle' || (ovFilter === 'offerte' && !r.isFactuur)
       || (ovFilter === 'open' && r.isFactuur && r.st !== 'betaald') || (ovFilter === 'telaat' && r.teLaat)
       || (ovFilter === 'betaald' && r.st === 'betaald'));
@@ -538,6 +581,9 @@
         <span class="ov-status">${r.teLaat ? '<em>Te laat</em>' : ''}
           <select data-status="${esc(r.d.nummer)}" aria-label="Status ${esc(r.d.nummer)}">${Object.entries(opties).map(([k, v]) => `<option value="${k}"${k === r.st ? ' selected' : ''}>${v}</option>`).join('')}</select>
         </span>
+        ${r.herinner ? `<span class="ov-herinner">${r.d.herinnerd ? `<small>Herinnerd op ${esc(lang(r.d.herinnerd))}</small>` : '<small>Herinnering sturen:</small>'}
+          <button type="button" data-herinner="${esc(r.d.nummer)}" data-via="wa">WhatsApp</button>
+          <button type="button" data-herinner="${esc(r.d.nummer)}" data-via="mail">Mail</button></span>` : ''}
       </div>`;
     }).join('') : '<p class="ov-leeg">Nog geen documenten in deze lijst.</p>';
   }
@@ -556,6 +602,8 @@
     tekenOverzicht();
   });
   $('#ov-lijst').addEventListener('click', e => {
+    const h = e.target.closest('[data-herinner]');
+    if (h) { const d = alleDocs()[h.dataset.herinner]; if (d) { stuurHerinnering(d, h.dataset.via); tekenOverzicht(); } return; }
     const b = e.target.closest('[data-open]'); if (!b) return;
     const d = alleDocs()[b.dataset.open]; if (!d) return;
     vulForm(d); $('#opgeslagen').value = d.nummer; $('#overzicht').close();
@@ -685,6 +733,15 @@
   /* ================= Start ================= */
   tekenLijst();
   toonBackupInfo();
-  const startType = new URLSearchParams(location.search).get('type');
-  nieuw(['offerte', 'factuur', 'annulering'].includes(startType) ? startType : 'offerte');
+  const startParams = new URLSearchParams(location.search);
+  const startType = startParams.get('type');
+  const herinnerDoc = alleDocs()[startParams.get('herinner')];
+  if (herinnerDoc) {
+    // Geopend vanuit de agenda-afspraak: meteen de factuur met de herinnerknoppen
+    vulForm(herinnerDoc); $('#opgeslagen').value = herinnerDoc.nummer;
+    $('#verstuur-tip').textContent = herinnerDoc.status === 'betaald'
+      ? `Factuur ${herinnerDoc.nummer} staat al op betaald. Er hoeft geen herinnering meer uit.`
+      : `Is factuur ${herinnerDoc.nummer} nog niet betaald? Stuur hieronder de herinnering. Wel betaald? Zet de status op Betaald.`;
+    $('#herinner').scrollIntoView({ block: 'center' });
+  } else nieuw(['offerte', 'factuur', 'annulering'].includes(startType) ? startType : 'offerte');
 })();
