@@ -30,7 +30,7 @@ De knoppen op de reviewpagina verschijnen dan vanzelf. Zet de review-link ook in
 ## Nog zelf invullen vóór livegang
 - **Reviews**: nog geen; zie "Google reviews koppelen".
 - **Foto's**: staan in `assets/img/` (portret + sfeerbeelden). Meer foto's toevoegen kan in de galerij op de pagina "Over mij".
-- **Contactgegevens**: telefoon en Instagram (nog niet op de site), KvK na inschrijving (footer + generator).
+- **Contactgegevens**: zakelijk telefoonnummer (nu privénummer), Instagram, KvK na inschrijving (footer + generator).
 - **Cocktails**: lijst `COCKTAILS` bovenaan `assets/js/main.js`.
 
 Kleuren en lettertypes staan als variabelen bovenaan `assets/css/style.css`.
