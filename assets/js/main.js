@@ -3,6 +3,11 @@
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 
+  // Taal: en/index.html heeft lang="en", de rest van de site is Nederlands
+  const EN = document.documentElement.lang === 'en';
+  const t = (nl, en) => EN ? en : nl;
+  const LOCALE = t('nl-NL', 'en-GB');
+
   /* ================= Gegevens (hier pas je de inhoud aan) ================= */
 
   // glas: 'tumbler' | 'coupe' | 'highball' | 'martini'
@@ -58,7 +63,33 @@
       ing: ['Op maat', 'Eigen naam', 'Getest'] }
   ];
 
-  const LABELS = { klassiek: 'Klassieker', fris: 'Fris & fruitig', mocktail: 'Alcoholvrij', creatie: 'Op maat' };
+  // Engelse teksten voor de Engelse site (en/index.html), op naam van de cocktail
+  const COCKTAILS_EN = {
+    'Old Fashioned': ['Bourbon, sugar and bitters, stirred slowly and finished with an orange zest.', ['Bourbon', 'Sugar', 'Angostura', 'Orange']],
+    'Negroni': ['Gin, Campari and sweet vermouth in perfect balance. Bitter, bold and timeless.', ['Gin', 'Campari', 'Vermouth']],
+    'Espresso Martini': ['Vodka, freshly brewed espresso and coffee liqueur with a creamy crema.', ['Vodka', 'Espresso', 'Coffee liqueur']],
+    'Whiskey Sour': ['Bourbon, lemon and sugar, shaken to a silky foam.', ['Bourbon', 'Lemon', 'Sugar']],
+    'Daiquiri': ['White rum, lime and sugar. Simple, fresh and perfectly balanced.', ['White rum', 'Lime', 'Sugar']],
+    'Cosmopolitan': ['Citrus vodka, triple sec, cranberry and lime. A stylish classic.', ['Vodka', 'Triple sec', 'Cranberry', 'Lime']],
+    'Mojito': ['White rum, fresh mint, lime and sugar, topped with soda.', ['White rum', 'Mint', 'Lime', 'Soda']],
+    'Caipirinha': ['Cachaça with muddled lime and cane sugar. A Brazilian summer.', ['Cachaça', 'Lime', 'Cane sugar']],
+    'Margarita': ['Tequila, triple sec and lime with a salt rim.', ['Tequila', 'Triple sec', 'Lime', 'Salt']],
+    'Pornstar Martini': ['Vanilla vodka and passion fruit with a shot of bubbles on the side. Always a hit.', ['Vanilla vodka', 'Passion fruit', 'Prosecco']],
+    'Moscow Mule': ['Vodka, lime and spicy ginger beer. Fresh with a kick.', ['Vodka', 'Lime', 'Ginger beer']],
+    'Piña Colada': ['Rum, pineapple and coconut, shaken until creamy. A holiday in a glass.', ['Rum', 'Pineapple', 'Coconut']],
+    'Virgin Mojito': ['Fresh mint, lime and sugar with soda. All the freshness, no alcohol.', ['Mint', 'Lime', 'Soda']],
+    'Virgin Colada': ['Pineapple and coconut, creamy and tropical, without alcohol.', ['Pineapple', 'Coconut', 'Lime']],
+    'Virgin Mule': ['Ginger beer, lime and a dash of bitters. Spicy and refreshing.', ['Ginger beer', 'Lime', 'Mint']],
+    'Jouw cocktail': ['A signature cocktail for your party, with a name and taste that suit you. Alcohol-free is possible too. Price on request.', ['Bespoke', 'Your own name', 'Tested'], 'Your cocktail']
+  };
+  if (EN) COCKTAILS.forEach(c => { const e = COCKTAILS_EN[c.naam]; if (e) { c.tekst = e[0]; c.ing = e[1]; c.titel = e[2]; } });
+
+  const LABELS = EN
+    ? { klassiek: 'Classic', fris: 'Fresh & fruity', mocktail: 'Alcohol-free', creatie: 'Bespoke' }
+    : { klassiek: 'Klassieker', fris: 'Fris & fruitig', mocktail: 'Alcoholvrij', creatie: 'Op maat' };
+  // Soort feest blijft in het Nederlands opgeslagen (mail, generator, reviews); dit is alleen de weergave
+  const SOORT_EN = { Bruiloft: 'Wedding', Bedrijfsfeest: 'Corporate event', 'Privéfeest': 'Private party', Verjaardag: 'Birthday', Diner: 'Dinner', 'Horeca-inval': 'Bar cover', Anders: 'Other' };
+  const soortTekst = s => EN ? (SOORT_EN[s] || s) : s;
 
   // Tarieven (zelfde bedragen als op de prijzenpagina in index.html)
   const TARIEF = {
@@ -107,7 +138,7 @@
         ${glasSvg(c.glas)}
       </div>
       <div class="card__body">
-        <h3>${c.naam}</h3>
+        <h3>${c.titel || c.naam}</h3>
         <p>${c.tekst}</p>
         <div class="card__ing">${c.ing.map(i => `<span>${i}</span>`).join('')}</div>
       </div>
@@ -152,8 +183,10 @@
       huidige = page;
       document.title = page.id === 'home' ? 'Beck on the Rocks · Freelance bartender'
         : `${$(`#menu a[href="#${page.id}"]`)?.textContent || ''} · Beck on the Rocks`;
-      telBezoek(page.id === 'home' ? '/' : '/#' + page.id, document.title);
+      telBezoek(t('/', '/en/') + (page.id === 'home' ? '' : '#' + page.id), document.title);
     }
+    // Taalknop: blijf op dezelfde pagina in de andere taal
+    $$('.taal').forEach(a => { a.href = a.dataset.basis + (page.id === 'home' ? '' : '#' + page.id); });
     $$('#menu a').forEach(a => a.toggleAttribute('aria-current', a.getAttribute('href') === '#' + page.id));
     nav.classList.toggle('is-solid', page.id !== 'home');
     fab.classList.toggle('is-hidden', page.id === 'boeken');
@@ -168,7 +201,7 @@
   toggle.addEventListener('click', () => {
     const open = toggle.getAttribute('aria-expanded') !== 'true';
     toggle.setAttribute('aria-expanded', open);
-    toggle.setAttribute('aria-label', open ? 'Menu sluiten' : 'Menu openen');
+    toggle.setAttribute('aria-label', open ? t('Menu sluiten', 'Close menu') : t('Menu openen', 'Open menu'));
     menu.classList.toggle('is-open', open);
   });
   $$('a', menu).forEach(a => a.addEventListener('click', () => {
@@ -199,7 +232,7 @@
   $$('[data-count]').forEach(el => io2.observe(el));
 
   /* ================= Prijscalculator ================= */
-  const euro = n => '€ ' + n.toLocaleString('nl-NL', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
+  const euro = n => '€ ' + n.toLocaleString(LOCALE, { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
   const isSpoed = datum => {
     if (!datum) return false;
     const grens = new Date(); grens.setHours(0, 0, 0, 0); grens.setMonth(grens.getMonth() + 1);
@@ -217,21 +250,23 @@
     const km = Math.max(0, +cK.value || 0), glazen = Math.max(0, +cG.value || 0);
     $('#c-uren-out').textContent = uren;
     const regels = [
-      [`${uren} uur bartender × ${euro(uurprijs)}`, uren * uurprijs],
-      [`Voorbereiding (${TARIEF.voorbereiding} uur)`, TARIEF.voorbereiding * uurprijs],
-      [`Cocktailmenu (${cC.value} ${+cC.value === 1 ? 'cocktail' : 'cocktails'}) & materialen, vanaf`, fp ? TARIEF.menuFruitpers : TARIEF.menu]
+      [t(`${uren} uur bartender × ${euro(uurprijs)}`, `${uren} ${uren === 1 ? 'hour' : 'hours'} bartender × ${euro(uurprijs)}`), uren * uurprijs],
+      [t(`Voorbereiding (${TARIEF.voorbereiding} uur)`, `Preparation (${TARIEF.voorbereiding} hour)`), TARIEF.voorbereiding * uurprijs],
+      [t(`Cocktailmenu (${cC.value} ${+cC.value === 1 ? 'cocktail' : 'cocktails'}) & materialen, vanaf`,
+        `Cocktail menu (${cC.value} ${+cC.value === 1 ? 'cocktail' : 'cocktails'}) & equipment, from`), fp ? TARIEF.menuFruitpers : TARIEF.menu]
     ];
-    if (km) regels.push([`Reiskosten ${km} km × ${euro(TARIEF.km)}`, km * TARIEF.km]);
-    if (glazen) regels.push([`${glazen} glazen × ${euro(TARIEF.glas)}`, glazen * TARIEF.glas]);
-    const basis = regels.reduce((t, r) => t + r[1], 0);
-    if (spoed) regels.push([`Spoedtoeslag (+${TARIEF.spoed * 100}%)`, basis * TARIEF.spoed]);
-    const totaal = regels.reduce((t, r) => t + r[1], 0);
-    $('#c-lines').innerHTML = regels.map(([l, b]) => `<li${l.startsWith('Spoed') ? ' class="is-spoed"' : ''}><span>${l}</span><b>${euro(b)}</b></li>`).join('');
+    if (km) regels.push([t(`Reiskosten ${km} km × ${euro(TARIEF.km)}`, `Travel ${km} km × ${euro(TARIEF.km)}`), km * TARIEF.km]);
+    if (glazen) regels.push([t(`${glazen} glazen × ${euro(TARIEF.glas)}`, `${glazen} glasses × ${euro(TARIEF.glas)}`), glazen * TARIEF.glas]);
+    const basis = regels.reduce((s, r) => s + r[1], 0);
+    if (spoed) regels.push([t(`Spoedtoeslag (+${TARIEF.spoed * 100}%)`, `Short-notice surcharge (+${TARIEF.spoed * 100}%)`), basis * TARIEF.spoed, true]);
+    const totaal = regels.reduce((s, r) => s + r[1], 0);
+    $('#c-lines').innerHTML = regels.map(([l, b, isSpoedRegel]) => `<li${isSpoedRegel ? ' class="is-spoed"' : ''}><span>${l}</span><b>${euro(b)}</b></li>`).join('');
     $('#c-totaal').textContent = euro(totaal);
     $('#c-detail').textContent = (spoed
-      ? 'Spoedboeking: je feest is binnen een maand.'
-      : cD.value ? 'Normaal tarief: meer dan een maand vooruit geboekt.' : 'Vul een datum in om te zien of er spoedtoeslag geldt.')
-      + (km ? '' : ' Reiskosten: €0,25 per km.');
+      ? t('Spoedboeking: je feest is binnen een maand.', 'Short-notice booking: your party is within a month.')
+      : cD.value ? t('Normaal tarief: meer dan een maand vooruit geboekt.', 'Standard rate: booked more than a month ahead.')
+        : t('Vul een datum in om te zien of er spoedtoeslag geldt.', 'Enter a date to see whether a short-notice surcharge applies.'))
+      + (km ? '' : t(' Reiskosten: €0,25 per km.', ' Travel costs: €0.25 per km.'));
   }
   [cU, cD, cC, cF, cK, cG].forEach(el => el.addEventListener('input', bereken));
   cF.addEventListener('change', bereken);
@@ -253,7 +288,7 @@
   zetLink('#google-profiel', GOOGLE_REVIEWS_BEKIJKEN);
   const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const sterren = n => '★'.repeat(n) + '☆'.repeat(5 - n);
-  const maandJaar = d => { const x = new Date(d + 'T00:00'); return isNaN(x) ? '' : x.toLocaleDateString('nl-NL', { month: 'long', year: 'numeric' }); };
+  const maandJaar = d => { const x = new Date(d + 'T00:00'); return isNaN(x) ? '' : x.toLocaleDateString(LOCALE, { month: 'long', year: 'numeric' }); };
 
   // Lijst met goedgekeurde reviews ophalen: 1 verzoek voor de map, daarna de bestanden zelf
   async function laadReviews() {
@@ -276,18 +311,18 @@
     lijst.innerHTML = reviews.map(r => {
       const n = Math.min(5, Math.max(1, Math.round(+r.sterren) || 5));
       return `<blockquote class="review">
-        <div class="stars" aria-label="${n} van 5 sterren">${sterren(n)}</div>
+        <div class="stars" aria-label="${t(`${n} van 5 sterren`, `${n} out of 5 stars`)}">${sterren(n)}</div>
         <p>${esc(r.tekst)}</p>
-        <footer><strong>${esc(r.naam)}</strong><span>${esc(r.soort || '')}${r.datum ? ' · ' + esc(maandJaar(r.datum)) : ''}</span></footer>
+        <footer><strong>${esc(r.naam)}</strong><span>${esc(soortTekst(r.soort || ''))}${r.datum ? ' · ' + esc(maandJaar(r.datum)) : ''}</span></footer>
       </blockquote>`;
     }).join('');
     lijst.hidden = false;
     const gem = reviews.reduce((t, r) => t + (Math.min(5, Math.max(1, +r.sterren || 5))), 0) / reviews.length;
     const score = $('#review-score');
-    score.innerHTML = `<strong>${gem.toLocaleString('nl-NL', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</strong>
-      <div><div class="stars">${sterren(Math.round(gem))}</div><span>Gemiddeld uit ${reviews.length} ${reviews.length === 1 ? 'review' : 'reviews'}</span></div>`;
+    score.innerHTML = `<strong>${gem.toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</strong>
+      <div><div class="stars">${sterren(Math.round(gem))}</div><span>${t('Gemiddeld uit', 'Average of')} ${reviews.length} ${reviews.length === 1 ? 'review' : 'reviews'}</span></div>`;
     score.hidden = false;
-    $('#review-intro').textContent = 'Ik hoor graag hoe jij het vond. Je review helpt anderen kiezen.';
+    $('#review-intro').textContent = t('Ik hoor graag hoe jij het vond. Je review helpt anderen kiezen.', 'I would love to hear what you thought. Your review helps others choose.');
   }
   laadReviews().catch(() => { /* geen verbinding met GitHub: alleen de oproep tonen */ });
 
@@ -307,7 +342,7 @@
       if (!geldig) ok = false;
     });
     note.classList.remove('is-fout');
-    if (!ok) { note.textContent = 'Vul je naam en review in (minstens 10 tekens) en geef toestemming om hem te plaatsen.'; note.classList.add('is-fout'); return; }
+    if (!ok) { note.textContent = t('Vul je naam en review in (minstens 10 tekens) en geef toestemming om hem te plaatsen.', 'Please fill in your name and review (at least 10 characters) and give permission to publish it.'); note.classList.add('is-fout'); return; }
     const d = Object.fromEntries(new FormData(form));
     if (d.botcheck) return;
 
@@ -319,7 +354,7 @@
       + `&message=${encodeURIComponent('Review van ' + review.naam + ' goedgekeurd')}`;
     const velden = {
       'Naam': review.naam, 'Sterren': `${sterren(review.sterren)} (${review.sterren}/5)`, 'Soort feest': review.soort,
-      'Review': review.tekst, 'E-mail reviewer': d.email || '-',
+      'Review': review.tekst, 'E-mail reviewer': d.email || '-', ...(EN ? { 'Taal': 'Engels' } : {}),
       'GOEDKEUREN (publiceren op de site)': goedkeuren,
       'Afwijzen': 'Doe niets: de review verschijnt dan niet.'
     };
@@ -329,7 +364,7 @@
       location.href = `mailto:${MAIL}?subject=${encodeURIComponent(onderwerp)}&body=${encodeURIComponent(Object.entries(velden).map(([k, v]) => `${k}: ${v}`).join('\n'))}`;
       return;
     }
-    knop.disabled = true; knop.textContent = 'Versturen…';
+    knop.disabled = true; knop.textContent = t('Versturen…', 'Sending…');
     try {
       const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
@@ -342,10 +377,10 @@
       telBezoek('review-verstuurd', 'Review verstuurd', true);
       const klaar = $('#review-klaar'); klaar.hidden = false; klaar.focus();
     } catch {
-      note.textContent = 'Het versturen is niet gelukt. Probeer het later nog eens, of mail je review naar rutger@beck.nl.';
+      note.textContent = t('Het versturen is niet gelukt. Probeer het later nog eens, of mail je review naar rutger@beck.nl.', 'Sending failed. Please try again later, or email your review to rutger@beck.nl.');
       note.classList.add('is-fout');
     } finally {
-      knop.disabled = false; knop.textContent = 'Verstuur review';
+      knop.disabled = false; knop.textContent = t('Verstuur review', 'Send review');
     }
   });
 
@@ -354,9 +389,9 @@
     'zoet-ja': 'Pornstar Martini', 'zuur-ja': 'Daiquiri', 'bitter-ja': 'Negroni',
     'zoet-nee': 'Virgin Colada', 'zuur-nee': 'Virgin Mojito', 'bitter-nee': 'Virgin Mule'
   };
-  const SFEER = {
-    strand: 'Met je tenen in het zand,', lounge: 'Lekker weggezakt bij de jazz,', feest: 'Tussen twee dansjes door,'
-  };
+  const SFEER = EN
+    ? { strand: 'With your toes in the sand:', lounge: 'Sunk deep into a jazz lounge:', feest: 'Between two dances:' }
+    : { strand: 'Met je tenen in het zand,', lounge: 'Lekker weggezakt bij de jazz,', feest: 'Tussen twee dansjes door,' };
   $('#quiz-form').addEventListener('submit', e => {
     e.preventDefault();
     const f = new FormData(e.target);
@@ -365,7 +400,7 @@
     if (f.get('q2') === 'strand' && f.get('q3') === 'ja' && f.get('q1') === 'zoet') naam = 'Piña Colada';
     const c = COCKTAILS.find(x => x.naam === naam);
     const res = $('#quiz-result');
-    res.innerHTML = `<p class="eyebrow">Jouw match</p><h3>${c.naam}</h3><p>${SFEER[f.get('q2')]} ${c.tekst.charAt(0).toLowerCase() + c.tekst.slice(1)}</p>`;
+    res.innerHTML = `<p class="eyebrow">${t('Jouw match', 'Your match')}</p><h3>${c.titel || c.naam}</h3><p>${SFEER[f.get('q2')]} ${c.tekst.charAt(0).toLowerCase() + c.tekst.slice(1)}</p>`;
     res.hidden = false;
   });
 
@@ -385,7 +420,7 @@
     });
     const note = $('#form-note');
     note.classList.remove('is-fout');
-    if (!ok) { note.textContent = 'Vul je naam, een geldig e-mailadres en de datum in.'; note.classList.add('is-fout'); return; }
+    if (!ok) { note.textContent = t('Vul je naam, een geldig e-mailadres en de datum in.', 'Please fill in your name, a valid email address and the date.'); note.classList.add('is-fout'); return; }
     const d = Object.fromEntries(new FormData(form));
     if (d.botcheck) return; // spambot
 
@@ -394,17 +429,18 @@
       'Naam': d.naam, 'E-mail': d.email, 'Telefoon klant': d.telefoon || '-', 'Datum': d.datum, 'Aantal uur': d.uren || '-',
       'Gasten': d.gasten || '-', 'Soort feest': d.soort, 'Locatie': d.locatie || '-',
       'Cocktails op de kaart': d.cocktails, 'Fruitpers': d.fruitpers ? 'ja' : 'nee', 'Glazen via Rutger': d.glazen ? 'ja' : 'nee',
-      'Spoedboeking': isSpoed(d.datum) ? 'ja (binnen 1 maand)' : 'nee', 'Bericht': d.bericht || '-'
+      'Spoedboeking': isSpoed(d.datum) ? 'ja (binnen 1 maand)' : 'nee', 'Bericht': d.bericht || '-',
+      ...(EN ? { 'Taal': 'Engels (antwoord in het Engels)' } : {})
     };
     const onderwerp = `Aanvraag ${d.soort} op ${d.datum}`;
     const naarMail = () => {
       const body = Object.entries(velden).map(([k, v]) => `${k}: ${v}`).join('\n');
       location.href = `mailto:${MAIL}?subject=${encodeURIComponent(onderwerp)}&body=${encodeURIComponent(body)}`;
     };
-    if (!WEB3FORMS_SLEUTEL) { naarMail(); note.textContent = 'Dank je! Je mailprogramma opent nu met je aanvraag.'; return; }
+    if (!WEB3FORMS_SLEUTEL) { naarMail(); note.textContent = t('Dank je! Je mailprogramma opent nu met je aanvraag.', 'Thank you! Your email app will now open with your request.'); return; }
 
     const knop = $('#form-knop');
-    knop.disabled = true; knop.textContent = 'Versturen…';
+    knop.disabled = true; knop.textContent = t('Versturen…', 'Sending…');
     try {
       const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
@@ -421,18 +457,22 @@
       form.reset();
       $('#form-spoed').hidden = true;
     } catch (err) {
-      note.innerHTML = 'Het versturen is niet gelukt. Probeer het nog eens, of <a href="#" id="form-mail">verstuur je aanvraag via je mail</a>.';
+      note.innerHTML = t('Het versturen is niet gelukt. Probeer het nog eens, of <a href="#" id="form-mail">verstuur je aanvraag via je mail</a>.',
+        'Sending failed. Please try again, or <a href="#" id="form-mail">send your request by email</a>.');
       note.classList.add('is-fout');
       $('#form-mail').addEventListener('click', ev => { ev.preventDefault(); naarMail(); });
     } finally {
-      knop.disabled = false; knop.textContent = 'Verstuur aanvraag';
+      knop.disabled = false; knop.textContent = t('Verstuur aanvraag', 'Send request');
     }
   });
 
   function toonBedankt(velden) {
     const toon = ['Datum', 'Soort feest', 'Aantal uur', 'Gasten', 'Locatie', 'Cocktails op de kaart'];
+    const KOP_EN = { Datum: 'Date', 'Soort feest': 'Type of event', 'Aantal uur': 'Hours', Gasten: 'Guests', Locatie: 'Location', 'Cocktails op de kaart': 'Cocktails on the menu' };
+    const waarde = k => k === 'Datum' ? new Date(velden[k] + 'T00:00').toLocaleDateString(LOCALE, { day: 'numeric', month: 'long', year: 'numeric' })
+      : k === 'Soort feest' ? soortTekst(velden[k]) : velden[k];
     $('#form-samenvatting').innerHTML = toon.filter(k => velden[k] && velden[k] !== '-')
-      .map(k => `<li><span>${k}</span><b>${String(k === 'Datum' ? new Date(velden[k] + 'T00:00').toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' }) : velden[k]).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))}</b></li>`).join('');
+      .map(k => `<li><span>${EN ? KOP_EN[k] : k}</span><b>${String(waarde(k)).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))}</b></li>`).join('');
     $('#boek-form').hidden = true;
     const klaar = $('#form-klaar');
     klaar.hidden = false; klaar.focus();
@@ -440,7 +480,7 @@
   }
   $('#form-opnieuw').addEventListener('click', () => {
     $('#form-klaar').hidden = true; $('#boek-form').hidden = false;
-    $('#form-note').textContent = 'Je kunt ook mailen naar rutger@beck.nl, bellen of appen naar 06 39 65 86 62.';
+    $('#form-note').textContent = t('Je kunt ook mailen naar rutger@beck.nl, bellen of appen naar 06 39 65 86 62.', 'You can also email rutger@beck.nl, or call or WhatsApp +31 6 39 65 86 62.');
   });
 
   $('#jaar').textContent = new Date().getFullYear();

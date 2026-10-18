@@ -9,6 +9,14 @@ of zet de map op een host als Netlify, Vercel of GitHub Pages.
 Eén homescreen; de andere pagina's open je via het menu (Over mij, Cocktails, Diensten,
 Prijzen, Reviews, FAQ, Boek mij). Elke pagina is een `<div class="page">` in `index.html`.
 
+### Engelse versie (`en/index.html`)
+Dezelfde site in het Engels op https://beckontherocks.nl/en/, met een NL/EN-knop in het menu
+(je blijft op dezelfde pagina). Pas je tekst aan in `index.html`, doe dat dan ook in `en/index.html`.
+De teksten in JavaScript (cocktails, calculator, meldingen) staan in `assets/js/main.js`:
+de Engelse cocktailteksten in `COCKTAILS_EN`, de rest via `t('Nederlands', 'English')`.
+Aanvragen van de Engelse site komen gewoon in het Nederlands binnen, met de regel
+*Taal: Engels*, zodat de generator ze net zo inleest.
+
 ## Prijzen en voorwaarden
 - €45 per uur achter de bar
 - Altijd 1 uur voorbereiding (€45) en vanaf €75 voor cocktailmenu & gebruik materialen (basis 3 cocktails, 1–5 mogelijk)
@@ -18,7 +26,7 @@ Prijzen, Reviews, FAQ, Boek mij). Elke pagina is een `<div class="page">` in `in
 - Geen aanbetaling; annuleren binnen 14 dagen: 20% van het afgesproken bedrag
 - Klant regelt drank, ijs, ingrediënten en een werkplek
 
-Bedragen aanpassen? Doe dat op de pagina Prijzen in `index.html` én in `TARIEF`
+Bedragen aanpassen? Doe dat op de pagina Prijzen in `index.html` en `en/index.html` én in `TARIEF`
 bovenaan `assets/js/main.js` (voor de calculator).
 
 ## Boekingsformulier (Web3Forms)
