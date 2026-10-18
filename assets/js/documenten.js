@@ -66,6 +66,7 @@
   function leesForm() {
     const d = { type, extra: extra.map(r => ({ ...r })), spoedAuto: $('#spoed-auto').checked, spoedHand: $('#spoed-hand').checked, fruitpers: $('#f-fruitpers').checked };
     VELDEN.forEach(id => { d[id] = $('#' + id).value; });
+    d.bl = blLees();
     return d;
   }
   function vulForm(d) {
@@ -76,6 +77,7 @@
     $('#f-fruitpers').checked = !!d.fruitpers;
     if (!d['f-cocktails']) $('#f-cocktails').value = '3';
     if (!d.status) $('#status').value = 'concept';
+    blZet(d.bl);
     extra = (d.extra || []).map(r => ({ ...r }));
     tekenExtra(); teken();
   }
@@ -84,6 +86,7 @@
     $('#f-van').value = '20:00'; $('#f-tot').value = '00:00'; $('#f-soort').selectedIndex = 0;
     $('#spoed-auto').checked = true; $('#spoed-hand').checked = false;
     $('#f-fruitpers').checked = false; $('#f-cocktails').value = '3';
+    blZet(null); toonLijst(false);
     extra = []; tekenExtra();
     zetType(t, true);
     if (t !== 'offerte') $('#spoed-auto').checked = false; // spoed hoort bij het boekmoment (offerte), niet bij de factuurdatum
@@ -279,6 +282,8 @@
     paper.classList.remove('is-compact');
     if (paper.offsetHeight / paper.offsetWidth > 297 / 210 + 0.002) paper.classList.add('is-compact');
 
+    blTeken(d, b);
+
     // Knoppen
     const bestaat = !!alleDocs()[d.nummer];
     $('#wis').hidden = !bestaat;
@@ -331,7 +336,7 @@
   // Bestandsnaam van de PDF = paginatitel tijdens het printen, bijv. "Offerte O-2026-001 Jarno Klein"
   function pdfNaam() {
     const d = leesForm();
-    const soort = type === 'offerte' ? 'Offerte' : type === 'annulering' ? 'Factuur annulering' : 'Factuur';
+    const soort = lijstZichtbaar ? 'Boodschappenlijst' : type === 'offerte' ? 'Offerte' : type === 'annulering' ? 'Factuur annulering' : 'Factuur';
     const klant = (d['k-bedrijf'] || d['k-naam'] || '').trim();
     return [soort, d.nummer, klant].filter(Boolean).join(' ').replace(/[\\/:*?"<>|#%&]+/g, '').replace(/\s+/g, ' ').slice(0, 80);
   }
@@ -417,6 +422,81 @@
     const link = akkoordLink(leesForm());
     try { await navigator.clipboard.writeText(link); $('#verstuur-tip').textContent = 'Akkoordlink gekopieerd ✓ Plak hem in je bericht aan de klant.'; }
     catch { prompt('Kopieer deze link:', link); }
+  });
+
+  /* ================= Boodschappenlijst ================= */
+  const R = window.BeckRecepten;
+  let lijstZichtbaar = false;
+  $('#bl-cocktails').innerHTML = R.namen.map(n => `<label class="bl__c"><input type="checkbox" value="${esc(n)}"> ${esc(n)}${R.RECEPTEN[n].bron === 'eigen' ? ' <small>mocktail</small>' : ''}</label>`).join('');
+  function blLees() {
+    return {
+      cocktails: $$('#bl-cocktails input:checked').map(i => i.value),
+      aandeel: +$('#bl-aandeel').value || 0, perUur: +$('#bl-peruur').value || 0,
+      marge: +$('#bl-marge').value || 0, totaal: $('#bl-totaal').value
+    };
+  }
+  function blZet(bl) {
+    bl = bl || {};
+    $$('#bl-cocktails input').forEach(i => { i.checked = (bl.cocktails || []).includes(i.value); });
+    $('#bl-aandeel').value = bl.aandeel ?? 75; $('#bl-peruur').value = bl.perUur ?? 1;
+    $('#bl-marge').value = bl.marge ?? 10; $('#bl-totaal').value = bl.totaal ?? '';
+  }
+  function blUitkomst(d, u) {
+    const bl = d.bl;
+    const auto = R.aantalCocktails({ gasten: d['f-gasten'], uren: u, aandeel: bl.aandeel, perUur: bl.perUur });
+    const totaal = bl.totaal !== '' && bl.totaal != null ? Math.max(0, +bl.totaal) : auto;
+    return { auto, totaal, ...R.bereken({ cocktails: bl.cocktails, totaal, marge: bl.marge }) };
+  }
+  function blTeken(d, b) {
+    const bl = d.bl, x = blUitkomst(d, b.u);
+    $('#bl-totaal').placeholder = x.auto ? `automatisch: ${x.auto}` : 'automatisch';
+    $('#bl-som').innerHTML = !bl.cocktails.length ? 'Kies hierboven één of meer cocktails.'
+      : !x.totaal ? 'Vul bij <em>Feest</em> het aantal gasten en de tijden in.'
+      : `${d['f-gasten'] || 0} gasten × ${bl.aandeel}% × ${getal(b.u)} uur × ${getal(bl.perUur)} = <strong>${x.auto} cocktails</strong>${x.totaal !== x.auto ? ` (aangepast naar ${x.totaal})` : ''}, ${x.perCocktail.map(c => `${c.aantal} ${c.naam}`).join(', ')}.`;
+    // A4
+    $('#l-me').innerHTML = $('#d-me').innerHTML;
+    const klant = d['k-bedrijf'] || d['k-naam'];
+    const meta = [
+      ['Voor', klant], ['Feest', [d['f-soort'], d['f-datum'] && lang(d['f-datum'])].filter(Boolean).join(' op ')],
+      ['Gasten', d['f-gasten'] ? `${d['f-gasten']} · ${getal(b.u)} uur` : ''], ['Bij offerte', d.nummer]
+    ].filter(([, v]) => v);
+    $('#l-meta').innerHTML = meta.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('');
+    $('#l-cocktails').innerHTML = x.perCocktail.length
+      ? `<p>${x.perCocktail.map(c => `<span class="l-c"><strong>${c.aantal}×</strong> ${esc(c.naam)}</span>`).join('')}</p>`
+      : '<p class="leeg">Nog geen cocktails gekozen.</p>';
+    $('#l-groepen').innerHTML = x.groepen.map(g => `
+      <div class="l-groep"><h3>${esc(g.groep)}</h3><ul>${g.regels.map(r => `
+        <li><span class="l-vak"></span><span class="l-naam">${esc(r.naam)}<small>${esc(R.nodigTekst(r))}${r.noot ? ' · ' + esc(r.noot) : ''}</small></span><b>${r.stuks} ${esc(r.koop)}</b></li>`).join('')}</ul></div>`).join('');
+    $('#l-noot').textContent = x.totaal
+      ? `Berekend voor ${x.totaal} cocktails, inclusief ${bl.marge}% marge, op basis van de officiële IBA-recepten (mocktails: eigen recepten). Sterke drank is in hele flessen afgerond, dus er blijft meestal wat over.`
+      : '';
+    $('#l-foot').innerHTML = $('#d-foot').innerHTML;
+  }
+  function toonLijst(aan) {
+    lijstZichtbaar = aan;
+    $('#paper').hidden = aan; $('#lijst-paper').hidden = !aan;
+    $('#bl-toon').textContent = aan ? 'Toon offerte/factuur' : 'Toon lijst op A4';
+    $('#print').textContent = aan ? 'Opslaan & lijst printen / PDF' : 'Opslaan & printen / PDF';
+  }
+  $('#bl-toon').addEventListener('click', () => { toonLijst(!lijstZichtbaar); teken(); });
+  $('#bl-cocktails').addEventListener('change', () => teken());
+  $('#bl-wa').addEventListener('click', () => {
+    const d = leesForm(), x = blUitkomst(d, uren(d['f-van'], d['f-tot']));
+    if (!x.groepen.length) { alert('Kies eerst cocktails en vul gasten en tijden in.'); return; }
+    const tekst = `Boodschappenlijst voor ${(d['f-soort'] || 'je feest').toLowerCase()}${d['f-datum'] ? ' op ' + lang(d['f-datum']) : ''}`
+      + `\n(${x.totaal} cocktails: ${x.perCocktail.map(c => `${c.aantal}× ${c.naam}`).join(', ')})\n`
+      + x.groepen.map(g => `\n*${g.groep}*\n` + g.regels.map(r => `☐ ${r.stuks} ${r.koop}: ${r.naam}`).join('\n')).join('\n')
+      + `\n\nInclusief ${d.bl.marge}% marge. Groet, ${ins.contact || ins.naam}`;
+    open(`https://wa.me/${telIntl(d['k-tel'])}?text=${encodeURIComponent(tekst)}`, '_blank', 'noopener');
+  });
+  $('#bl-opm').addEventListener('click', () => {
+    const c = blLees().cocktails; if (!c.length) return;
+    const regel = 'Cocktails: ' + c.join(', ');
+    const o = $('#opmerking');
+    o.value = /^Cocktails?:.*$/m.test(o.value) || /^Gewenste cocktails:.*$/m.test(o.value)
+      ? o.value.replace(/^(Gewenste )?[Cc]ocktails?:.*$/m, regel) : (o.value ? o.value + '\n' : '') + regel;
+    $('#f-cocktails').value = String(Math.min(5, Math.max(1, c.length)));
+    teken();
   });
 
   /* ================= Overzicht ================= */
