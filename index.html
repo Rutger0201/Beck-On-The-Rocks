@@ -10,7 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f0d0b'/%3E%3Ctext x='32' y='44' font-family='Georgia' font-size='34' text-anchor='middle' fill='%23c9a45c'%3EB%3C/text%3E%3C/svg%3E">
+  <link rel="icon" type="image/png" href="assets/icons/favicon-48.png">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
 </head>
 <body>
 
@@ -18,7 +19,7 @@
 <header class="nav">
   <div class="container nav__inner">
     <a href="#home" class="logo" aria-label="Beck on the Rocks, naar home">
-      <span class="logo__mark">B</span>
+      <img class="logo__mark" src="assets/img/logo-mark.png" alt="" width="40" height="39">
       <span class="logo__text">Beck <em>on the</em> Rocks</span>
     </a>
     <nav class="nav__links" id="menu" aria-label="Hoofdmenu">
@@ -62,27 +63,7 @@
         </ul>
       </div>
       <div class="hero__art reveal" aria-hidden="true">
-        <svg viewBox="0 0 320 420" class="glass">
-          <defs>
-            <linearGradient id="drink" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0" stop-color="#e8b86a"/>
-              <stop offset="1" stop-color="#9c5a23"/>
-            </linearGradient>
-            <linearGradient id="rim" x1="0" x2="1">
-              <stop offset="0" stop-color="#ffffff" stop-opacity=".05"/>
-              <stop offset=".5" stop-color="#ffffff" stop-opacity=".35"/>
-              <stop offset="1" stop-color="#ffffff" stop-opacity=".05"/>
-            </linearGradient>
-          </defs>
-          <path d="M60 120 L260 120 L245 360 Q244 380 224 380 L96 380 Q76 380 75 360 Z" fill="url(#rim)" stroke="#c9a45c" stroke-opacity=".5" stroke-width="2"/>
-          <path d="M70 210 L250 210 L245 360 Q244 375 224 375 L96 375 Q76 375 75 360 Z" fill="url(#drink)" opacity=".92"/>
-          <rect class="ice" x="100" y="180" width="70" height="70" rx="10" fill="#fff" fill-opacity=".22" stroke="#fff" stroke-opacity=".5" transform="rotate(-12 135 215)"/>
-          <rect class="ice ice--2" x="160" y="200" width="64" height="64" rx="10" fill="#fff" fill-opacity=".18" stroke="#fff" stroke-opacity=".45" transform="rotate(14 192 232)"/>
-          <path d="M215 150 Q270 120 280 170 Q285 200 250 205" fill="none" stroke="#e9822e" stroke-width="10" stroke-linecap="round"/>
-          <circle class="bubble" cx="120" cy="330" r="4" fill="#fff" fill-opacity=".5"/>
-          <circle class="bubble b2" cx="190" cy="340" r="3" fill="#fff" fill-opacity=".5"/>
-          <circle class="bubble b3" cx="150" cy="350" r="2.5" fill="#fff" fill-opacity=".5"/>
-        </svg>
+        <img class="glass hero__logo" src="assets/img/logo-dark.png" alt="" width="900" height="610">
         <div class="hero__badge">
           <span>Vanaf</span>
           <strong>€45 per uur</strong>
@@ -528,7 +509,7 @@
 <footer class="footer">
   <div class="container footer__inner">
     <div>
-      <a href="#home" class="logo"><span class="logo__mark">B</span><span class="logo__text">Beck <em>on the</em> Rocks</span></a>
+      <a href="#home" class="logo"><img class="logo__mark" src="assets/img/logo-mark.png" alt="" width="40" height="39"><span class="logo__text">Beck <em>on the</em> Rocks</span></a>
       <p>Freelance bartender voor feesten die je proeft.</p>
     </div>
     <nav aria-label="Footer">
