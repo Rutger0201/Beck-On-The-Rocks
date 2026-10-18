@@ -402,16 +402,52 @@
         <p class="eyebrow">Reviews</p>
         <h2>Wat gasten <em>zeggen.</em></h2>
       </div>
-      <!-- Echte reviews: kopieer een <blockquote class="review"> per review in #reviews-lijst (tekst, naam, soort feest). -->
-      <div class="reviews-lijst" id="reviews-lijst"></div>
+      <!-- Reviews worden geladen uit de map reviews/ in de repository (zie reviews/LEESMIJ.md) -->
+      <div class="review-score reveal" id="review-score" hidden></div>
+      <div class="reviews-lijst" id="reviews-lijst" hidden></div>
+
       <div class="review-cta reveal">
         <div class="stars" aria-hidden="true">★★★★★</div>
         <h3>Ben je klant geweest?</h3>
-        <p>Beck on the Rocks is net begonnen, dus elke review helpt enorm. Ik zou het heel fijn vinden als je je ervaring deelt.</p>
-        <div class="review-cta__knoppen">
-          <a class="btn" id="google-review" href="#" target="_blank" rel="noopener" hidden>Schrijf een review op Google</a>
+        <p id="review-intro">Beck on the Rocks is net begonnen, dus elke review helpt enorm. Ik zou het heel fijn vinden als je je ervaring deelt.</p>
+        <div class="review-cta__knoppen" id="review-knoppen">
+          <button type="button" class="btn" id="review-schrijf">Schrijf een review</button>
+          <a class="btn btn--ghost" id="google-review" href="#" target="_blank" rel="noopener" hidden>Review op Google</a>
           <a class="btn btn--ghost" id="google-profiel" href="#" target="_blank" rel="noopener" hidden>Bekijk reviews op Google</a>
-          <a class="btn btn--ghost" id="mail-review" href="mailto:rutger@beck.nl?subject=Mijn%20ervaring%20met%20Beck%20on%20the%20Rocks">Mail je ervaring</a>
+        </div>
+
+        <form class="form review-form" id="review-form" novalidate hidden>
+          <fieldset class="sterren-kies">
+            <legend>Hoeveel sterren geef je?</legend>
+            <div class="sterren-kies__rij">
+              <input type="radio" name="sterren" id="st5" value="5" checked><label for="st5" title="5 sterren">★</label>
+              <input type="radio" name="sterren" id="st4" value="4"><label for="st4" title="4 sterren">★</label>
+              <input type="radio" name="sterren" id="st3" value="3"><label for="st3" title="3 sterren">★</label>
+              <input type="radio" name="sterren" id="st2" value="2"><label for="st2" title="2 sterren">★</label>
+              <input type="radio" name="sterren" id="st1" value="1"><label for="st1" title="1 ster">★</label>
+            </div>
+          </fieldset>
+          <div class="form__row">
+            <label>Je naam zoals getoond<input name="naam" required maxlength="40" placeholder="bijv. Sanne of Sanne &amp; Thomas" autocomplete="given-name"></label>
+            <label>Soort feest
+              <select name="soort">
+                <option>Bruiloft</option><option>Bedrijfsfeest</option><option>Privéfeest</option>
+                <option>Verjaardag</option><option>Diner</option><option>Anders</option>
+              </select>
+            </label>
+          </div>
+          <label>Je review<textarea name="tekst" rows="5" required minlength="10" maxlength="800" placeholder="Hoe was je feest? Wat vonden je gasten van de cocktails?"></textarea></label>
+          <label>E-mail (optioneel, wordt niet getoond)<input name="email" type="email" autocomplete="email"></label>
+          <label class="tick toestemming"><input type="checkbox" name="toestemming" required> Ik geef toestemming om mijn review met naam op deze website te plaatsen.</label>
+          <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button class="btn btn--full" type="submit" id="review-knop">Verstuur review</button>
+          <p class="form__note" id="review-note">Je review verschijnt op de site nadat ik hem heb bekeken.</p>
+        </form>
+
+        <div class="review-klaar" id="review-klaar" hidden tabindex="-1">
+          <div class="form__vink" aria-hidden="true">✓</div>
+          <h3>Dank je wel!</h3>
+          <p>Je review is verstuurd en verschijnt hier zodra ik hem heb bekeken.</p>
         </div>
       </div>
     </div>

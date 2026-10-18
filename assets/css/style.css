@@ -338,6 +338,26 @@ input[type=date] { color-scheme: dark; }
 .review-cta .stars { font-size: 1.3rem; margin-bottom: .6rem; }
 .review-cta h3 { font-size: 1.9rem; }
 .review-cta__knoppen { display: flex; flex-wrap: wrap; gap: .8rem; justify-content: center; margin-top: 1.4rem; }
+.review-score { display: flex; justify-content: center; align-items: center; gap: 1.2rem; margin: 0 0 2rem; }
+.review-score strong { font: 500 3.2rem/1 var(--serif); color: var(--gold); }
+.review-score .stars { margin: 0; }
+.review-score span { font-size: .85rem; color: var(--muted); }
+.reviews-lijst .review .stars { margin-bottom: .8rem; }
+.reviews-lijst .review footer { display: grid; gap: .15rem; margin-top: 1rem; }
+.reviews-lijst .review footer span { font-size: .75rem; }
+.review-form { text-align: left; margin-top: 1.6rem; background: var(--bg); }
+.sterren-kies { border: 0; padding: 0; margin: 0; text-align: center; }
+.sterren-kies legend { font-size: .85rem; color: var(--muted); margin: 0 auto .4rem; }
+.sterren-kies__rij { display: inline-flex; flex-direction: row-reverse; gap: .2rem; }
+.sterren-kies input { position: absolute; opacity: 0; pointer-events: none; }
+.sterren-kies label { font-size: 2.2rem; line-height: 1; color: #4a4239; cursor: pointer; transition: color .2s, transform .2s; }
+.sterren-kies input:checked ~ label, .sterren-kies label:hover, .sterren-kies label:hover ~ label { color: var(--gold); }
+.sterren-kies label:hover { transform: scale(1.1); }
+.sterren-kies input:focus-visible + label { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 4px; }
+.toestemming { font-size: .85rem !important; align-items: flex-start !important; }
+.toestemming input { margin-top: .2rem; flex-shrink: 0; }
+.review-klaar { display: grid; justify-items: center; gap: .6rem; margin-top: 1.4rem; }
+.review-klaar:focus { outline: none; }
 
 /* Pagina's */
 .page[hidden] { display: none; }
