@@ -20,7 +20,7 @@ bovenaan `assets/js/main.js` (voor de calculator).
 
 ## Nog zelf invullen vóór livegang
 - **Reviews**: nu voorbeeldteksten, vervang ze door echte reviews (en de score).
-- **Foto's**: portret bij "Over mij" en de tegels bij "Sfeerbeelden".
+- **Foto's**: staan in `assets/img/` (portret + sfeerbeelden). Meer foto's toevoegen kan in de galerij op de pagina "Over mij".
 - **Contactgegevens**: e-mail, telefoon, Instagram, KvK (in `index.html` en `MAIL` in `assets/js/main.js`).
 - **Ervaring**: de cijfers op het homescreen en de jaartallen in de tijdlijn.
 - **Cocktails**: lijst `COCKTAILS` bovenaan `assets/js/main.js`.
