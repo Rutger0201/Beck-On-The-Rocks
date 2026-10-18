@@ -26,3 +26,19 @@ bovenaan `assets/js/main.js` (voor de calculator).
 - **Cocktails**: lijst `COCKTAILS` bovenaan `assets/js/main.js`.
 
 Kleuren en lettertypes staan als variabelen bovenaan `assets/css/style.css`.
+
+## Offertes & facturen (`documenten.html`)
+Een eigen hulpmiddel om offertes en facturen te maken. Niet gelinkt vanaf de website;
+open het via `documenten.html` (bijv. `rutger0201.github.io/Beck-On-The-Rocks/documenten.html`).
+
+- Kies **Offerte**, **Factuur** of **Annulering** (factuur voor 20% annuleringskosten).
+- Vul klant en feest in; de uren worden berekend uit begin- en eindtijd (ook over middernacht).
+- Tarieven, voorbereiding, menu, spoedtoeslag (automatisch binnen 1 maand) en btw worden doorgerekend.
+- Extra regels toevoegen voor bijvoorbeeld reiskosten of parkeren.
+- **Opslaan & printen / PDF** bewaart het document en opent het printvenster (kies "Opslaan als PDF").
+- **Maak factuur van deze offerte** neemt alle gegevens over en verwijst naar het offertenummer.
+- Nummers lopen automatisch op: `O-2026-001` voor offertes, `F-2026-001` voor facturen.
+
+Vul eenmalig je gegevens in onder **Mijn gegevens & tarieven** (adres, KvK, IBAN, btw).
+Alles wordt alleen in je eigen browser opgeslagen, dus gebruik steeds dezelfde browser
+en bewaar de PDF's zelf (bijv. in een map per jaar).
