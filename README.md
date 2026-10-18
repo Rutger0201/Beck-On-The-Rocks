@@ -9,6 +9,14 @@ of zet de map op een host als Netlify, Vercel of GitHub Pages.
 Eén homescreen; de andere pagina's open je via het menu (Over mij, Cocktails, Diensten,
 Prijzen, Reviews, FAQ, Boek mij). Elke pagina is een `<div class="page">` in `index.html`.
 
+### Engelse versie (`en/index.html`)
+Dezelfde site in het Engels op https://beckontherocks.nl/en/, met een NL/EN-knop in het menu
+(je blijft op dezelfde pagina). Pas je tekst aan in `index.html`, doe dat dan ook in `en/index.html`.
+De teksten in JavaScript (cocktails, calculator, meldingen) staan in `assets/js/main.js`:
+de Engelse cocktailteksten in `COCKTAILS_EN`, de rest via `t('Nederlands', 'English')`.
+Aanvragen van de Engelse site komen gewoon in het Nederlands binnen, met de regel
+*Taal: Engels*, zodat de generator ze net zo inleest.
+
 ## Prijzen en voorwaarden
 - €45 per uur achter de bar
 - Altijd 1 uur voorbereiding (€45) en vanaf €75 voor cocktailmenu & gebruik materialen (basis 3 cocktails, 1–5 mogelijk)
@@ -18,15 +26,21 @@ Prijzen, Reviews, FAQ, Boek mij). Elke pagina is een `<div class="page">` in `in
 - Geen aanbetaling; annuleren binnen 14 dagen: 20% van het afgesproken bedrag
 - Klant regelt drank, ijs, ingrediënten en een werkplek
 
-Bedragen aanpassen? Doe dat op de pagina Prijzen in `index.html` én in `TARIEF`
+Bedragen aanpassen? Doe dat op de pagina Prijzen in `index.html` en `en/index.html` én in `TARIEF`
 bovenaan `assets/js/main.js` (voor de calculator).
 
 ## Boekingsformulier (Web3Forms)
 Aanvragen gaan via [Web3Forms](https://web3forms.com) direct naar je mail, zonder dat de klant
 zijn mailprogramma opent. Vraag op web3forms.com gratis een *Access Key* aan met rutger@beck.nl
-en zet die bij `WEB3FORMS_SLEUTEL` bovenaan het formulier-deel in `assets/js/main.js`.
+en zet die bij `web3forms` in `assets/js/config.js`.
 Zonder sleutel opent het formulier het mailprogramma van de klant (zoals voorheen).
 Kopieer een binnengekomen aanvraag in **Slim invullen** van de generator voor een offerte.
+
+## Statistieken (GoatCounter)
+Bezoekersstatistieken zonder cookies (dus geen cookiebanner nodig). Maak gratis een account op
+[goatcounter.com](https://www.goatcounter.com) en zet de gekozen code (bijv. `beckontherocks`) bij `goatcounter`
+in `assets/js/config.js`. Elke pagina (Home, Prijzen, Reviews, …) wordt apart geteld, plus de gebeurtenissen
+*aanvraag-verstuurd* en *review-verstuurd*. Bezoeken vanaf localhost en de generator worden niet geteld.
 
 ## Reviews
 Klanten schrijven een review via het formulier op de reviewpagina. Je krijgt een mail met een
@@ -76,6 +90,18 @@ De bibliotheken hiervoor staan in `assets/vendor/` (zie de README daar).
 De generator is installeerbaar als app (`documenten.webmanifest` + `sw.js`), werkt daarna ook
 offline en heeft snelkoppelingen voor *Nieuwe offerte* en *Nieuwe factuur*. Uitleg staat in de
 generator onder **Snelkoppeling / app**. Directe links: `documenten.html?type=offerte` of `?type=factuur`.
+
+### Overzicht, versturen en back-up
+- **📋 Overzicht**: alle offertes en facturen met bedrag en status (concept, verstuurd, akkoord, betaald).
+  Facturen over de vervaldatum zijn rood ("te laat"). Bovenaan: openstaand, te laat, betaald dit jaar.
+- **WhatsApp / Mail**: opent een kant-en-klaar bericht aan de klant (voeg zelf de PDF toe) en zet de status op *verstuurd*.
+- **Online akkoord** (`akkoord.html`): bij een offerte zit in het bericht een link waarmee de klant de offerte
+  bekijkt en akkoord geeft, eventueel met een opmerking, of eerst een vraag stelt. Het antwoord komt via Web3Forms
+  in je mail; zet daarna zelf de status op *akkoord*.
+- **Boodschappenlijst**: kies de cocktails; op basis van gasten, uren, % cocktaildrinkers en cocktails p.p. per uur
+  rekent de generator uit wat de klant moet halen (flessen, fruit, siropen, ijs), met marge. Recepten volgens de
+  officiële IBA-specificaties in `assets/js/recepten.js`. Te printen als A4/PDF of te delen via WhatsApp.
+- **Back-up**: download al je documenten en gegevens als bestand en zet ze terug op een andere telefoon/computer.
 
 Vul eenmalig je gegevens in onder **Mijn gegevens & tarieven** (adres, KvK, IBAN, btw).
 Alles wordt alleen in je eigen browser opgeslagen, dus gebruik steeds dezelfde browser

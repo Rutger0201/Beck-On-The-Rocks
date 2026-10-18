@@ -53,10 +53,11 @@
     </div>
   </section>
 
-  <div class="row">
+  <div class="row row--knop">
     <label>Opgeslagen documenten
       <select id="opgeslagen"><option value="">Nieuw document</option></select>
     </label>
+    <button type="button" class="btn btn--ghost btn--small" id="open-overzicht">📋 Overzicht</button>
   </div>
 
   <details open>
@@ -66,6 +67,7 @@
       <label>Datum<input id="datum" type="date"></label>
       <label id="lbl-termijn">Geldig (dagen)<input id="termijn" type="number" min="1" value="14"></label>
       <label id="lbl-ref" hidden>Bij offerte/factuur nr.<input id="referentie" placeholder="bijv. O-2026-001"></label>
+      <label>Status<select id="status"></select></label>
     </div>
   </details>
 
@@ -117,6 +119,24 @@
     <textarea id="opmerking" rows="3" placeholder="Bijv. cocktails: Old Fashioned, Mojito, Virgin Colada"></textarea>
   </details>
 
+  <details class="bl" id="bl">
+    <summary>Boodschappenlijst</summary>
+    <p class="bl__uitleg">Kies de cocktails. Op basis van het aantal gasten en uren reken ik uit wat de klant moet halen (officiële IBA-recepten).</p>
+    <div class="bl__cocktails" id="bl-cocktails"></div>
+    <div class="grid">
+      <label>Cocktaildrinkers (% gasten)<input id="bl-aandeel" type="number" min="0" max="100" step="5" value="75"></label>
+      <label>Cocktails p.p. per uur<input id="bl-peruur" type="number" min="0.25" max="4" step="0.25" value="1"></label>
+      <label>Marge (%)<input id="bl-marge" type="number" min="0" max="50" step="5" value="10"></label>
+      <label>Aantal cocktails<input id="bl-totaal" type="number" min="0" step="1" placeholder="automatisch"></label>
+    </div>
+    <p class="bl__som" id="bl-som"></p>
+    <div class="bl__knoppen">
+      <button type="button" class="btn btn--small" id="bl-toon">Toon lijst op A4</button>
+      <button type="button" class="btn btn--ghost btn--small" id="bl-wa">Deel via WhatsApp</button>
+      <button type="button" class="btn btn--ghost btn--small" id="bl-opm">Cocktails in opmerking</button>
+    </div>
+  </details>
+
   <details>
     <summary>Mijn gegevens & tarieven</summary>
     <div class="grid">
@@ -152,12 +172,28 @@
 
   <div class="actions">
     <button type="button" class="btn" id="print">Opslaan & printen / PDF</button>
+    <div class="verstuur">
+      <button type="button" class="btn btn--ghost" id="stuur-wa">WhatsApp</button>
+      <button type="button" class="btn btn--ghost" id="stuur-mail">Mail</button>
+      <button type="button" class="btn btn--ghost" id="kopieer-akkoord" title="Link waarmee de klant online akkoord geeft">Akkoordlink</button>
+    </div>
+    <p class="verstuur__tip" id="verstuur-tip">Versturen opent WhatsApp of je mail met een kant-en-klaar bericht. Voeg daar de PDF aan toe.</p>
     <button type="button" class="btn btn--ghost" id="naar-factuur" hidden>Maak factuur van deze offerte</button>
     <button type="button" class="btn btn--ghost" id="nieuw">Nieuw document</button>
     <button type="button" class="link danger" id="wis" hidden>Dit document verwijderen</button>
   </div>
   <div class="waarschuwing" id="ontbreekt" hidden></div>
   <p class="tip">Tip: kies bij printen "Opslaan als PDF" en zet "Kop- en voetteksten" uit.</p>
+
+  <details class="backup">
+    <summary>Back-up</summary>
+    <p class="backup__info" id="backup-info"></p>
+    <div class="backup__knoppen">
+      <button type="button" class="btn btn--small" id="backup-download">Back-up downloaden</button>
+      <label class="btn btn--ghost btn--small">Back-up terugzetten<input type="file" id="backup-terug" accept=".json,application/json" hidden></label>
+    </div>
+    <p class="backup__uitleg">De back-up bevat al je documenten en je gegevens. Bewaar hem bijvoorbeeld in je Google Drive of mail hem naar jezelf.</p>
+  </details>
 
   <details class="app">
     <summary>Snelkoppeling / app</summary>
@@ -171,6 +207,23 @@
     </ul>
   </details>
 </aside>
+
+<!-- ================= Overzicht ================= -->
+<dialog class="overzicht" id="overzicht">
+  <header class="overzicht__kop">
+    <h2>Overzicht</h2>
+    <button type="button" class="overzicht__sluit" id="sluit-overzicht" aria-label="Sluiten">×</button>
+  </header>
+  <div class="overzicht__cijfers" id="ov-cijfers"></div>
+  <div class="overzicht__filters" id="ov-filters">
+    <button type="button" data-f="alle" class="is-on">Alles</button>
+    <button type="button" data-f="offerte">Offertes</button>
+    <button type="button" data-f="open">Openstaand</button>
+    <button type="button" data-f="telaat">Te laat</button>
+    <button type="button" data-f="betaald">Betaald</button>
+  </div>
+  <div class="overzicht__lijst" id="ov-lijst"></div>
+</dialog>
 
 <!-- ================= A4-document ================= -->
 <main class="stage">
@@ -210,8 +263,28 @@
 
     <footer class="doc__foot" id="d-foot"></footer>
   </article>
+
+  <!-- Boodschappenlijst (A4) -->
+  <article class="paper paper--lijst" id="lijst-paper" hidden>
+    <header class="doc__head">
+      <div class="doc__brand"><img src="assets/img/logo-light.png" alt="Beck on the Rocks · Freelance bartender" class="doc__logo"></div>
+      <div class="doc__me" id="l-me"></div>
+    </header>
+    <div class="doc__title">
+      <h2>Boodschappenlijst</h2>
+      <dl id="l-meta"></dl>
+    </div>
+    <section class="l-cocktails">
+      <h3>Cocktails</h3>
+      <div id="l-cocktails"></div>
+    </section>
+    <section class="l-groepen" id="l-groepen"></section>
+    <p class="l-noot" id="l-noot"></p>
+    <footer class="doc__foot" id="l-foot"></footer>
+  </article>
 </main>
 
+<script src="assets/js/recepten.js"></script>
 <script src="assets/js/analyse.js"></script>
 <script src="assets/js/documenten.js"></script>
 </body>

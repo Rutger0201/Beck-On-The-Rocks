@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Offerte · Beck on the Rocks</title>
+  <meta name="theme-color" content="#0f0d0b">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/akkoord.css">
+  <link rel="icon" type="image/png" href="assets/icons/favicon-48.png">
+</head>
+<body>
+<main class="akk">
+  <header class="akk__kop">
+    <a href="index.html"><img src="assets/img/logo-dark.png" alt="Beck on the Rocks · Freelance bartender" class="akk__logo" width="900" height="610"></a>
+  </header>
+
+  <!-- Wordt gevuld door assets/js/akkoord.js op basis van de link -->
+  <section class="akk__kaart" id="offerte" hidden>
+    <p class="eyebrow">Offerte <span id="o-nummer"></span></p>
+    <h1>Hoi <em id="o-naam">daar</em>,</h1>
+    <p class="lead" id="o-intro"></p>
+
+    <dl class="akk__feest" id="o-feest"></dl>
+
+    <table class="akk__regels">
+      <tbody id="o-regels"></tbody>
+    </table>
+    <div class="akk__totaal" id="o-totaal"></div>
+    <p class="akk__opm" id="o-opm" hidden></p>
+
+    <details class="akk__afspraken">
+      <summary>Afspraken</summary>
+      <ul id="o-afspraken"></ul>
+    </details>
+  </section>
+
+  <section class="akk__kaart" id="antwoord" hidden>
+    <p class="akk__verlopen" id="verlopen" hidden>Deze offerte is verlopen. Je kunt hieronder nog wel een vraag stellen, dan stuur ik je een nieuwe offerte.</p>
+    <form class="form akk__form" id="akk-form" novalidate>
+      <div class="form__row">
+        <label>Je naam<input name="naam" required autocomplete="name"></label>
+        <label>E-mail (optioneel)<input name="email" type="email" autocomplete="email"></label>
+      </div>
+      <label>Wil je nog iets toevoegen of wijzigen?<textarea name="opmerking" rows="4" maxlength="1000" placeholder="Bijv. een cocktail wisselen, een andere eindtijd, of een vraag"></textarea></label>
+      <label class="tick toestemming" id="lbl-akkoord"><input type="checkbox" name="akkoord"> Ik ga akkoord met deze offerte en de afspraken.</label>
+      <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="akk__knoppen">
+        <button class="btn" type="submit" data-keuze="akkoord" id="knop-akkoord">Akkoord geven</button>
+        <button class="btn btn--ghost" type="submit" data-keuze="vraag" id="knop-vraag">Ik heb eerst een vraag</button>
+      </div>
+      <p class="form__note" id="akk-note">Je antwoord gaat direct naar Rutger.</p>
+    </form>
+    <div class="akk__klaar" id="akk-klaar" hidden tabindex="-1">
+      <div class="form__vink" aria-hidden="true">✓</div>
+      <h2 id="klaar-titel">Top, je datum staat vast!</h2>
+      <p id="klaar-tekst">Bedankt voor je akkoord. Je hoort snel van me met de boodschappenlijst en de laatste details.</p>
+    </div>
+  </section>
+
+  <section class="akk__kaart" id="fout" hidden>
+    <h1>Deze link werkt niet</h1>
+    <p>De link is mogelijk niet volledig gekopieerd. Neem contact op via <a id="fout-mail" href="mailto:rutger@beck.nl">rutger@beck.nl</a>.</p>
+  </section>
+</main>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/akkoord.js"></script>
+</body>
+</html>
