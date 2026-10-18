@@ -124,6 +124,24 @@
   const pages = $$('.page');
   let huidige = null;
 
+  /* ================= Statistieken (GoatCounter, zonder cookies) ================= */
+  // Zet je GoatCounter-code in assets/js/config.js (goatcounter: 'beckontherocks'). Leeg = uit.
+  const gcCode = (CONFIG.goatcounter || '').trim();
+  const gcWacht = [];
+  function telBezoek(pad, titel, event = false) {
+    if (!gcCode || location.hostname === 'localhost') return;
+    const stuur = () => window.goatcounter.count({ path: pad, title: titel, event });
+    if (window.goatcounter && window.goatcounter.count) stuur(); else gcWacht.push(stuur);
+  }
+  if (gcCode && location.hostname !== 'localhost') {
+    window.goatcounter = { no_onload: true };
+    const sc = document.createElement('script');
+    sc.async = true; sc.src = 'https://gc.zgo.at/count.js';
+    sc.dataset.goatcounter = `https://${encodeURIComponent(gcCode)}.goatcounter.com/count`;
+    sc.onload = () => gcWacht.splice(0).forEach(f => f());
+    document.head.append(sc);
+  }
+
   function route() {
     const id = decodeURIComponent(location.hash.slice(1)) || 'home';
     const doel = document.getElementById(id);
@@ -134,6 +152,7 @@
       huidige = page;
       document.title = page.id === 'home' ? 'Beck on the Rocks · Freelance bartender'
         : `${$(`#menu a[href="#${page.id}"]`)?.textContent || ''} · Beck on the Rocks`;
+      telBezoek(page.id === 'home' ? '/' : '/#' + page.id, document.title);
     }
     $$('#menu a').forEach(a => a.toggleAttribute('aria-current', a.getAttribute('href') === '#' + page.id));
     nav.classList.toggle('is-solid', page.id !== 'home');
@@ -320,6 +339,7 @@
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json.success === false) throw new Error(json.message || 'Versturen mislukt');
       form.hidden = true; form.reset();
+      telBezoek('review-verstuurd', 'Review verstuurd', true);
       const klaar = $('#review-klaar'); klaar.hidden = false; klaar.focus();
     } catch {
       note.textContent = 'Het versturen is niet gelukt. Probeer het later nog eens, of mail je review naar rutger@beck.nl.';
@@ -397,6 +417,7 @@
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json.success === false) throw new Error(json.message || 'Versturen mislukt');
       toonBedankt(velden);
+      telBezoek('aanvraag-verstuurd', 'Boekingsaanvraag verstuurd', true);
       form.reset();
       $('#form-spoed').hidden = true;
     } catch (err) {

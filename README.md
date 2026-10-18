@@ -28,6 +28,12 @@ en zet die bij `web3forms` in `assets/js/config.js`.
 Zonder sleutel opent het formulier het mailprogramma van de klant (zoals voorheen).
 Kopieer een binnengekomen aanvraag in **Slim invullen** van de generator voor een offerte.
 
+## Statistieken (GoatCounter)
+Bezoekersstatistieken zonder cookies (dus geen cookiebanner nodig). Maak gratis een account op
+[goatcounter.com](https://www.goatcounter.com) en zet de gekozen code (bijv. `beckontherocks`) bij `goatcounter`
+in `assets/js/config.js`. Elke pagina (Home, Prijzen, Reviews, …) wordt apart geteld, plus de gebeurtenissen
+*aanvraag-verstuurd* en *review-verstuurd*. Bezoeken vanaf localhost en de generator worden niet geteld.
+
 ## Reviews
 Klanten schrijven een review via het formulier op de reviewpagina. Je krijgt een mail met een
 **GOEDKEUREN**-link; daarmee zet je de review met één commit in de map `reviews/`, waarna hij op de
