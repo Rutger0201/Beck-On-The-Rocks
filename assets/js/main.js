@@ -248,7 +248,7 @@
   /* ================= Boekingsformulier ================= */
   // Met een Web3Forms-sleutel (gratis via web3forms.com) gaat de aanvraag direct naar je mail,
   // zonder dat de klant zijn mailprogramma opent. Zonder sleutel wordt het mailprogramma geopend.
-  const WEB3FORMS_SLEUTEL = '';
+  const WEB3FORMS_SLEUTEL = 'd1f82d89-0590-4f10-a8ec-3da82a5164e9';
   const MAIL = 'rutger@beck.nl';
   const fDatum = $('#boek-form [name=datum]');
   fDatum.addEventListener('input', () => { $('#form-spoed').hidden = !isSpoed(fDatum.value); });
