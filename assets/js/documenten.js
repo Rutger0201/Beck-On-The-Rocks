@@ -11,14 +11,14 @@
 
   /* ================= Instellingen ================= */
   const STANDAARD = {
-    naam: 'Beck on the Rocks', contact: 'Rutger', adres: '', plaats: '', tel: '06 39 65 86 62', email: 'rutger@beck.nl', web: '',
+    naam: 'Beck on the Rocks', contact: 'Rutger', adres: '', plaats: '', tel: '06 39 65 86 62', email: 'rutger@beck.nl', web: 'beckontherocks.nl',
     kvk: '', iban: '', btw: 'kor', btwnr: '', review: '',
     uur: 45, prep: 1, menu: 75, fruitpers: 20, menuFp: 99, km: 0.25, glas: 0.5, spoed: 25, annul: 20, betaal: 14
   };
   let ins = { ...STANDAARD, ...opslag.lees('beck-instellingen', {}) };
   // Oude standaardwaarden uit een eerdere versie bijwerken
   if (ins.email === 'info@beckontherocks.nl') ins.email = STANDAARD.email;
-  if (ins.web === 'beckontherocks.nl') ins.web = STANDAARD.web;
+  if (!ins.web) ins.web = STANDAARD.web;
   if (!ins.tel) ins.tel = STANDAARD.tel;
   $$('[data-set]').forEach(el => {
     el.value = ins[el.dataset.set];
