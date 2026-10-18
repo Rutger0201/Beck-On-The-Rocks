@@ -137,9 +137,11 @@ input[type=date], input[type=time] { color-scheme: dark; }
 /* ---------- Printen ---------- */
 @page { size: A4; margin: 0; }
 @media print {
+  html, body { margin: 0; padding: 0; height: auto; }
   body { display: block; background: #fff; }
   .editor { display: none; }
-  .stage { padding: 0; }
-  .paper { box-shadow: none; width: 210mm; min-height: 297mm; zoom: 1; }
+  .stage { display: block; padding: 0; margin: 0; overflow: visible; }
+  /* Iets minder dan 297mm en niets laten overlopen: voorkomt een lege 2e pagina (afronding in o.a. Chrome Android) */
+  .paper { box-shadow: none; width: 210mm; min-height: 0; height: 296mm; overflow: hidden; margin: 0; zoom: 1; break-after: avoid; page-break-after: avoid; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
