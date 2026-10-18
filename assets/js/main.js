@@ -246,11 +246,13 @@
   });
 
   /* ================= Boekingsformulier ================= */
-  // Opent een kant-en-klare mail. Later te vervangen door bijv. Formspree of Netlify Forms.
+  // Met een Web3Forms-sleutel (gratis via web3forms.com) gaat de aanvraag direct naar je mail,
+  // zonder dat de klant zijn mailprogramma opent. Zonder sleutel wordt het mailprogramma geopend.
+  const WEB3FORMS_SLEUTEL = '';
   const MAIL = 'rutger@beck.nl';
   const fDatum = $('#boek-form [name=datum]');
   fDatum.addEventListener('input', () => { $('#form-spoed').hidden = !isSpoed(fDatum.value); });
-  $('#boek-form').addEventListener('submit', e => {
+  $('#boek-form').addEventListener('submit', async e => {
     e.preventDefault();
     const form = e.target;
     let ok = true;
@@ -260,16 +262,62 @@
       if (!geldig) ok = false;
     });
     const note = $('#form-note');
-    if (!ok) { note.textContent = 'Vul je naam, een geldig e-mailadres en de datum in.'; return; }
+    note.classList.remove('is-fout');
+    if (!ok) { note.textContent = 'Vul je naam, een geldig e-mailadres en de datum in.'; note.classList.add('is-fout'); return; }
     const d = Object.fromEntries(new FormData(form));
-    const body = [
-      `Naam: ${d.naam}`, `E-mail: ${d.email}`, `Datum: ${d.datum}`, `Aantal uur: ${d.uren || '-'}`,
-      `Gasten: ${d.gasten || '-'}`, `Soort feest: ${d.soort}`, `Locatie: ${d.locatie || '-'}`,
-      `Cocktails op de kaart: ${d.cocktails}`, `Fruitpers: ${d.fruitpers ? 'ja' : 'nee'}`, `Glazen via Rutger: ${d.glazen ? 'ja' : 'nee'}`,
-      isSpoed(d.datum) ? 'Spoedboeking (binnen 1 maand)' : '', '', d.bericht || ''
-    ].join('\n');
-    location.href = `mailto:${MAIL}?subject=${encodeURIComponent('Aanvraag ' + d.soort + ' op ' + d.datum)}&body=${encodeURIComponent(body)}`;
-    note.textContent = 'Dank je! Je mailprogramma opent nu met je aanvraag.';
+    if (d.botcheck) return; // spambot
+
+    // Velden met duidelijke namen: zo staan ze ook zo in je mail (en leest de generator ze in)
+    const velden = {
+      'Naam': d.naam, 'E-mail': d.email, 'Telefoon klant': d.telefoon || '-', 'Datum': d.datum, 'Aantal uur': d.uren || '-',
+      'Gasten': d.gasten || '-', 'Soort feest': d.soort, 'Locatie': d.locatie || '-',
+      'Cocktails op de kaart': d.cocktails, 'Fruitpers': d.fruitpers ? 'ja' : 'nee', 'Glazen via Rutger': d.glazen ? 'ja' : 'nee',
+      'Spoedboeking': isSpoed(d.datum) ? 'ja (binnen 1 maand)' : 'nee', 'Bericht': d.bericht || '-'
+    };
+    const onderwerp = `Aanvraag ${d.soort} op ${d.datum}`;
+    const naarMail = () => {
+      const body = Object.entries(velden).map(([k, v]) => `${k}: ${v}`).join('\n');
+      location.href = `mailto:${MAIL}?subject=${encodeURIComponent(onderwerp)}&body=${encodeURIComponent(body)}`;
+    };
+    if (!WEB3FORMS_SLEUTEL) { naarMail(); note.textContent = 'Dank je! Je mailprogramma opent nu met je aanvraag.'; return; }
+
+    const knop = $('#form-knop');
+    knop.disabled = true; knop.textContent = 'Versturen…';
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_SLEUTEL, subject: onderwerp, from_name: 'Beck on the Rocks · website',
+          replyto: d.email, botcheck: false, ...velden
+        })
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json.success === false) throw new Error(json.message || 'Versturen mislukt');
+      toonBedankt(velden);
+      form.reset();
+      $('#form-spoed').hidden = true;
+    } catch (err) {
+      note.innerHTML = 'Het versturen is niet gelukt. Probeer het nog eens, of <a href="#" id="form-mail">verstuur je aanvraag via je mail</a>.';
+      note.classList.add('is-fout');
+      $('#form-mail').addEventListener('click', ev => { ev.preventDefault(); naarMail(); });
+    } finally {
+      knop.disabled = false; knop.textContent = 'Verstuur aanvraag';
+    }
+  });
+
+  function toonBedankt(velden) {
+    const toon = ['Datum', 'Soort feest', 'Aantal uur', 'Gasten', 'Locatie', 'Cocktails op de kaart'];
+    $('#form-samenvatting').innerHTML = toon.filter(k => velden[k] && velden[k] !== '-')
+      .map(k => `<li><span>${k}</span><b>${String(k === 'Datum' ? new Date(velden[k] + 'T00:00').toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' }) : velden[k]).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))}</b></li>`).join('');
+    $('#boek-form').hidden = true;
+    const klaar = $('#form-klaar');
+    klaar.hidden = false; klaar.focus();
+    klaar.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  $('#form-opnieuw').addEventListener('click', () => {
+    $('#form-klaar').hidden = true; $('#boek-form').hidden = false;
+    $('#form-note').textContent = 'Je kunt ook mailen naar rutger@beck.nl, bellen of appen naar 06 39 65 86 62.';
   });
 
   $('#jaar').textContent = new Date().getFullYear();

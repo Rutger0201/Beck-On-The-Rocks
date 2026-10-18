@@ -514,6 +514,7 @@
           <label>Naam<input name="naam" required autocomplete="name"></label>
           <label>E-mail<input name="email" type="email" required autocomplete="email"></label>
         </div>
+        <label>Telefoon (optioneel)<input name="telefoon" type="tel" autocomplete="tel" placeholder="Handig voor snel overleg"></label>
         <div class="form__row">
           <label>Datum feest<input name="datum" type="date" required></label>
           <label>Aantal uur<input name="uren" type="number" min="1" max="24" placeholder="bijv. 4"></label>
@@ -543,9 +544,20 @@
         </div>
         <label>Vertel meer<textarea name="bericht" rows="4" placeholder="Locatie, sfeer, favoriete drankjes..."></textarea></label>
         <p class="form__spoed" id="form-spoed" hidden>Let op: deze datum is binnen een maand, dus het is een spoedboeking (+25%).</p>
-        <button class="btn btn--full" type="submit">Verstuur aanvraag</button>
-        <p class="form__note" id="form-note">Je aanvraag opent in je mailprogramma. Je kunt ook mailen naar rutger@beck.nl, bellen of appen naar 06 39 65 86 62.</p>
+        <!-- Valstrik voor spambots: mensen zien dit veld niet -->
+        <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button class="btn btn--full" type="submit" id="form-knop">Verstuur aanvraag</button>
+        <p class="form__note" id="form-note">Je kunt ook mailen naar rutger@beck.nl, bellen of appen naar 06 39 65 86 62.</p>
+        <p class="form__privacy">Je gegevens gebruik ik alleen om je aanvraag te beantwoorden.</p>
       </form>
+      <div class="form form__klaar" id="form-klaar" hidden tabindex="-1">
+        <div class="form__vink" aria-hidden="true">✓</div>
+        <h3>Bedankt voor je aanvraag!</h3>
+        <p>Je aanvraag is verstuurd. Je hoort binnen 48 uur van me, meestal sneller.</p>
+        <ul class="form__samenvatting" id="form-samenvatting"></ul>
+        <p class="form__note">Vergeten iets te vermelden? Mail naar <a href="mailto:rutger@beck.nl">rutger@beck.nl</a> of app naar <a href="https://wa.me/31639658662" target="_blank" rel="noopener">06 39 65 86 62</a>.</p>
+        <button type="button" class="btn btn--ghost" id="form-opnieuw">Nog een aanvraag doen</button>
+      </div>
     </div>
   </section>
 </div>

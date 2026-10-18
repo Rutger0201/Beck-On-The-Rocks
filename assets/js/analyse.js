@@ -224,7 +224,7 @@ window.BeckAnalyse = (() => {
   };
 
   function label(t, namen) {
-    const re = new RegExp(`^[ \\t>*-]*(?:${namen})\\s*[:=]\\s*(.+)$`, 'im');
+    const re = new RegExp(`^[ \\t>*-]*(?:${namen})[ \\t]*(?:[:=]|\\t)\\s*(.+)$`, 'im'); // ook tabel-kopie (tab)
     const m = re.exec(t);
     return m ? m[1].trim().replace(/\s{2,}/g, ' ') : null;
   }
@@ -259,7 +259,7 @@ window.BeckAnalyse = (() => {
     zet('k-naam', label(t, 'naam|name|contactpersoon'), 'Naam:');
     zet('k-bedrijf', label(t, 'bedrijf|bedrijfsnaam|organisatie|company'), 'Bedrijf:');
     zet('k-email', label(t, 'e-?mail|email'), 'E-mail:');
-    zet('k-tel', label(t, 'telefoon(?:nummer)?|tel\\.?|mobiel|gsm|phone'), 'Telefoon:');
+    zet('k-tel', label(t, 'telefoon(?:nummer)?(?: klant)?|tel\\.?|mobiel|gsm|phone'), 'Telefoon:');
     zet('f-locatie', label(t, 'locatie|location|feestlocatie|adres feest|waar'), 'Locatie:');
     const lSoort = label(t, 'soort (?:feest|event)|type (?:feest|event)|gelegenheid');
     const lGasten = label(t, '(?:aantal )?gasten|(?:aantal )?personen');

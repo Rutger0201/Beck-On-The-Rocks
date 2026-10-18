@@ -20,6 +20,13 @@ Prijzen, Reviews, FAQ, Boek mij). Elke pagina is een `<div class="page">` in `in
 Bedragen aanpassen? Doe dat op de pagina Prijzen in `index.html` én in `TARIEF`
 bovenaan `assets/js/main.js` (voor de calculator).
 
+## Boekingsformulier (Web3Forms)
+Aanvragen gaan via [Web3Forms](https://web3forms.com) direct naar je mail, zonder dat de klant
+zijn mailprogramma opent. Vraag op web3forms.com gratis een *Access Key* aan met rutger@beck.nl
+en zet die bij `WEB3FORMS_SLEUTEL` bovenaan het formulier-deel in `assets/js/main.js`.
+Zonder sleutel opent het formulier het mailprogramma van de klant (zoals voorheen).
+Kopieer een binnengekomen aanvraag in **Slim invullen** van de generator voor een offerte.
+
 ## Google reviews koppelen
 Zodra je Google Bedrijfsprofiel er is, plak je twee links bovenaan `assets/js/main.js`:
 `GOOGLE_REVIEW_SCHRIJVEN` (de "Vraag om reviews"-link uit je profiel) en `GOOGLE_REVIEWS_BEKIJKEN`.
