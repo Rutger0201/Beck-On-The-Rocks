@@ -6,55 +6,76 @@
   /* ================= Gegevens (hier pas je de inhoud aan) ================= */
 
   // glas: 'tumbler' | 'coupe' | 'highball' | 'martini'
+  // De klassiekers uit de EBS-opleiding (European Bartender School), mocktails en cocktail op maat.
   const COCKTAILS = [
-    { naam: 'Smoked Old Fashioned', cat: 'signature', glas: 'tumbler', c1: '#c77a2a', c2: '#2b1a0b',
-      tekst: 'Bourbon, demerara en bitters, gerookt onder een stolp met eikenhout. Mijn visitekaartje.',
-      ing: ['Bourbon', 'Demerara', 'Angostura', 'Eikenrook'] },
-    { naam: 'Rocks & Roses', cat: 'signature', glas: 'coupe', c1: '#d0708c', c2: '#2a1020',
-      tekst: 'Gin, rozensiroop, lychee en limoen, afgemaakt met een zijdezachte foam en rozenblaadje.',
-      ing: ['Gin', 'Lychee', 'Roos', 'Limoen'] },
-    { naam: 'Golden Hour', cat: 'signature', glas: 'highball', c1: '#f0b54a', c2: '#3a2408',
-      tekst: 'Aged rum, passievrucht, vanille en ginger beer. Zonsondergang in een glas.',
-      ing: ['Aged rum', 'Passievrucht', 'Vanille', 'Ginger beer'] },
-    { naam: 'Espresso Martini', cat: 'klassiek', glas: 'martini', c1: '#6b4126', c2: '#140c07',
-      tekst: 'Vodka, vers gezette espresso en koffielikeur. Wakker en feestklaar.',
-      ing: ['Vodka', 'Espresso', 'Koffielikeur'] },
+    { naam: 'Old Fashioned', cat: 'klassiek', glas: 'tumbler', c1: '#c77a2a', c2: '#2b1a0b',
+      tekst: 'Bourbon, suiker en bitters, langzaam geroerd en afgemaakt met een sinaasappelzeste.',
+      ing: ['Bourbon', 'Suiker', 'Angostura', 'Sinaasappel'] },
     { naam: 'Negroni', cat: 'klassiek', glas: 'tumbler', c1: '#c4362e', c2: '#2a0b08',
-      tekst: 'Gin, Campari en zoete vermout in perfecte balans, met een sinaasappelzeste.',
+      tekst: 'Gin, Campari en zoete vermout in perfecte balans. Bitter, krachtig en tijdloos.',
       ing: ['Gin', 'Campari', 'Vermout'] },
+    { naam: 'Espresso Martini', cat: 'klassiek', glas: 'martini', c1: '#6b4126', c2: '#140c07',
+      tekst: 'Vodka, vers gezette espresso en koffielikeur met een romige kraag.',
+      ing: ['Vodka', 'Espresso', 'Koffielikeur'] },
     { naam: 'Whiskey Sour', cat: 'klassiek', glas: 'coupe', c1: '#e3b25c', c2: '#2e200b',
-      tekst: 'Bourbon, citroen en suiker met een romige schuimkraag. Tijdloos.',
-      ing: ['Bourbon', 'Citroen', 'Eiwit of aquafaba'] },
-    { naam: 'Basil Smash', cat: 'fris', glas: 'tumbler', c1: '#8cc06b', c2: '#14261f',
-      tekst: 'Gin, verse basilicum, citroen en suiker. Groen, fris en verslavend.',
-      ing: ['Gin', 'Basilicum', 'Citroen'] },
+      tekst: 'Bourbon, citroen en suiker, opgeschud tot een zijdezachte schuimkraag.',
+      ing: ['Bourbon', 'Citroen', 'Suiker'] },
+    { naam: 'Daiquiri', cat: 'klassiek', glas: 'coupe', c1: '#e8e2a0', c2: '#24260f',
+      tekst: 'Witte rum, limoen en suiker. Simpel, fris en precies in balans.',
+      ing: ['Witte rum', 'Limoen', 'Suiker'] },
+    { naam: 'Cosmopolitan', cat: 'klassiek', glas: 'martini', c1: '#d0587a', c2: '#2a0d18',
+      tekst: 'Citroenvodka, triple sec, cranberry en limoen. Een stijlvolle klassieker.',
+      ing: ['Vodka', 'Triple sec', 'Cranberry', 'Limoen'] },
+    { naam: 'Mojito', cat: 'fris', glas: 'highball', c1: '#8cc06b', c2: '#14261f',
+      tekst: 'Witte rum, verse munt, limoen en suiker, aangevuld met soda.',
+      ing: ['Witte rum', 'Munt', 'Limoen', 'Soda'] },
+    { naam: 'Caipirinha', cat: 'fris', glas: 'tumbler', c1: '#b9d36a', c2: '#1f2a0d',
+      tekst: 'Cachaça met gekneusde limoen en rietsuiker. Braziliaanse zomer.',
+      ing: ['Cachaça', 'Limoen', 'Rietsuiker'] },
+    { naam: 'Margarita', cat: 'fris', glas: 'coupe', c1: '#e6d77a', c2: '#2a2509',
+      tekst: 'Tequila, triple sec en limoen met een zoutrandje.',
+      ing: ['Tequila', 'Triple sec', 'Limoen', 'Zout'] },
     { naam: 'Pornstar Martini', cat: 'fris', glas: 'coupe', c1: '#f2a33a', c2: '#3a1f08',
       tekst: 'Vanillevodka en passievrucht met een shot bubbels ernaast. Altijd een hit.',
       ing: ['Vanillevodka', 'Passievrucht', 'Prosecco'] },
-    { naam: 'Paloma', cat: 'fris', glas: 'highball', c1: '#f08a7a', c2: '#2e1310',
-      tekst: 'Tequila, roze grapefruit, limoen en een zoutrandje. Mexicaanse zomer.',
-      ing: ['Tequila', 'Grapefruit', 'Limoen', 'Zout'] },
-    { naam: 'Virgin Garden', cat: 'mocktail', glas: 'highball', c1: '#9ccf8a', c2: '#132519',
-      tekst: 'Komkommer, munt, vlierbloesem en tonic. Alcoholvrij en allesbehalve saai.',
-      ing: ['Komkommer', 'Vlierbloesem', 'Munt', 'Tonic'] },
-    { naam: 'Berry Nojito', cat: 'mocktail', glas: 'highball', c1: '#b04a6a', c2: '#25101a',
-      tekst: 'Bosvruchten, limoen, munt en soda. De mojito voor iedereen.',
-      ing: ['Bosvruchten', 'Limoen', 'Munt', 'Soda'] },
-    { naam: 'Spiced Apple Sour', cat: 'mocktail', glas: 'coupe', c1: '#d8a35a', c2: '#2a1a08',
-      tekst: 'Appel, kaneel, citroen en een fluweelzachte foam. Herfst in een coupe.',
-      ing: ['Appel', 'Kaneel', 'Citroen'] }
+    { naam: 'Moscow Mule', cat: 'fris', glas: 'highball', c1: '#d9c08a', c2: '#2a200d',
+      tekst: 'Vodka, limoen en pittige ginger beer. Fris met een kick.',
+      ing: ['Vodka', 'Limoen', 'Ginger beer'] },
+    { naam: 'Piña Colada', cat: 'fris', glas: 'highball', c1: '#f3e2b0', c2: '#2e2510',
+      tekst: 'Rum, ananas en kokos, romig opgeschud. Vakantie in een glas.',
+      ing: ['Rum', 'Ananas', 'Kokos'] },
+    { naam: 'Virgin Mojito', cat: 'mocktail', glas: 'highball', c1: '#9ccf8a', c2: '#132519',
+      tekst: 'Verse munt, limoen en suiker met soda. Alle frisheid, zonder alcohol.',
+      ing: ['Munt', 'Limoen', 'Soda'] },
+    { naam: 'Virgin Colada', cat: 'mocktail', glas: 'highball', c1: '#f0dca8', c2: '#2a2210',
+      tekst: 'Ananas en kokos, romig en tropisch, zonder alcohol.',
+      ing: ['Ananas', 'Kokos', 'Limoen'] },
+    { naam: 'Virgin Mule', cat: 'mocktail', glas: 'highball', c1: '#d6b77a', c2: '#2a1e0b',
+      tekst: 'Ginger beer, limoen en een vleugje bitter. Kruidig en verfrissend.',
+      ing: ['Ginger beer', 'Limoen', 'Munt'] },
+    { naam: 'Jouw cocktail', cat: 'creatie', glas: 'coupe', c1: '#c9a45c', c2: '#2b2010',
+      tekst: 'Een eigen cocktail voor jullie feest, met een naam en smaak die bij jullie past. Ook alcoholvrij. Prijs in overleg.',
+      ing: ['Op maat', 'Eigen naam', 'Getest'] }
   ];
 
-  const LABELS = { signature: 'Signature', klassiek: 'Klassieker', fris: 'Fris & fruitig', mocktail: 'Alcoholvrij' };
+  const LABELS = { klassiek: 'Klassieker', fris: 'Fris & fruitig', mocktail: 'Alcoholvrij', creatie: 'Op maat' };
 
   // Tarieven (zelfde bedragen als op de prijzenpagina in index.html)
   const TARIEF = {
     uur: 45,            // per uur achter de bar
     voorbereiding: 1,   // altijd 1 uur voorbereiding
-    menu: 75,           // cocktailmenu & gebruik materialen
+    menu: 75,           // cocktailmenu & gebruik materialen (vanaf)
+    fruitpers: 0.20,    // uurtarief +20% met fruitpers
+    menuFruitpers: 99,  // cocktailmenu met fruitpers (vanaf)
+    km: 0.25,           // reiskosten per km
+    glas: 0.50,         // glazen via mij, per glas (vanaf)
     spoed: 0.25,        // toeslag bij boeken binnen 1 maand
     annuleren: 0.20     // bij annuleren binnen 14 dagen
   };
+
+  // Google reviews: plak hier je links zodra je Google Bedrijfsprofiel er is
+  const GOOGLE_REVIEW_SCHRIJVEN = '';  // bijv. https://g.page/r/XXXX/review
+  const GOOGLE_REVIEWS_BEKIJKEN = '';  // bijv. de link naar je bedrijf op Google Maps
 
   /* ================= SVG-glazen ================= */
   function glasSvg(type) {
@@ -161,61 +182,53 @@
   cD.min = vandaag;
   $('#boek-form [name=datum]').min = vandaag;
 
+  const cC = $('#c-cocktails'), cF = $('#c-fruitpers'), cK = $('#c-km'), cG = $('#c-glazen');
   function bereken() {
-    const uren = +cU.value, spoed = isSpoed(cD.value);
+    const uren = +cU.value, spoed = isSpoed(cD.value), fp = cF.checked;
+    const uurprijs = TARIEF.uur * (fp ? 1 + TARIEF.fruitpers : 1);
+    const km = Math.max(0, +cK.value || 0), glazen = Math.max(0, +cG.value || 0);
     $('#c-uren-out').textContent = uren;
     const regels = [
-      [`${uren} uur bartender × ${euro(TARIEF.uur)}`, uren * TARIEF.uur],
-      [`Voorbereiding (${TARIEF.voorbereiding} uur)`, TARIEF.voorbereiding * TARIEF.uur],
-      ['Cocktailmenu & materialen', TARIEF.menu]
+      [`${uren} uur bartender × ${euro(uurprijs)}`, uren * uurprijs],
+      [`Voorbereiding (${TARIEF.voorbereiding} uur)`, TARIEF.voorbereiding * uurprijs],
+      [`Cocktailmenu (${cC.value} ${+cC.value === 1 ? 'cocktail' : 'cocktails'}) & materialen, vanaf`, fp ? TARIEF.menuFruitpers : TARIEF.menu]
     ];
+    if (km) regels.push([`Reiskosten ${km} km × ${euro(TARIEF.km)}`, km * TARIEF.km]);
+    if (glazen) regels.push([`${glazen} glazen × ${euro(TARIEF.glas)}`, glazen * TARIEF.glas]);
     const basis = regels.reduce((t, r) => t + r[1], 0);
     if (spoed) regels.push([`Spoedtoeslag (+${TARIEF.spoed * 100}%)`, basis * TARIEF.spoed]);
     const totaal = regels.reduce((t, r) => t + r[1], 0);
     $('#c-lines').innerHTML = regels.map(([l, b]) => `<li${l.startsWith('Spoed') ? ' class="is-spoed"' : ''}><span>${l}</span><b>${euro(b)}</b></li>`).join('');
     $('#c-totaal').textContent = euro(totaal);
-    $('#c-detail').textContent = spoed
+    $('#c-detail').textContent = (spoed
       ? 'Spoedboeking: je feest is binnen een maand.'
-      : cD.value ? 'Normaal tarief: meer dan een maand vooruit geboekt.' : 'Vul een datum in om te zien of er spoedtoeslag geldt.';
+      : cD.value ? 'Normaal tarief: meer dan een maand vooruit geboekt.' : 'Vul een datum in om te zien of er spoedtoeslag geldt.')
+      + (km ? '' : ' Reiskosten: €0,25 per km.');
   }
-  [cU, cD].forEach(el => el.addEventListener('input', bereken));
+  [cU, cD, cC, cF, cK, cG].forEach(el => el.addEventListener('input', bereken));
+  cF.addEventListener('change', bereken);
   bereken();
 
   $('#c-cta').addEventListener('click', () => {
     const f = $('#boek-form');
     f.elements.uren.value = cU.value;
+    f.elements.cocktails.value = cC.value;
+    f.elements.fruitpers.checked = cF.checked;
+    f.elements.glazen.checked = +cG.value > 0;
     if (cD.value) f.elements.datum.value = cD.value;
     f.elements.datum.dispatchEvent(new Event('input'));
   });
 
-  /* ================= Reviews-slider ================= */
-  const track = $('#reviews-track'), dots = $('#rev-dots');
-  const n = track.children.length;
-  let idx = 0, timer;
-  dots.innerHTML = Array.from({ length: n }, (_, i) => `<button type="button" aria-label="Review ${i + 1}"></button>`).join('');
-  const toon = i => {
-    idx = (i + n) % n;
-    track.style.transform = `translateX(-${idx * 100}%)`;
-    $$('button', dots).forEach((d, j) => d.classList.toggle('is-active', j === idx));
-  };
-  const auto = () => { clearInterval(timer); timer = setInterval(() => toon(idx + 1), 7000); };
-  $('#rev-prev').addEventListener('click', () => { toon(idx - 1); auto(); });
-  $('#rev-next').addEventListener('click', () => { toon(idx + 1); auto(); });
-  $$('button', dots).forEach((d, i) => d.addEventListener('click', () => { toon(i); auto(); }));
-  let x0 = null;
-  track.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
-  track.addEventListener('touchend', e => {
-    if (x0 === null) return;
-    const dx = e.changedTouches[0].clientX - x0;
-    if (Math.abs(dx) > 40) { toon(idx + (dx < 0 ? 1 : -1)); auto(); }
-    x0 = null;
-  });
-  toon(0); auto();
+  /* ================= Reviews ================= */
+  const zetLink = (id, url) => { const a = $(id); if (url) { a.href = url; a.hidden = false; } };
+  zetLink('#google-review', GOOGLE_REVIEW_SCHRIJVEN);
+  zetLink('#google-profiel', GOOGLE_REVIEWS_BEKIJKEN);
+  $('#reviews-lijst').hidden = !$('#reviews-lijst').children.length;
 
   /* ================= Quiz ================= */
   const UITSLAG = {
-    'zoet-ja': 'Pornstar Martini', 'zuur-ja': 'Basil Smash', 'bitter-ja': 'Negroni',
-    'zoet-nee': 'Berry Nojito', 'zuur-nee': 'Virgin Garden', 'bitter-nee': 'Spiced Apple Sour'
+    'zoet-ja': 'Pornstar Martini', 'zuur-ja': 'Daiquiri', 'bitter-ja': 'Negroni',
+    'zoet-nee': 'Virgin Colada', 'zuur-nee': 'Virgin Mojito', 'bitter-nee': 'Virgin Mule'
   };
   const SFEER = {
     strand: 'Met je tenen in het zand,', lounge: 'Lekker weggezakt bij de jazz,', feest: 'Tussen twee dansjes door,'
@@ -224,8 +237,8 @@
     e.preventDefault();
     const f = new FormData(e.target);
     let naam = UITSLAG[`${f.get('q1')}-${f.get('q3')}`];
-    if (f.get('q2') === 'lounge' && f.get('q3') === 'ja' && f.get('q1') !== 'zuur') naam = 'Smoked Old Fashioned';
-    if (f.get('q2') === 'strand' && f.get('q3') === 'ja' && f.get('q1') === 'zoet') naam = 'Golden Hour';
+    if (f.get('q2') === 'lounge' && f.get('q3') === 'ja' && f.get('q1') !== 'zuur') naam = 'Old Fashioned';
+    if (f.get('q2') === 'strand' && f.get('q3') === 'ja' && f.get('q1') === 'zoet') naam = 'Piña Colada';
     const c = COCKTAILS.find(x => x.naam === naam);
     const res = $('#quiz-result');
     res.innerHTML = `<p class="eyebrow">Jouw match</p><h3>${c.naam}</h3><p>${SFEER[f.get('q2')]} ${c.tekst.charAt(0).toLowerCase() + c.tekst.slice(1)}</p>`;
@@ -234,7 +247,7 @@
 
   /* ================= Boekingsformulier ================= */
   // Opent een kant-en-klare mail. Later te vervangen door bijv. Formspree of Netlify Forms.
-  const MAIL = 'info@beckontherocks.nl';
+  const MAIL = 'rutger@beck.nl';
   const fDatum = $('#boek-form [name=datum]');
   fDatum.addEventListener('input', () => { $('#form-spoed').hidden = !isSpoed(fDatum.value); });
   $('#boek-form').addEventListener('submit', e => {
@@ -251,7 +264,9 @@
     const d = Object.fromEntries(new FormData(form));
     const body = [
       `Naam: ${d.naam}`, `E-mail: ${d.email}`, `Datum: ${d.datum}`, `Aantal uur: ${d.uren || '-'}`,
-      `Gasten: ${d.gasten || '-'}`, `Soort feest: ${d.soort}`, isSpoed(d.datum) ? 'Spoedboeking (binnen 1 maand)' : '', '', d.bericht || ''
+      `Gasten: ${d.gasten || '-'}`, `Soort feest: ${d.soort}`, `Locatie: ${d.locatie || '-'}`,
+      `Cocktails op de kaart: ${d.cocktails}`, `Fruitpers: ${d.fruitpers ? 'ja' : 'nee'}`, `Glazen via Rutger: ${d.glazen ? 'ja' : 'nee'}`,
+      isSpoed(d.datum) ? 'Spoedboeking (binnen 1 maand)' : '', '', d.bericht || ''
     ].join('\n');
     location.href = `mailto:${MAIL}?subject=${encodeURIComponent('Aanvraag ' + d.soort + ' op ' + d.datum)}&body=${encodeURIComponent(body)}`;
     note.textContent = 'Dank je! Je mailprogramma opent nu met je aanvraag.';
