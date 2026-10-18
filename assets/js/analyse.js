@@ -328,8 +328,8 @@ window.BeckAnalyse = (() => {
     }
 
     // Gasten
-    const gasten = lGasten ? parseInt(lGasten, 10) : +((/\b(\d{1,4})\s*(?:gasten|personen|mensen|pers\.?|man|genodigden)\b/i.exec(t) || [])[1] || 0);
-    if (gasten > 0) v._gasten = { waarde: String(gasten), bron: `${gasten} gasten` };
+    const gasten = lGasten ? parseInt(lGasten, 10) : +((/\b(\d{1,4})\s*(?:gasten|personen|mensen|pers\.?|man|genodigden|collega'?s|vrienden)\b/i.exec(t) || [])[1] || 0);
+    if (gasten > 0) zet('f-gasten', String(gasten), `${gasten} gasten`);
 
     // Soort feest
     const soortBron = lSoort || t;
@@ -343,11 +343,10 @@ window.BeckAnalyse = (() => {
     }
     const opm = [];
     if (gezien.size) opm.push('Gewenste cocktails: ' + [...gezien].join(', '));
-    if (v._gasten) opm.push('Aantal gasten: ' + v._gasten.waarde);
     if (v._uren) opm.push('Gewenst aantal uur: ' + v._uren.waarde);
     if (opm.length) zet('opmerking', opm.join('\n'), [...gezien].join(', ') || 'gasten/uren');
 
-    delete v._gasten; delete v._uren;
+    delete v._uren;
     return v;
   }
 

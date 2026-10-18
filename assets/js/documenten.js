@@ -48,7 +48,7 @@
 
   /* ================= Documentstatus ================= */
   const VELDEN = ['nummer', 'datum', 'termijn', 'referentie', 'k-naam', 'k-bedrijf', 'k-adres', 'k-plaats', 'k-email', 'k-tel',
-    'f-datum', 'f-soort', 'f-van', 'f-tot', 'f-locatie', 'opmerking'];
+    'f-datum', 'f-soort', 'f-van', 'f-tot', 'f-gasten', 'f-locatie', 'opmerking'];
   let type = 'offerte', extra = [];
 
   const alleDocs = () => opslag.lees('beck-documenten', {});
@@ -176,6 +176,7 @@
     const feest = [
       d['f-soort'] + (d['f-datum'] ? ' op ' + lang(d['f-datum']) : ''),
       d['f-van'] && d['f-tot'] ? `${d['f-van']} – ${d['f-tot']} (${getal(b.u)} uur)` : '',
+      +d['f-gasten'] > 0 ? `${d['f-gasten']} gasten` : '',
       d['f-locatie']
     ].filter(Boolean);
     $('#d-feest').innerHTML = feest.map(esc).join('<br>');
@@ -212,8 +213,12 @@
           <li>Geen aanbetaling. Na het feest ontvang je een factuur met een betaaltermijn van ${ins.betaal} dagen.</li>
           <li>Boeken binnen 1 maand voor het feest geldt als spoedboeking: +${ins.spoed}% over alle kosten.</li>
           <li>Annuleren kan kosteloos tot 14 dagen voor het feest. Daarna reken ik ${ins.annul}% van het afgesproken bedrag.</li>
-          <li>Deze offerte is geldig tot ${lang(tot) || '…'}. Akkoord? Laat het me weten per mail of WhatsApp, dan staat je datum vast.</li>
-        </ul>`;
+          <li>Deze offerte is geldig tot ${lang(tot) || '…'}. Akkoord? Stuur hem getekend terug of laat het me weten per mail of WhatsApp, dan staat je datum vast.</li>
+        </ul>
+        <div class="akkoord">
+          <h3>Voor akkoord</h3>
+          <div class="akkoord__lijnen"><span>Naam</span><span>Datum</span><span>Handtekening</span></div>
+        </div>`;
     } else {
       $('#d-voorwaarden').innerHTML = `
         <p class="pay">Graag het totaalbedrag van <strong>${euro(totaal)}</strong> vóór <strong>${lang(tot) || '…'}</strong> overmaken op
@@ -224,10 +229,27 @@
 
     // Voet
     $('#d-foot').innerHTML = [
-      ins.kvk ? 'KvK ' + esc(ins.kvk) : 'KvK …',
-      btw ? 'Btw ' + esc(ins.btwnr || '…') : 'KOR: vrijgesteld van btw',
-      ins.iban ? 'IBAN ' + esc(ins.iban) : 'IBAN …'
-    ].map(s => `<span>${s}</span>`).join('');
+      ins.kvk && 'KvK ' + esc(ins.kvk),
+      btw ? (ins.btwnr && 'Btw ' + esc(ins.btwnr)) : 'KOR: vrijgesteld van btw',
+      ins.iban && 'IBAN ' + esc(ins.iban)
+    ].filter(Boolean).map(s => `<span>${s}</span>`).join('');
+
+    // Ontbrekende gegevens: alleen als melding in het bewerkpaneel, niet op het document
+    const mist = [
+      !ins.kvk && 'KvK-nummer',
+      factuur && !ins.iban && 'IBAN',
+      factuur && (!ins.adres || !ins.plaats) && 'je adres',
+      btw && !ins.btwnr && 'btw-nummer'
+    ].filter(Boolean);
+    $('#ontbreekt').hidden = !mist.length;
+    $('#ontbreekt').innerHTML = mist.length
+      ? `Nog niet ingevuld: <strong>${mist.join(', ')}</strong>. ${factuur ? 'Dit is verplicht op een factuur. ' : ''}Vul het in onder "Mijn gegevens & tarieven".`
+      : '';
+
+    // Past het niet op één A4? Dan compacter zetten (verhouding is onafhankelijk van zoom)
+    const paper = $('#paper');
+    paper.classList.remove('is-compact');
+    if (paper.offsetHeight / paper.offsetWidth > 297 / 210 + 0.002) paper.classList.add('is-compact');
 
     // Knoppen
     const bestaat = !!alleDocs()[d.nummer];
@@ -286,7 +308,7 @@
   const LABELS = {
     'k-naam': 'Naam klant', 'k-bedrijf': 'Bedrijf', 'k-email': 'E-mail', 'k-tel': 'Telefoon', 'k-adres': 'Adres klant',
     'k-plaats': 'Postcode & plaats', 'f-datum': 'Datum feest', 'f-van': 'Begintijd', 'f-tot': 'Eindtijd',
-    'f-soort': 'Soort feest', 'f-locatie': 'Locatie', 'opmerking': 'Opmerking'
+    'f-soort': 'Soort feest', 'f-gasten': 'Aantal gasten', 'f-locatie': 'Locatie', 'opmerking': 'Opmerking'
   };
   const status = (tekst, fout) => { const el = $('#slim-status'); el.textContent = tekst; el.classList.toggle('is-fout', !!fout); };
 
@@ -296,7 +318,7 @@
     status(`${keys.length} ${keys.length === 1 ? 'gegeven' : 'gegevens'} gevonden. Controleer en neem over.`);
     $('#slim-velden').innerHTML = keys.map(k => {
       const { waarde, bron } = velden[k];
-      const type = k === 'f-datum' ? 'date' : (k === 'f-van' || k === 'f-tot') ? 'time' : 'text';
+      const type = k === 'f-datum' ? 'date' : (k === 'f-van' || k === 'f-tot') ? 'time' : k === 'f-gasten' ? 'number' : 'text';
       const huidig = $('#' + k).value;
       const invoer = k === 'opmerking'
         ? `<textarea data-k="${k}" rows="2">${esc(waarde)}</textarea>`

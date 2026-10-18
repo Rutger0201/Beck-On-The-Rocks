@@ -48,6 +48,8 @@ input[type=date], input[type=time] { color-scheme: dark; }
 .btn { padding: .85em 1.2em; border-radius: 999px; border: 1px solid var(--gold); background: var(--gold); color: #17120b; font: 500 .9rem var(--sans); cursor: pointer; }
 .btn:hover { filter: brightness(1.08); }
 .btn--ghost { background: transparent; color: var(--gold); }
+.waarschuwing { margin-top: 1rem; padding: .7rem .9rem; border: 1px solid rgba(233,130,46,.5); border-radius: 10px; background: rgba(233,130,46,.08); font-size: .8rem; color: #f0b27a; }
+.waarschuwing strong { color: #f6c79c; font-weight: 500; }
 .tip { font-size: .75rem; color: var(--muted); margin-top: 1rem; }
 
 /* Slim invullen */
@@ -76,37 +78,53 @@ input[type=date], input[type=time] { color-scheme: dark; }
 .stage { padding: 40px 24px; display: flex; justify-content: center; overflow-x: auto; }
 .paper {
   width: 210mm; min-height: 297mm; background: var(--paper); color: var(--ink);
-  padding: 18mm 18mm 16mm; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+  padding: 15mm 18mm 12mm; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
   display: flex; flex-direction: column; font-size: 10pt; line-height: 1.5;
 }
-.doc__head { display: flex; justify-content: space-between; gap: 2rem; padding-bottom: 8mm; border-bottom: 1px solid #e8dfcf; }
+.doc__head { display: flex; justify-content: space-between; gap: 2rem; padding-bottom: 6mm; border-bottom: 1px solid #e8dfcf; }
 .doc__brand { display: flex; align-items: center; }
-.doc__logo { height: 30mm; width: auto; display: block; }
+.doc__logo { height: 26mm; width: auto; display: block; }
 .doc__me { text-align: right; font-size: 8.5pt; color: #5c5449; white-space: pre-line; }
-.doc__title { display: flex; justify-content: space-between; align-items: flex-end; margin: 10mm 0 8mm; }
+.doc__title { display: flex; justify-content: space-between; align-items: flex-end; margin: 7mm 0 6mm; }
 .doc__title h2 { font: 500 2.6rem/1 var(--serif); margin: 0; }
 .doc__title dl { display: grid; grid-template-columns: auto auto; gap: 2px 14px; margin: 0; font-size: 9pt; }
 .doc__title dt { color: #8a8072; }
 .doc__title dd { margin: 0; text-align: right; font-weight: 500; }
-.doc__parties { display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; margin-bottom: 8mm; }
+.doc__parties { display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; margin-bottom: 6mm; }
 .doc__parties h3, .doc__terms h3 { font: 600 7.5pt var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--gold-dark); margin: 0 0 6px; }
 .doc__parties p { margin: 0; white-space: pre-line; }
-.doc__table { width: 100%; border-collapse: collapse; }
+.doc__table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.c-aantal { width: 22mm; } .c-prijs { width: 26mm; } .c-bedrag { width: 28mm; }
 .doc__table th { text-align: left; font: 600 7.5pt var(--sans); letter-spacing: .15em; text-transform: uppercase; color: #8a8072; border-bottom: 1.5px solid var(--ink); padding: 0 0 6px; }
-.doc__table td { padding: 9px 0; border-bottom: 1px solid #eee6d8; vertical-align: top; }
+.doc__table td { padding: 7px 0; border-bottom: 1px solid #eee6d8; vertical-align: top; }
 .doc__table td small { display: block; color: #8a8072; font-size: 8pt; }
-.num { text-align: right; white-space: nowrap; padding-left: 12px !important; }
+.doc__table .num { text-align: right; white-space: nowrap; padding-left: 12px; font-variant-numeric: tabular-nums; }
+.doc__table th.num span { margin-right: -.15em; } /* letterafstand rechts compenseren */
 .doc__totals { margin: 5mm 0 0 auto; width: 75mm; }
 .doc__totals div { display: flex; justify-content: space-between; padding: 4px 0; }
 .doc__totals .tot { border-top: 1.5px solid var(--ink); margin-top: 4px; padding-top: 8px; font: 600 1.5rem var(--serif); }
 .doc__totals .muted { color: #8a8072; font-size: 8.5pt; }
-.doc__note { margin: 8mm 0 0; padding: 4mm 5mm; background: #f7f1e6; border-left: 2px solid var(--gold); white-space: pre-line; }
-.doc__terms { margin-top: 8mm; font-size: 8.5pt; color: #4a443b; }
-.doc__terms ul { margin: 0; padding-left: 1.1em; }
+.doc__note { margin: 6mm 0 0; padding: 3mm 5mm; background: #f7f1e6; border-left: 2px solid var(--gold); white-space: pre-line; }
+.doc__terms { margin-top: 6mm; font-size: 8.5pt; color: #4a443b; }
+.doc__terms ul { margin: 0; padding-left: 1.1em; columns: 2; column-gap: 8mm; }
+.doc__terms li { break-inside: avoid; }
 .doc__terms li { margin-bottom: 2px; }
+.akkoord { margin-top: 5mm; }
+.akkoord__lijnen { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 8mm; margin-top: 9mm; }
+.akkoord__lijnen span { border-top: 1px solid #b9ae9c; padding-top: 4px; font-size: 7.5pt; color: #8a8072; letter-spacing: .1em; text-transform: uppercase; }
 .doc__terms .pay { font-size: 10pt; color: var(--ink); margin: 0 0 4mm; }
-.doc__foot { margin-top: auto; padding-top: 6mm; border-top: 1px solid #e8dfcf; display: flex; justify-content: space-between; font-size: 8pt; color: #8a8072; gap: 1rem; flex-wrap: wrap; }
+.doc__foot { margin-top: auto; padding-top: 4mm; border-top: 1px solid #e8dfcf; display: flex; justify-content: space-between; font-size: 8pt; color: #8a8072; gap: 1rem; flex-wrap: wrap; }
 .leeg { color: #b9ae9c; font-style: italic; }
+
+/* Automatisch compacter als een document niet op één A4 past */
+.paper.is-compact { font-size: 9pt; line-height: 1.4; padding-top: 12mm; padding-bottom: 10mm; }
+.paper.is-compact .doc__logo { height: 20mm; }
+.paper.is-compact .doc__title { margin: 5mm 0 4mm; }
+.paper.is-compact .doc__title h2 { font-size: 2.1rem; }
+.paper.is-compact .doc__table td { padding: 5px 0; }
+.paper.is-compact .doc__terms { font-size: 7.8pt; margin-top: 4mm; }
+.paper.is-compact .doc__note { margin-top: 4mm; padding: 2mm 4mm; }
+.paper.is-compact .akkoord__lijnen { margin-top: 7mm; }
 
 /* ---------- Mobiel ---------- */
 @media (max-width: 900px) {
