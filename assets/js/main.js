@@ -73,6 +73,14 @@
     annuleren: 0.20     // bij annuleren binnen 14 dagen
   };
 
+  // Web3Forms (web3forms.com): boekingen en reviews gaan direct naar je mail.
+  // Zonder sleutel opent het formulier het mailprogramma van de bezoeker.
+  const WEB3FORMS_SLEUTEL = 'd1f82d89-0590-4f10-a8ec-3da82a5164e9';
+
+  // Goedgekeurde reviews staan als losse .json-bestanden in deze map van de repository
+  const REVIEWS_REPO = 'Rutger0201/Beck-On-The-Rocks';
+  const REVIEWS_MAP = 'reviews';
+
   // Google reviews: plak hier je links zodra je Google Bedrijfsprofiel er is
   const GOOGLE_REVIEW_SCHRIJVEN = '';  // bijv. https://g.page/r/XXXX/review
   const GOOGLE_REVIEWS_BEKIJKEN = '';  // bijv. de link naar je bedrijf op Google Maps
@@ -223,7 +231,102 @@
   const zetLink = (id, url) => { const a = $(id); if (url) { a.href = url; a.hidden = false; } };
   zetLink('#google-review', GOOGLE_REVIEW_SCHRIJVEN);
   zetLink('#google-profiel', GOOGLE_REVIEWS_BEKIJKEN);
-  $('#reviews-lijst').hidden = !$('#reviews-lijst').children.length;
+  const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const sterren = n => '★'.repeat(n) + '☆'.repeat(5 - n);
+  const maandJaar = d => { const x = new Date(d + 'T00:00'); return isNaN(x) ? '' : x.toLocaleDateString('nl-NL', { month: 'long', year: 'numeric' }); };
+
+  // Lijst met goedgekeurde reviews ophalen: 1 verzoek voor de map, daarna de bestanden zelf
+  async function laadReviews() {
+    let reviews = null;
+    try { const c = JSON.parse(sessionStorage.getItem('beck-reviews')); if (c && Date.now() - c.t < 5 * 60e3) reviews = c.r; } catch { /* geen cache */ }
+    if (!reviews) {
+      const res = await fetch(`https://api.github.com/repos/${REVIEWS_REPO}/contents/${REVIEWS_MAP}?ref=main`, { headers: { Accept: 'application/vnd.github+json' } });
+      if (!res.ok) return;
+      const bestanden = (await res.json()).filter(f => f.type === 'file' && f.name.endsWith('.json'));
+      reviews = (await Promise.all(bestanden.map(f => fetch(f.download_url).then(r => r.ok ? r.json() : null).catch(() => null))))
+        .filter(r => r && r.tekst && r.naam);
+      try { sessionStorage.setItem('beck-reviews', JSON.stringify({ t: Date.now(), r: reviews })); } catch { /* privémodus */ }
+    }
+    toonReviews(reviews);
+  }
+  function toonReviews(reviews) {
+    const lijst = $('#reviews-lijst');
+    if (!reviews.length) return;
+    reviews.sort((a, b) => String(b.datum).localeCompare(String(a.datum)));
+    lijst.innerHTML = reviews.map(r => {
+      const n = Math.min(5, Math.max(1, Math.round(+r.sterren) || 5));
+      return `<blockquote class="review">
+        <div class="stars" aria-label="${n} van 5 sterren">${sterren(n)}</div>
+        <p>${esc(r.tekst)}</p>
+        <footer><strong>${esc(r.naam)}</strong><span>${esc(r.soort || '')}${r.datum ? ' · ' + esc(maandJaar(r.datum)) : ''}</span></footer>
+      </blockquote>`;
+    }).join('');
+    lijst.hidden = false;
+    const gem = reviews.reduce((t, r) => t + (Math.min(5, Math.max(1, +r.sterren || 5))), 0) / reviews.length;
+    const score = $('#review-score');
+    score.innerHTML = `<strong>${gem.toLocaleString('nl-NL', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</strong>
+      <div><div class="stars">${sterren(Math.round(gem))}</div><span>Gemiddeld uit ${reviews.length} ${reviews.length === 1 ? 'review' : 'reviews'}</span></div>`;
+    score.hidden = false;
+    $('#review-intro').textContent = 'Ik hoor graag hoe jij het vond. Je review helpt anderen kiezen.';
+  }
+  laadReviews().catch(() => { /* geen verbinding met GitHub: alleen de oproep tonen */ });
+
+  // Review schrijven
+  $('#review-schrijf').addEventListener('click', () => {
+    $('#review-form').hidden = false; $('#review-knoppen').hidden = true;
+    $('#review-form [name=naam]').focus();
+  });
+  const slug = t => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'review';
+  $('#review-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const form = e.target, note = $('#review-note');
+    let ok = true;
+    $$('[required]', form).forEach(el => {
+      const geldig = el.type === 'checkbox' ? el.checked : el.checkValidity() && el.value.trim() !== '';
+      el.classList.toggle('is-invalid', !geldig);
+      if (!geldig) ok = false;
+    });
+    note.classList.remove('is-fout');
+    if (!ok) { note.textContent = 'Vul je naam en review in (minstens 10 tekens) en geef toestemming om hem te plaatsen.'; note.classList.add('is-fout'); return; }
+    const d = Object.fromEntries(new FormData(form));
+    if (d.botcheck) return;
+
+    const vandaagIso = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    const review = { naam: d.naam.trim(), sterren: +d.sterren, soort: d.soort, tekst: d.tekst.trim(), datum: vandaagIso };
+    const pad = `${REVIEWS_MAP}/${vandaagIso}-${slug(review.naam)}-${Math.random().toString(36).slice(2, 6)}.json`;
+    const goedkeuren = `https://github.com/${REVIEWS_REPO}/new/main?filename=${encodeURIComponent(pad)}`
+      + `&value=${encodeURIComponent(JSON.stringify(review, null, 2) + '\n')}`
+      + `&message=${encodeURIComponent('Review van ' + review.naam + ' goedgekeurd')}`;
+    const velden = {
+      'Naam': review.naam, 'Sterren': `${sterren(review.sterren)} (${review.sterren}/5)`, 'Soort feest': review.soort,
+      'Review': review.tekst, 'E-mail reviewer': d.email || '-',
+      'GOEDKEUREN (publiceren op de site)': goedkeuren,
+      'Afwijzen': 'Doe niets: de review verschijnt dan niet.'
+    };
+    const onderwerp = `Nieuwe review van ${review.naam} (${review.sterren}/5)`;
+    const knop = $('#review-knop');
+    if (!WEB3FORMS_SLEUTEL) {
+      location.href = `mailto:${MAIL}?subject=${encodeURIComponent(onderwerp)}&body=${encodeURIComponent(Object.entries(velden).map(([k, v]) => `${k}: ${v}`).join('\n'))}`;
+      return;
+    }
+    knop.disabled = true; knop.textContent = 'Versturen…';
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ access_key: WEB3FORMS_SLEUTEL, subject: onderwerp, from_name: 'Beck on the Rocks · reviews', ...(d.email ? { replyto: d.email } : {}), botcheck: false, ...velden })
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json.success === false) throw new Error(json.message || 'Versturen mislukt');
+      form.hidden = true; form.reset();
+      const klaar = $('#review-klaar'); klaar.hidden = false; klaar.focus();
+    } catch {
+      note.textContent = 'Het versturen is niet gelukt. Probeer het later nog eens, of mail je review naar rutger@beck.nl.';
+      note.classList.add('is-fout');
+    } finally {
+      knop.disabled = false; knop.textContent = 'Verstuur review';
+    }
+  });
 
   /* ================= Quiz ================= */
   const UITSLAG = {
@@ -246,9 +349,7 @@
   });
 
   /* ================= Boekingsformulier ================= */
-  // Met een Web3Forms-sleutel (gratis via web3forms.com) gaat de aanvraag direct naar je mail,
-  // zonder dat de klant zijn mailprogramma opent. Zonder sleutel wordt het mailprogramma geopend.
-  const WEB3FORMS_SLEUTEL = 'd1f82d89-0590-4f10-a8ec-3da82a5164e9';
+  // Aanvragen gaan via Web3Forms (zie WEB3FORMS_SLEUTEL bovenaan) direct naar je mail.
   const MAIL = 'rutger@beck.nl';
   const fDatum = $('#boek-form [name=datum]');
   fDatum.addEventListener('input', () => { $('#form-spoed').hidden = !isSpoed(fDatum.value); });

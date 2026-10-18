@@ -27,12 +27,14 @@ en zet die bij `WEB3FORMS_SLEUTEL` bovenaan het formulier-deel in `assets/js/mai
 Zonder sleutel opent het formulier het mailprogramma van de klant (zoals voorheen).
 Kopieer een binnengekomen aanvraag in **Slim invullen** van de generator voor een offerte.
 
-## Google reviews koppelen
-Zodra je Google Bedrijfsprofiel er is, plak je twee links bovenaan `assets/js/main.js`:
-`GOOGLE_REVIEW_SCHRIJVEN` (de "Vraag om reviews"-link uit je profiel) en `GOOGLE_REVIEWS_BEKIJKEN`.
-De knoppen op de reviewpagina verschijnen dan vanzelf. Zet de review-link ook in de generator
-(Mijn gegevens & tarieven), dan komt hij op je facturen. Echte reviews kun je als
-`<blockquote class="review">` in `#reviews-lijst` op de reviewpagina zetten.
+## Reviews
+Klanten schrijven een review via het formulier op de reviewpagina. Je krijgt een mail met een
+**GOEDKEUREN**-link; daarmee zet je de review met één commit in de map `reviews/`, waarna hij op de
+site verschijnt. Zie `reviews/LEESMIJ.md`.
+
+Google reviews: plak je links bij `GOOGLE_REVIEW_SCHRIJVEN` en `GOOGLE_REVIEWS_BEKIJKEN` bovenaan
+`assets/js/main.js`; de Google-knoppen verschijnen dan vanzelf. Zet de review-link ook in de generator
+(Mijn gegevens & tarieven), dan komt hij op je facturen.
 
 ## Nog zelf invullen vóór livegang
 - **Reviews**: nog geen; zie "Google reviews koppelen".
