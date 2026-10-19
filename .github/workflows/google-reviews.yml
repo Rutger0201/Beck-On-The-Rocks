@@ -1,0 +1,25 @@
+# Haalt elke ochtend de Google-reviews op en zet ze op de site (tools/google_reviews.py)
+name: Google-reviews ophalen
+on:
+  schedule:
+    - cron: '17 5 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  ophalen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ophalen en opslaan
+        env:
+          GOOGLE_PLACES_KEY: ${{ secrets.GOOGLE_PLACES_KEY }}
+          GOOGLE_PLACE_ID: ${{ vars.GOOGLE_PLACE_ID }}
+        run: |
+          python3 tools/google_reviews.py
+          git add assets/data/google-reviews.json 2>/dev/null || true
+          if git diff --cached --quiet; then echo "Niets nieuws."; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Google-reviews bijgewerkt"
+          git push

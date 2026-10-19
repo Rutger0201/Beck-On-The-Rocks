@@ -319,6 +319,7 @@ input[type=date] { color-scheme: dark; }
 .review-score strong { font: 500 3.2rem/1 var(--serif); color: var(--gold); }
 .review-score .stars { margin: 0; }
 .review-score span { font-size: .9375rem; color: var(--muted); }
+.review footer a, .review-score a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 .reviews-lijst .review .stars { margin-bottom: .8rem; }
 .reviews-lijst .review footer { display: grid; gap: .15rem; margin-top: 1rem; }
 .reviews-lijst .review footer span { font-size: .8125rem; }
