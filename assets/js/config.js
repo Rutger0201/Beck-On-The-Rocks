@@ -10,5 +10,8 @@ window.BECK_CONFIG = {
   // KvK-nummer: verschijnt in de footer zodra je het invult, bijv. '12345678'
   kvk: '',
   // Btw-regel bij de tarieven: 'kor' (geen btw), 'incl' (prijzen incl. btw) of leeg (geen regel)
-  btw: ''
+  btw: '',
+  // EmailJS (emailjs.com): automatische bevestigingsmail aan de klant na een aanvraag.
+  // Vul alle drie in om hem aan te zetten; templateEn is optioneel (anders krijgen Engelse aanvragen de Nederlandse mail).
+  emailjs: { service: '', template: '', templateEn: '', publicKey: '' }
 };

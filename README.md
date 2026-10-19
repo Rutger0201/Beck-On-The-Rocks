@@ -63,6 +63,13 @@ en zet die bij `web3forms` in `assets/js/config.js`.
 Zonder sleutel opent het formulier het mailprogramma van de klant (zoals voorheen).
 Kopieer een binnengekomen aanvraag in **Slim invullen** van de generator voor een offerte.
 
+### Bevestigingsmail aan de klant (EmailJS)
+Na een geslaagde aanvraag krijgt de klant een bevestiging via [EmailJS](https://www.emailjs.com) (gratis tot ca. 200 mails/maand).
+Aanzetten: vul in `assets/js/config.js` bij `emailjs` de `service`, `template` en `publicKey` in (en eventueel `templateEn`
+voor Engelse aanvragen). De template bij EmailJS gebruikt de velden `{{to_email}}`, `{{naam}}`, `{{datum}}`, `{{soort}}`,
+`{{locatie}}` en `{{gasten}}`. Het vrije bericht van de klant gaat bewust niet mee, zodat niemand via je account eigen
+teksten kan versturen. Stel in EmailJS (Account → Security) zo mogelijk in dat alleen beckontherocks.nl mag versturen.
+
 ### Spambescherming
 Naast het verborgen honeypot-veld: een formulier dat binnen 3 seconden na het laden wordt verstuurd, gaat niet weg
 (de bot ziet wel een bedankscherm); berichten met meer dan 2 links worden geweigerd; per browser kunnen er maximaal
