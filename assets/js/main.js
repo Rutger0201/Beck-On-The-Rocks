@@ -117,8 +117,8 @@
   const REVIEWS_MAP = 'reviews';
 
   // Google reviews: plak hier je links zodra je Google Bedrijfsprofiel er is
-  const GOOGLE_REVIEW_SCHRIJVEN = '';  // bijv. https://g.page/r/XXXX/review
-  const GOOGLE_REVIEWS_BEKIJKEN = '';  // bijv. de link naar je bedrijf op Google Maps
+  const GOOGLE_REVIEW_SCHRIJVEN = (CONFIG.google || {}).review || '';  // in config.js
+  const GOOGLE_REVIEWS_BEKIJKEN = (CONFIG.google || {}).profiel || '';
 
   const MAIL = CONFIG.mail || 'rutger@beck.nl';
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
