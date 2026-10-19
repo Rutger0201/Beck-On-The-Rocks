@@ -438,13 +438,15 @@ input[type=date] { color-scheme: dark; }
 /* ---------- Visitekaartje ---------- */
 .kaart { min-height: 100svh; display: grid; place-items: center; padding: 32px 16px; }
 .kaart__inner { width: min(420px, 100%); text-align: center; display: grid; gap: 1.2rem; }
-.kaart__logo { width: 180px; height: auto; margin: 0 auto; }
+.kaart__logo { width: 150px; height: auto; margin: .4rem auto 0; }
 .kaart h1 { font-size: 2.4rem; margin: 0; }
 .kaart__rol { color: var(--gold); letter-spacing: .2em; text-transform: uppercase; font-size: .8125rem; margin: -.6rem 0 .4rem; }
 .kaart__knoppen { display: grid; gap: .7rem; }
 .kaart__duo { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
-.kaart__qr { background: #fff; border-radius: 16px; padding: 14px; width: 220px; margin: .6rem auto 0; }
-.kaart__qr img { width: 100%; height: auto; }
+/* QR in de huisstijl: donkere blokjes op goud (zo leest elke telefooncamera hem) */
+.kaart__qr { margin: 0 auto .4rem; display: grid; justify-items: center; gap: .7rem; }
+.kaart__qr img { width: 240px; height: auto; border-radius: 18px; box-shadow: 0 0 0 1px rgba(228,200,141,.55), 0 0 0 7px var(--bg), 0 0 0 8px rgba(201,164,92,.35), 0 24px 60px -24px rgba(201,164,92,.45); }
+.kaart__qr figcaption { font-size: .8125rem; color: var(--muted); letter-spacing: .04em; }
 .kaart small { color: var(--muted); font-size: .8125rem; }
 
 /* ---------- Responsief ---------- */
