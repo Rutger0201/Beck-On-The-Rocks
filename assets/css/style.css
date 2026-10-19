@@ -544,3 +544,7 @@ input[type=date] { color-scheme: dark; }
 }
 .lp-sub { font-size: 1.6rem; margin-top: 2.2rem; }
 .lp-terms { margin-top: 3rem; }
+
+/* Losse pagina's (tarieven, FAQ): ruimte onder de vaste navigatie */
+.losse-pagina > .section:first-child { padding-top: calc(76px + clamp(40px, 6vw, 80px)); }
+.losse-pagina h1 { font-size: clamp(2.3rem, 4.6vw, 3.8rem); }

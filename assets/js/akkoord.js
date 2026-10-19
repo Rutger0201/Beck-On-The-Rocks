@@ -8,6 +8,7 @@
   const lang = iso => iso ? new Date(iso + 'T00:00').toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
   const vandaag = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 
+  const geladen = Date.now();
   let o;
   try {
     const raw = new URLSearchParams(location.search).get('o') || '';
@@ -19,6 +20,11 @@
     if (CONFIG.mail) { $('#fout-mail').href = 'mailto:' + CONFIG.mail; $('#fout-mail').textContent = CONFIG.mail; }
     return;
   }
+
+  // Link waarmee Rutger in zijn generator controleert of de offerte in deze link niet is aangepast
+  const zoek = new URLSearchParams(location.search);
+  const controleLink = `${location.origin}${location.pathname.replace(/akkoord\.html$/, '')}documenten.html?controleer=${zoek.get('o')}`
+    + (zoek.get('s') ? `&s=${zoek.get('s')}` : '');
 
   // ---- Offerte tonen ----
   document.title = `Offerte ${o.n} · Beck on the Rocks`;
@@ -67,6 +73,8 @@
     const d = Object.fromEntries(new FormData(form));
     if (d.botcheck) return;
     const fout = t => { note.textContent = t; note.classList.add('is-fout'); };
+    if (Date.now() - geladen < 3000) return; // binnen 3 seconden verstuurd: spambot, niets versturen
+    if ((d.opmerking.match(/https?:\/\/|www\./gi) || []).length > 2) return fout('Je bericht bevat te veel links. Haal ze weg, of mail me je bericht.');
     if (!d.naam.trim()) return fout('Vul je naam in.');
     if (keuze === 'akkoord' && !d.akkoord) return fout('Vink aan dat je akkoord gaat met de offerte en de afspraken.');
     if (keuze === 'vraag' && !d.opmerking.trim()) return fout('Schrijf je vraag of wijziging in het tekstvak.');
@@ -76,7 +84,8 @@
     const velden = {
       'Antwoord': titel, 'Offerte': o.n, 'Klant': d.naam.trim(), 'E-mail klant': d.email || '-',
       'Bedrag': euro(o.tot), 'Feest': [o.s, o.fd && lang(o.fd), o.t, o.l].filter(Boolean).join(' · '),
-      'Opmerking': opm || '-', 'Geldig tot': o.gt ? lang(o.gt) : '-'
+      'Opmerking': opm || '-', 'Geldig tot': o.gt ? lang(o.gt) : '-',
+      'Controleren (voor Rutger)': controleLink
     };
     const onderwerp = `${keuze === 'akkoord' ? '✅ Akkoord' : '❓ Vraag'} op offerte ${o.n} van ${d.naam.trim()}`;
     const knoppen = form.querySelectorAll('button');
