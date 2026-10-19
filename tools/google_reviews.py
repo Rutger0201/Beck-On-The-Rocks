@@ -15,6 +15,7 @@ Gebruik: GOOGLE_PLACES_KEY=... python3 tools/google_reviews.py
 import json
 import os
 import sys
+import urllib.error
 import urllib.request
 from datetime import date
 from pathlib import Path
@@ -30,8 +31,12 @@ def vraag(pad, sleutel, velden, data=None):
     req = urllib.request.Request(f'{API}/{pad}', data=json.dumps(data).encode() if data else None,
                                  headers={'X-Goog-Api-Key': sleutel, 'X-Goog-FieldMask': velden,
                                           'Content-Type': 'application/json'})
-    with urllib.request.urlopen(req, timeout=20) as r:
-        return json.load(r)
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            return json.load(r)
+    except urllib.error.HTTPError as e:
+        # Google legt in de foutmelding uit wat er mis is (de sleutel zelf staat er niet in)
+        sys.exit(f'Google gaf fout {e.code}: {e.read().decode("utf-8", "replace")[:600]}')
 
 
 def zoek_place_id(sleutel):
