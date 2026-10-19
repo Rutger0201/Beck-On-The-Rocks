@@ -87,12 +87,13 @@ Klanten schrijven een review via het formulier op de reviewpagina. Je krijgt een
 **GOEDKEUREN**-link; daarmee zet je de review met één commit in de map `reviews/`, waarna hij op de
 site verschijnt. Zie `reviews/LEESMIJ.md`.
 
-Google reviews: plak je links bij `GOOGLE_REVIEW_SCHRIJVEN` en `GOOGLE_REVIEWS_BEKIJKEN` bovenaan
-`assets/js/main.js`; de Google-knoppen verschijnen dan vanzelf. Zet de review-link ook in de generator
-(Mijn gegevens & tarieven), dan komt hij op je facturen.
+Google reviews: de links staan in `assets/js/config.js` (`google.review` en `google.profiel`). Daarmee
+verschijnen de Google-knoppen op de reviewpagina (NL en EN). De review-link staat ook op het visitekaartje
+en in de generator (Mijn gegevens & tarieven), zodat hij in de factuurmail komt. De profiellink staat ook
+in de bedrijfsgegevens voor Google (`sameAs` in `index.html` en `en/index.html`).
 
 ## Nog zelf invullen vóór livegang
-- **Reviews**: de eerste staat erop; Google reviews koppelen zie hierboven.
+- **Reviews**: de eerste staan erop; Google reviews zijn gekoppeld (zie hierboven).
 - **Foto's**: staan in `assets/img/` (portret + sfeerbeelden). Meer foto's toevoegen kan in de galerij op de pagina "Over mij".
 - **Contactgegevens**: zakelijk telefoonnummer (nu privénummer) en Instagram.
 - **KvK**: vul na je inschrijving `kvk` in `assets/js/config.js` in; het nummer verschijnt dan in elke footer.

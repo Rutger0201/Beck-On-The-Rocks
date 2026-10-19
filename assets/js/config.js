@@ -13,5 +13,6 @@ window.BECK_CONFIG = {
   btw: '',
   // EmailJS (emailjs.com): automatische bevestigingsmail aan de klant na een aanvraag.
   // Vul alle drie in om hem aan te zetten; templateEn is optioneel (anders krijgen Engelse aanvragen de Nederlandse mail).
+  google: { review: 'https://g.page/r/CdSRBk_6B5glECE/review', profiel: 'https://share.google/5NtGs8DnNmRXnJkvh' },  // reviewknoppen op de site en het visitekaartje
   emailjs: { service: '', template: '', templateEn: '', publicKey: '' }
 };
