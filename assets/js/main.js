@@ -161,6 +161,7 @@
     toggle.setAttribute('aria-expanded', 'false');
     toggle.setAttribute('aria-label', t('Menu openen', 'Open menu'));
     menu.classList.remove('is-open');
+    document.documentElement.classList.remove('menu-open');
   }
   if (toggle && menu) {
     toggle.addEventListener('click', () => {
@@ -168,6 +169,7 @@
       toggle.setAttribute('aria-expanded', open);
       toggle.setAttribute('aria-label', open ? t('Menu sluiten', 'Close menu') : t('Menu openen', 'Open menu'));
       menu.classList.toggle('is-open', open);
+      document.documentElement.classList.toggle('menu-open', open);
     });
     $$('a', menu).forEach(a => a.addEventListener('click', sluitMenu));
     addEventListener('keydown', e => {
@@ -190,6 +192,10 @@
     $$('.hero__cta, .cta-band, #boek-form, .footer').forEach(el => fabIo.observe(el));
   }
   if (nav) addEventListener('scroll', () => nav.classList.toggle('is-scrolled', scrollY > 40), { passive: true });
+  // Bovenaan een pagina staat de kop: daar geen zwevende knop overheen
+  const fabBoven = () => { if (scrollY < 480) fabRedenen.add('boven'); else fabRedenen.delete('boven'); zetFab(); };
+  addEventListener('scroll', fabBoven, { passive: true });
+  fabBoven();
 
   /* ================= Homepage: één pagina tegelijk (via #hash) ================= */
   const pages = $$('.page');
