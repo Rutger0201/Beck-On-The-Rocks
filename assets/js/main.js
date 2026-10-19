@@ -308,12 +308,11 @@
   const boekForm = $('#boek-form');
   const cU = $('#c-uren');
   if (cU) {
-    const cD = $('#c-datum'), cC = $('#c-cocktails'), cF = $('#c-fruitpers'), cK = $('#c-km'), cG = $('#c-glazen');
+    const cD = $('#c-datum'), cC = $('#c-cocktails'), cF = $('#c-fruitpers');
     cD.min = vandaagIso();
     const bereken = () => {
       const uren = +cU.value, spoed = isSpoed(cD.value), fp = cF.checked;
       const uurprijs = TARIEF.uur * (fp ? 1 + TARIEF.fruitpers : 1);
-      const km = Math.max(0, +cK.value || 0), glazen = Math.max(0, +cG.value || 0);
       $('#c-uren-out').textContent = uren;
       const regels = [
         [t(`${uren} uur achter de bar × ${euro(uurprijs)}`, `${uren} ${uren === 1 ? 'hour' : 'hours'} behind the bar × ${euro(uurprijs)}`), uren * uurprijs],
@@ -321,8 +320,6 @@
         [t(`Cocktailmenu (${cC.value} ${+cC.value === 1 ? 'cocktail' : 'cocktails'}) & materialen, vanaf`,
           `Cocktail menu (${cC.value} ${+cC.value === 1 ? 'cocktail' : 'cocktails'}) & equipment, from`), fp ? TARIEF.menuFruitpers : TARIEF.menu]
       ];
-      if (km) regels.push([t(`Reiskosten ${km} km × ${euro(TARIEF.km)}`, `Travel ${km} km × ${euro(TARIEF.km)}`), km * TARIEF.km]);
-      if (glazen) regels.push([t(`${glazen} glazen × ${euro(TARIEF.glas)}`, `${glazen} glasses × ${euro(TARIEF.glas)}`), glazen * TARIEF.glas]);
       const basis = regels.reduce((s, r) => s + r[1], 0);
       if (spoed) regels.push([t(`Spoedtoeslag (+${TARIEF.spoed * 100}%)`, `Short-notice surcharge (+${TARIEF.spoed * 100}%)`), basis * TARIEF.spoed, true]);
       const totaal = regels.reduce((s, r) => s + r[1], 0);
@@ -332,9 +329,9 @@
         ? t('Spoedboeking: je feest is binnen een maand.', 'Short-notice booking: your party is within a month.')
         : cD.value ? t('Normaal tarief: meer dan een maand vooruit geboekt.', 'Standard rate: booked more than a month ahead.')
           : t('Vul een datum in om te zien of er spoedtoeslag geldt.', 'Enter a date to see whether a short-notice surcharge applies.'))
-        + (km ? '' : t(' Reiskosten (€0,25 per km) komen er nog bij.', ' Travel costs (€0.25 per km) are added on top.'));
+        + t(' Reiskosten komen er nog bij.', ' Travel costs are added on top.');
     };
-    [cU, cD, cC, cF, cK, cG].forEach(el => { el.addEventListener('input', bereken); el.addEventListener('change', bereken); });
+    [cU, cD, cC, cF].forEach(el => { el.addEventListener('input', bereken); el.addEventListener('change', bereken); });
     bereken();
 
     // "Vraag dit aan": neem de berekening mee naar het aanvraagformulier
@@ -344,7 +341,6 @@
       f.uren.value = cU.value;
       f.cocktails.value = cC.value;
       f.fruitpers.checked = cF.checked;
-      f.glazen.checked = +cG.value > 0;
       if (cD.value) f.datum.value = cD.value;
       f.datum.dispatchEvent(new Event('input'));
       const meer = $('.form__meer', boekForm); if (meer) meer.open = true;
