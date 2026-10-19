@@ -1,5 +1,5 @@
 // Service worker voor het visitekaartje: maakt hem installeerbaar en laat hem ook offline werken.
-const CACHE = 'beck-kaart-v1';
+const CACHE = 'beck-kaart-v2';
 const BASIS = [
   '/kaart/',
   '/kaart/rutger-beck-on-the-rocks.vcf',
