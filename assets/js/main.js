@@ -325,6 +325,25 @@
       localStorage.setItem(LOG, JSON.stringify([...log, Date.now()]));
     } catch { /* geen opslag */ }
   }
+  // Bevestigingsmail aan de klant via EmailJS (alleen als config.js is ingevuld).
+  // De tekst staat vast in de template bij EmailJS; we sturen alleen deze velden mee, nooit het vrije bericht.
+  const EJS = CONFIG.emailjs || {};
+  const bevestigingAan = !!(EJS.service && EJS.template && EJS.publicKey);
+  function stuurBevestiging(d) {
+    if (!bevestigingAan) return Promise.resolve(false);
+    const datum = new Date(d.datum + 'T00:00').toLocaleDateString(LOCALE, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    return fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        service_id: EJS.service, template_id: (EN && EJS.templateEn) || EJS.template, user_id: EJS.publicKey,
+        template_params: {
+          to_email: d.email.trim(), naam: d.naam.trim().split(/\s+/)[0], datum,
+          soort: soortTekst(d.soort), locatie: d.locatie || '-', gasten: d.gasten || '-'
+        }
+      })
+    }).then(r => r.ok).catch(() => false);
+  }
   async function verstuur(json) {
     const res = await fetch('https://api.web3forms.com/submit', {
       method: 'POST',
@@ -588,6 +607,11 @@
       try {
         await verstuur({ subject: onderwerp, from_name: 'Beck on the Rocks · website', replyto: d.email, ...velden });
         toonBedankt(velden);
+        // Bevestiging naar de klant; mislukt dat, dan merkt de klant niets (jouw mail is al binnen)
+        if (bevestigingAan) {
+          const gelukt = await stuurBevestiging(d);
+          if (gelukt) $('#form-klaar-mail').hidden = false;
+        }
         telVerzonden();
         telBezoek('aanvraag-verstuurd', 'Aanvraag verstuurd', true);
         boekForm.reset();
