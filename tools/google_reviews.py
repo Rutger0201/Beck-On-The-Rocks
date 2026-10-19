@@ -53,6 +53,9 @@ def main():
     if not sleutel:
         print('Geen GOOGLE_PLACES_KEY ingesteld: niets opgehaald.')
         return
+    # Controle zonder de sleutel te tonen: een Google-sleutel is 39 tekens en begint met "AIza"
+    vreemd = [c for c in sleutel if not (c.isalnum() or c in '-_')]
+    print(f'Sleutel: {len(sleutel)} tekens, begint met "{sleutel[:4]}", {len(vreemd)} ongewone tekens (verwacht: 39, "AIza", 0)')
     oud = json.loads(UIT.read_text()) if UIT.exists() else {}
     place_id = os.environ.get('GOOGLE_PLACE_ID', '').strip() or oud.get('placeId') or zoek_place_id(sleutel)
     if not place_id:
