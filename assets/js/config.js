@@ -6,5 +6,5 @@ window.BECK_CONFIG = {
   telefoon: '06 39 65 86 62',
   whatsapp: '31639658662',
   // GoatCounter (goatcounter.com): code van je account, bijv. 'beckontherocks'. Leeg = geen statistieken.
-  goatcounter: ''
+  goatcounter: 'botr'
 };
