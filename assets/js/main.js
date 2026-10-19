@@ -11,55 +11,55 @@
 
   /* ================= Gegevens (hier pas je de inhoud aan) ================= */
 
-  // glas: 'tumbler' | 'coupe' | 'highball' | 'martini'
+  // c1 = kleur van de stip op de menukaart
   // De klassiekers uit de EBS-opleiding (European Bartender School), mocktails en cocktail op maat.
   const COCKTAILS = [
-    { naam: 'Old Fashioned', cat: 'klassiek', glas: 'tumbler', c1: '#c77a2a', c2: '#2b1a0b',
+    { naam: 'Old Fashioned', cat: 'klassiek', c1: '#c77a2a',
       tekst: 'Bourbon, suiker en bitters, langzaam geroerd en afgemaakt met een sinaasappelzeste.',
       ing: ['Bourbon', 'Suiker', 'Angostura', 'Sinaasappel'] },
-    { naam: 'Negroni', cat: 'klassiek', glas: 'tumbler', c1: '#c4362e', c2: '#2a0b08',
+    { naam: 'Negroni', cat: 'klassiek', c1: '#c4362e',
       tekst: 'Gin, Campari en zoete vermout in perfecte balans. Bitter, krachtig en tijdloos.',
       ing: ['Gin', 'Campari', 'Vermout'] },
-    { naam: 'Espresso Martini', cat: 'klassiek', glas: 'martini', c1: '#6b4126', c2: '#140c07',
+    { naam: 'Espresso Martini', cat: 'klassiek', c1: '#6b4126',
       tekst: 'Vodka, vers gezette espresso en koffielikeur met een romige kraag.',
       ing: ['Vodka', 'Espresso', 'Koffielikeur'] },
-    { naam: 'Whiskey Sour', cat: 'klassiek', glas: 'coupe', c1: '#e3b25c', c2: '#2e200b',
+    { naam: 'Whiskey Sour', cat: 'klassiek', c1: '#e3b25c',
       tekst: 'Bourbon, citroen en suiker, opgeschud tot een zijdezachte schuimkraag.',
       ing: ['Bourbon', 'Citroen', 'Suiker'] },
-    { naam: 'Daiquiri', cat: 'klassiek', glas: 'coupe', c1: '#e8e2a0', c2: '#24260f',
+    { naam: 'Daiquiri', cat: 'klassiek', c1: '#e8e2a0',
       tekst: 'Witte rum, limoen en suiker. Simpel, fris en precies in balans.',
       ing: ['Witte rum', 'Limoen', 'Suiker'] },
-    { naam: 'Cosmopolitan', cat: 'klassiek', glas: 'martini', c1: '#d0587a', c2: '#2a0d18',
+    { naam: 'Cosmopolitan', cat: 'klassiek', c1: '#d0587a',
       tekst: 'Citroenvodka, triple sec, cranberry en limoen. Een stijlvolle klassieker.',
       ing: ['Vodka', 'Triple sec', 'Cranberry', 'Limoen'] },
-    { naam: 'Mojito', cat: 'fris', glas: 'highball', c1: '#8cc06b', c2: '#14261f',
+    { naam: 'Mojito', cat: 'fris', c1: '#8cc06b',
       tekst: 'Witte rum, verse munt, limoen en suiker, aangevuld met soda.',
       ing: ['Witte rum', 'Munt', 'Limoen', 'Soda'] },
-    { naam: 'Caipirinha', cat: 'fris', glas: 'tumbler', c1: '#b9d36a', c2: '#1f2a0d',
+    { naam: 'Caipirinha', cat: 'fris', c1: '#b9d36a',
       tekst: 'Cachaça met gekneusde limoen en rietsuiker. Braziliaanse zomer.',
       ing: ['Cachaça', 'Limoen', 'Rietsuiker'] },
-    { naam: 'Margarita', cat: 'fris', glas: 'coupe', c1: '#e6d77a', c2: '#2a2509',
+    { naam: 'Margarita', cat: 'fris', c1: '#e6d77a',
       tekst: 'Tequila, triple sec en limoen met een zoutrandje.',
       ing: ['Tequila', 'Triple sec', 'Limoen', 'Zout'] },
-    { naam: 'Pornstar Martini', cat: 'fris', glas: 'coupe', c1: '#f2a33a', c2: '#3a1f08',
+    { naam: 'Pornstar Martini', cat: 'fris', c1: '#f2a33a',
       tekst: 'Vanillevodka en passievrucht met een shot bubbels ernaast. Altijd een hit.',
       ing: ['Vanillevodka', 'Passievrucht', 'Prosecco'] },
-    { naam: 'Moscow Mule', cat: 'fris', glas: 'highball', c1: '#d9c08a', c2: '#2a200d',
+    { naam: 'Moscow Mule', cat: 'fris', c1: '#d9c08a',
       tekst: 'Vodka, limoen en pittige ginger beer. Fris met een kick.',
       ing: ['Vodka', 'Limoen', 'Ginger beer'] },
-    { naam: 'Piña Colada', cat: 'fris', glas: 'highball', c1: '#f3e2b0', c2: '#2e2510',
+    { naam: 'Piña Colada', cat: 'fris', c1: '#f3e2b0',
       tekst: 'Rum, ananas en kokos, romig opgeschud. Vakantie in een glas.',
       ing: ['Rum', 'Ananas', 'Kokos'] },
-    { naam: 'Virgin Mojito', cat: 'mocktail', glas: 'highball', c1: '#9ccf8a', c2: '#132519',
+    { naam: 'Virgin Mojito', cat: 'mocktail', c1: '#9ccf8a',
       tekst: 'Verse munt, limoen en suiker met soda. Alle frisheid, zonder alcohol.',
       ing: ['Munt', 'Limoen', 'Soda'] },
-    { naam: 'Virgin Colada', cat: 'mocktail', glas: 'highball', c1: '#f0dca8', c2: '#2a2210',
+    { naam: 'Virgin Colada', cat: 'mocktail', c1: '#f0dca8',
       tekst: 'Ananas en kokos, romig en tropisch, zonder alcohol.',
       ing: ['Ananas', 'Kokos', 'Limoen'] },
-    { naam: 'Virgin Mule', cat: 'mocktail', glas: 'highball', c1: '#d6b77a', c2: '#2a1e0b',
+    { naam: 'Virgin Mule', cat: 'mocktail', c1: '#d6b77a',
       tekst: 'Ginger beer, limoen en een vleugje bitter. Kruidig en verfrissend.',
       ing: ['Ginger beer', 'Limoen', 'Munt'] },
-    { naam: 'Jouw cocktail', cat: 'creatie', glas: 'coupe', c1: '#c9a45c', c2: '#2b2010',
+    { naam: 'Jouw cocktail', cat: 'creatie', c1: '#c9a45c',
       tekst: 'Een eigen cocktail voor jullie feest, met een naam en smaak die bij jullie past. Ook alcoholvrij. Prijs in overleg.',
       ing: ['Op maat', 'Eigen naam', 'Getest'] }
   ];
@@ -103,8 +103,6 @@
     menu: 75,           // cocktailmenu & gebruik materialen (vanaf)
     fruitpers: 0.20,    // uurtarief +20% met fruitpers
     menuFruitpers: 99,  // cocktailmenu met fruitpers (vanaf)
-    km: 0.25,           // reiskosten per km
-    glas: 0.50,         // glazen via mij, per glas (vanaf)
     spoed: 0.25,        // toeslag bij boeken binnen 1 maand
     annuleren: 0.20     // bij annuleren binnen 14 dagen
   };
@@ -122,24 +120,13 @@
   const GOOGLE_REVIEW_SCHRIJVEN = '';  // bijv. https://g.page/r/XXXX/review
   const GOOGLE_REVIEWS_BEKIJKEN = '';  // bijv. de link naar je bedrijf op Google Maps
 
-  /* ================= SVG-glazen ================= */
-  function glasSvg(type) {
-    const stroke = 'stroke="#fff" stroke-opacity=".55" stroke-width="2.5" fill="none"';
-    const drink = 'fill="#fff" fill-opacity=".28"';
-    switch (type) {
-      case 'coupe': return `<svg viewBox="0 0 100 120"><path d="M14 22 Q14 62 50 62 Q86 62 86 22 Z" ${drink}/><path d="M10 18 Q10 66 50 66 Q90 66 90 18" ${stroke}/><path d="M50 66 V108 M30 110 H70" ${stroke}/></svg>`;
-      case 'martini': return `<svg viewBox="0 0 100 120"><path d="M18 24 L82 24 L50 60 Z" ${drink}/><path d="M8 14 L92 14 L50 62 Z" ${stroke}/><path d="M50 62 V108 M30 110 H70" ${stroke}/><circle cx="64" cy="26" r="4" fill="#3a2414"/><circle cx="56" cy="30" r="4" fill="#3a2414"/></svg>`;
-      case 'highball': return `<svg viewBox="0 0 100 120"><rect x="30" y="38" width="40" height="72" rx="3" ${drink}/><path d="M28 10 V108 Q28 112 32 112 H68 Q72 112 72 108 V10" ${stroke}/><path d="M60 2 L54 60" stroke="#fff" stroke-opacity=".7" stroke-width="3"/><rect x="36" y="50" width="14" height="14" rx="2" fill="#fff" fill-opacity=".3"/><rect x="48" y="70" width="14" height="14" rx="2" fill="#fff" fill-opacity=".25"/></svg>`;
-      default: return `<svg viewBox="0 0 100 120"><path d="M16 56 H84 L80 104 Q80 110 74 110 H26 Q20 110 20 104 Z" ${drink}/><path d="M12 30 H88 L82 106 Q81 112 75 112 H25 Q19 112 18 106 Z" ${stroke}/><rect x="32" y="50" width="26" height="26" rx="4" fill="#fff" fill-opacity=".3" transform="rotate(-10 45 63)"/></svg>`;
-    }
-  }
-
   const MAIL = CONFIG.mail || 'rutger@beck.nl';
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const vandaagIso = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   const euro = n => '€ ' + n.toLocaleString(LOCALE, { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
+  // Spoed = binnen een maand vanaf vandaag. Een datum in het verleden telt niet mee.
   const isSpoed = datum => {
-    if (!datum) return false;
+    if (!datum || datum < vandaagIso()) return false;
     const grens = new Date(); grens.setHours(0, 0, 0, 0); grens.setMonth(grens.getMonth() + 1);
     return new Date(datum + 'T00:00') < grens;
   };
@@ -192,6 +179,16 @@
     const doel = $('main'); if (!doel) return;
     e.preventDefault(); doel.tabIndex = -1; doel.focus();
   }));
+  // Zwevende offerteknop (mobiel): alleen als er geen andere offerteknop of het formulier in beeld is
+  const fabRedenen = new Set();
+  const zetFab = () => { if (fab) fab.classList.toggle('is-hidden', fabRedenen.size > 0); };
+  if (fab && 'IntersectionObserver' in window) {
+    const fabIo = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) fabRedenen.add(e.target); else fabRedenen.delete(e.target); });
+      zetFab();
+    });
+    $$('.hero__cta, .cta-band, #boek-form, .footer').forEach(el => fabIo.observe(el));
+  }
   if (nav) addEventListener('scroll', () => nav.classList.toggle('is-scrolled', scrollY > 40), { passive: true });
 
   /* ================= Homepage: één pagina tegelijk (via #hash) ================= */
@@ -216,7 +213,9 @@
         if (a.getAttribute('href') === '#' + page.id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
       });
       if (nav) nav.classList.toggle('is-solid', page.id !== 'home');
-      if (fab) fab.classList.toggle('is-hidden', page.id === 'boeken');
+      if (page.id === 'boeken') fabRedenen.add('boeken'); else fabRedenen.delete('boeken');
+      zetFab();
+      document.dispatchEvent(new CustomEvent('beck:pagina', { detail: page.id }));
       if (doel && doel !== page) doel.scrollIntoView();
       else scrollTo(0, 0);
     };
@@ -239,25 +238,28 @@
     $$('.reveal').forEach((el, i) => { el.style.transitionDelay = `${(i % 4) * 80}ms`; io.observe(el); });
   } else $$('.reveal').forEach(el => el.classList.add('is-visible'));
 
-  /* ================= Cocktailkaart ================= */
+  /* ================= Cocktailkaart (menukaart per categorie) ================= */
   const grid = $('#cocktail-grid');
   if (grid) {
-    grid.innerHTML = COCKTAILS.map(c => `
-      <article class="card reveal is-visible" data-cat="${c.cat}">
-        <div class="card__visual" style="--c1:${c.c1};--c2:${c.c2}" aria-hidden="true">
-          <span class="card__tag">${LABELS[c.cat]}</span>
-          ${glasSvg(c.glas)}
-        </div>
-        <div class="card__body">
-          <h3>${c.titel || c.naam}</h3>
-          <p>${c.tekst}</p>
-          <ul class="card__ing" aria-label="${t('Ingrediënten', 'Ingredients')}">${c.ing.map(i => `<li>${i}</li>`).join('')}</ul>
-        </div>
-      </article>`).join('');
+    const GROEP = {
+      klassiek: t('Klassiekers', 'Classics'), fris: t('Fris & fruitig', 'Fresh & fruity'),
+      mocktail: t('Alcoholvrij', 'Alcohol-free'), creatie: t('Op maat', 'Bespoke')
+    };
+    grid.innerHTML = Object.keys(GROEP).map(cat => `
+      <section class="menu-groep menu-groep--${cat}" data-cat="${cat}" aria-labelledby="groep-${cat}">
+        <h3 class="menu-groep__titel" id="groep-${cat}">${GROEP[cat]}</h3>
+        <ul class="menu-lijst">${COCKTAILS.filter(c => c.cat === cat).map(c => `
+          <li class="menu-item" style="--c:${c.c1}">
+            <h4>${c.titel || c.naam}</h4>
+            <p>${c.tekst}</p>
+            <p class="menu-item__ing">${c.ing.join(' · ')}</p>
+          </li>`).join('')}
+        </ul>
+      </section>`).join('');
     $$('.filter').forEach(btn => btn.addEventListener('click', () => {
       $$('.filter').forEach(b => { b.classList.toggle('is-active', b === btn); b.setAttribute('aria-pressed', b === btn); });
       const f = btn.dataset.filter;
-      $$('.card', grid).forEach(card => { card.hidden = f !== 'alle' && card.dataset.cat !== f; });
+      $$('.menu-groep', grid).forEach(g => { g.hidden = f !== 'alle' && g.dataset.cat !== f; });
     }));
   }
 
@@ -325,8 +327,10 @@
       const totaal = regels.reduce((s, r) => s + r[1], 0);
       $('#c-lines').innerHTML = regels.map(([l, b, isSpoedRegel]) => `<li${isSpoedRegel ? ' class="is-spoed"' : ''}><span>${l}</span><b>${euro(b)}</b></li>`).join('');
       $('#c-totaal').textContent = euro(totaal);
+      const verleden = cD.value && cD.value < vandaagIso();
       $('#c-detail').textContent = (spoed
         ? t('Spoedboeking: je feest is binnen een maand.', 'Short-notice booking: your party is within a month.')
+        : verleden ? t('Deze datum ligt in het verleden.', 'This date is in the past.')
         : cD.value ? t('Normaal tarief: meer dan een maand vooruit geboekt.', 'Standard rate: booked more than a month ahead.')
           : t('Vul een datum in om te zien of er spoedtoeslag geldt.', 'Enter a date to see whether a short-notice surcharge applies.'))
         + t(' Reiskosten komen er nog bij.', ' Travel costs are added on top.');
@@ -348,8 +352,9 @@
   }
 
   /* ================= Reviews ================= */
-  const reviewLijst = $('#reviews-lijst');
-  if (reviewLijst) {
+  // Volledige lijst op de reviewpagina; op home en de landingspagina's één uitgelichte review (#review-teaser)
+  const reviewLijst = $('#reviews-lijst'), teaser = $('#review-teaser');
+  if (reviewLijst || teaser) {
     const zetLink = (id, url) => { const a = $(id); if (a && url) { a.href = url; a.hidden = false; } };
     zetLink('#google-review', GOOGLE_REVIEW_SCHRIJVEN);
     zetLink('#google-profiel', GOOGLE_REVIEWS_BEKIJKEN);
@@ -359,20 +364,26 @@
     // Lijst met goedgekeurde reviews ophalen: 1 verzoek voor de map, daarna de bestanden zelf
     const laadReviews = async () => {
       let reviews = null;
-      try { const c = JSON.parse(sessionStorage.getItem('beck-reviews')); if (c && Date.now() - c.t < 5 * 60e3) reviews = c.r; } catch { /* geen cache */ }
+      try { const c = JSON.parse(localStorage.getItem('beck-reviews')); if (c && Date.now() - c.t < 6 * 3600e3) reviews = c.r; } catch { /* geen cache */ }
       if (!reviews) {
         const res = await fetch(`https://api.github.com/repos/${REVIEWS_REPO}/contents/${REVIEWS_MAP}?ref=main`, { headers: { Accept: 'application/vnd.github+json' } });
         if (!res.ok) return;
         const bestanden = (await res.json()).filter(f => f.type === 'file' && f.name.endsWith('.json'));
         reviews = (await Promise.all(bestanden.map(f => fetch(f.download_url).then(r => r.ok ? r.json() : null).catch(() => null))))
           .filter(r => r && r.tekst && r.naam);
-        try { sessionStorage.setItem('beck-reviews', JSON.stringify({ t: Date.now(), r: reviews })); } catch { /* privémodus */ }
+        try { localStorage.setItem('beck-reviews', JSON.stringify({ t: Date.now(), r: reviews })); } catch { /* privémodus */ }
       }
       toonReviews(reviews);
     };
     const toonReviews = reviews => {
       if (!reviews.length) return;
       reviews.sort((a, b) => String(b.datum).localeCompare(String(a.datum)));
+      if (teaser) {
+        const r = reviews.slice().sort((a, b) => (+b.sterren || 0) - (+a.sterren || 0))[0];
+        teaser.innerHTML = `<p>“${esc(r.tekst)}”</p><footer>${esc(r.naam)}${r.soort ? ' · ' + esc(soortTekst(r.soort)) : ''} · <a href="${location.pathname.startsWith('/cocktail-') ? '/' : ''}#reviews" class="tekstlink">${t('Alle reviews', 'All reviews')}</a></footer>`;
+        teaser.hidden = false;
+      }
+      if (!reviewLijst) return;
       reviewLijst.innerHTML = reviews.map(r => {
         const n = Math.min(5, Math.max(1, Math.round(+r.sterren) || 5));
         return `<blockquote class="review">
@@ -389,7 +400,17 @@
       score.hidden = false;
       $('#review-intro').textContent = t('Ik hoor graag hoe jij het vond. Je review helpt anderen kiezen.', 'I would love to hear what you thought. Your review helps others choose.');
     };
-    laadReviews().catch(() => { /* geen verbinding met GitHub: alleen de oproep tonen */ });
+    // Pas laden als iemand de reviews opent: scheelt verzoeken aan GitHub (max. 60 per uur per IP-adres)
+    let geladen = false;
+    const start = () => { if (geladen) return; geladen = true; laadReviews().catch(() => { /* geen verbinding met GitHub: alleen de oproep tonen */ }); };
+    const pagina = reviewLijst && reviewLijst.closest('.page');
+    if (reviewLijst && (!pagina || !pagina.hidden)) start();
+    document.addEventListener('beck:pagina', e => { if (e.detail === 'reviews') start(); });
+    // De uitgelichte review laadt pas als het blok eromheen in beeld komt
+    if (teaser && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver(e => { if (e.some(x => x.isIntersecting)) { start(); io.disconnect(); } }, { rootMargin: '300px' });
+      io.observe(teaser.parentElement);
+    }
   }
 
   // Review schrijven
@@ -548,4 +569,12 @@
   }
 
   $$('[data-jaar]').forEach(el => { el.textContent = new Date().getFullYear(); });
+
+  // KvK-nummer en btw-regel: invullen in assets/js/config.js, dan verschijnen ze vanzelf
+  if (CONFIG.kvk) $$('[data-kvk]').forEach(el => { el.querySelector('span').textContent = CONFIG.kvk; el.hidden = false; });
+  const BTW = {
+    kor: t('Ik val onder de kleineondernemersregeling (KOR): je betaalt geen btw.', 'I use the Dutch small business scheme (KOR): no VAT is charged.'),
+    incl: t('Alle prijzen zijn inclusief btw.', 'All prices include VAT.')
+  };
+  if (BTW[CONFIG.btw]) $$('[data-btw]').forEach(el => { el.textContent = BTW[CONFIG.btw]; el.hidden = false; });
 })();

@@ -41,9 +41,9 @@
     "knowsLanguage": ["nl", "en"]
   }
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/inter-latin-400-normal.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/cormorant-garamond-latin-500-normal.woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/fonts.css">
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="preload" as="image" type="image/webp" href="../assets/img/w/galerij-lachen-800.webp" imagesrcset="../assets/img/w/galerij-lachen-480.webp 480w, ../assets/img/w/galerij-lachen-800.webp 800w, ../assets/img/w/galerij-lachen-1200.webp 1200w" imagesizes="(max-width: 820px) 340px, 440px">
   <link rel="icon" type="image/png" href="../assets/icons/favicon-48.png">
@@ -63,14 +63,13 @@
       <span class="logo__text">Beck <em>on the</em> Rocks</span>
     </a>
     <nav class="nav__links" id="menu" aria-label="Main menu">
-      <a href="#diensten">Services</a>
       <a href="#cocktails">Cocktails</a>
       <a href="#prijzen">Prices</a>
       <a href="#over">About</a>
       <a href="#reviews">Reviews</a>
       <a href="#faq">FAQ</a>
       <a href="#boeken" class="btn btn--small">Request a quote</a>
-      <a href="../" class="taal" data-basis="../" hreflang="nl" lang="nl" aria-label="Nederlandse versie">NL</a>
+      <a href="../" class="taal" data-basis="../" hreflang="nl" lang="nl" aria-label="NL, Nederlandse versie">NL</a>
     </nav>
     <button class="nav__toggle" aria-label="Open menu" aria-expanded="false" aria-controls="menu">
       <span></span><span></span>
@@ -104,38 +103,27 @@
     </div>
   </section>
 
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee__track">
-      <span>Birthdays</span><i>✦</i><span>Garden parties</span><i>✦</i><span>Weddings</span><i>✦</i><span>Company drinks</span><i>✦</i><span>Staff parties</span><i>✦</i><span>Receptions</span><i>✦</i><span>Mocktails</span><i>✦</i>
-      <span>Birthdays</span><i>✦</i><span>Garden parties</span><i>✦</i><span>Weddings</span><i>✦</i><span>Company drinks</span><i>✦</i><span>Staff parties</span><i>✦</i><span>Receptions</span><i>✦</i><span>Mocktails</span><i>✦</i>
-    </div>
-  </div>
 
   <section class="section" aria-labelledby="routes-titel">
     <div class="container">
       <div class="section__head reveal">
-        <p class="eyebrow">Who it's for</p>
-        <h2 id="routes-titel">A party at home or <em>an event with colleagues?</em></h2>
+        <h2 id="routes-titel">A party at home or an event with colleagues?</h2>
         <p>I run the bar at private parties and corporate events alike. Choose what suits you.</p>
       </div>
       <div class="routes">
         <article class="route reveal">
           <div class="route__foto"><picture><source type="image/webp" srcset="../assets/img/w/galerij-gin-tonic-480.webp 480w, ../assets/img/w/galerij-gin-tonic-800.webp 800w, ../assets/img/w/galerij-gin-tonic-1200.webp 1200w" sizes="(max-width: 820px) 100vw, 580px"><img src="../assets/img/w/galerij-gin-tonic-800.jpg" alt="Gin and tonic with a cucumber ribbon, lemon and mint" width="1200" height="1500" loading="lazy" decoding="async"></picture></div>
           <div class="route__body">
-            <p class="eyebrow">Private</p>
             <h3>Private parties</h3>
             <p>A cocktail experience for birthdays, garden parties, weddings and other special moments.</p>
-            <ul><li>Birthday</li><li>Garden party</li><li>Wedding</li><li>Anniversary</li></ul>
             <a class="route__go" href="?via=private#boeken">Plan your private party</a>
           </div>
         </article>
         <article class="route reveal">
           <div class="route__foto route__foto--zakelijk"><picture><source type="image/webp" srcset="../assets/img/w/galerij-garneren-480.webp 480w, ../assets/img/w/galerij-garneren-800.webp 800w, ../assets/img/w/galerij-garneren-1200.webp 1200w" sizes="(max-width: 820px) 100vw, 580px"><img src="../assets/img/w/galerij-garneren-800.jpg" alt="Rutger garnishing a cocktail with an orange slice" width="1200" height="1500" loading="lazy" decoding="async"></picture></div>
           <div class="route__body">
-            <p class="eyebrow">Corporate</p>
             <h3>Corporate events</h3>
             <p>A professional cocktail service for company drinks, staff parties and business gatherings.</p>
-            <ul><li>Company drinks</li><li>Staff party</li><li>Networking event</li><li>Reception</li></ul>
             <a class="route__go" href="?via=corporate#boeken">Plan your corporate event</a>
           </div>
         </article>
@@ -143,33 +131,55 @@
     </div>
   </section>
 
-  <section class="section section--alt" aria-labelledby="waarom-titel">
-    <div class="container">
-      <div class="section__head reveal">
-        <p class="eyebrow">Why Beck on the Rocks</p>
-        <h2 id="waarom-titel">Craftsmanship behind the bar, <em>no hassle before it.</em></h2>
+  <section class="section section--alt ikben" aria-labelledby="ikben-titel">
+    <div class="container ikben__inner">
+      <div class="ikben__foto reveal"><picture><source type="image/webp" srcset="../assets/img/w/beck-portret-480.webp 480w, ../assets/img/w/beck-portret-800.webp 800w, ../assets/img/w/beck-portret-1200.webp 1200w" sizes="(max-width: 820px) 300px, 420px"><img src="../assets/img/w/beck-portret-800.jpg" alt="Rutger pouring tonic into a glass" width="1200" height="1500" loading="lazy" decoding="async"></picture></div>
+      <div class="reveal">
+        <h2 id="ikben-titel">I run the bar myself.</h2>
+        <p class="lead">I'm Rutger: an enthusiastic bartender with experience in a hotel bar and a full cocktail course at the European Bartender School in Barcelona.</p>
+        <p>At your party I'll have a chat, read the room and make sure nobody waits long for a drink. From request to last round you have one point of contact: me.</p>
+        <ul class="ikben__feiten">
+            <li>Bespoke cocktail menu: 1 to 5 cocktails, alcohol-free too</li>
+            <li>Clear prices, no deposit</li>
+            <li>Anywhere in the Netherlands</li>
+        </ul>
+        <p class="ikben__voet"><span class="signature">Rutger</span><a href="#over" class="tekstlink">More about me →</a></p>
+        <blockquote class="ikben__review" id="review-teaser" hidden></blockquote>
       </div>
-      <ul class="usp reveal">
-        <li><strong>Trained in Barcelona</strong><span>A full cocktail course at the European Bartender School, plus experience in a hotel bar.</span></li>
-        <li><strong>Bespoke cocktail menu</strong><span>1 to 5 cocktails (3 by default), alcohol-free too. With a shopping list.</span></li>
-        <li><strong>Clear prices</strong><span>€45 per hour, no deposit. You know exactly what your party costs up front.</span></li>
-        <li><strong>All of the Netherlands</strong><span>I come to you, at home or at a venue. Travel costs €0.25 per km.</span></li>
-      </ul>
     </div>
   </section>
 
   <section class="section" aria-labelledby="werkwijze-titel">
     <div class="container">
       <div class="section__head reveal">
-        <p class="eyebrow">How it works</p>
-        <h2 id="werkwijze-titel">Four steps <em>to your bar.</em></h2>
+        <h2 id="werkwijze-titel">How it works.</h2>
       </div>
       <ol class="steps">
-        <li class="reveal"><span>01</span><h3>Request</h3><p>Tell me briefly about your party. You'll hear from me within 48 hours.</p></li>
-        <li class="reveal"><span>02</span><h3>Tailored quote</h3><p>You choose 1 to 5 cocktails and receive a clear quote. You can accept it online.</p></li>
-        <li class="reveal"><span>03</span><h3>Shopping list</h3><p>You get a list with exactly the drinks, ice and ingredients you need.</p></li>
-        <li class="reveal"><span>04</span><h3>Showtime</h3><p>I arrive on time, set up my workspace and shake until the party is over.</p></li>
+        <li class="reveal"><span>1</span><h3>Request</h3><p>Tell me briefly about your party. You'll hear from me within 48 hours.</p></li>
+        <li class="reveal"><span>2</span><h3>Tailored quote</h3><p>You choose 1 to 5 cocktails and receive a clear quote. You can accept it online.</p></li>
+        <li class="reveal"><span>3</span><h3>Shopping list</h3><p>You get a list with exactly the drinks, ice and ingredients you need.</p></li>
+        <li class="reveal"><span>4</span><h3>The party</h3><p>I arrive on time, set up my workspace and shake until the last round.</p></li>
       </ol>
+      <div class="afspraak reveal">
+        <div>
+          <h3>What I bring</h3>
+          <ul class="checks">
+            <li>My own bar tools: shakers, jiggers, strainers and more</li>
+            <li>A bespoke cocktail menu</li>
+            <li>A shopping list with the right quantities</li>
+            <li>On request, my fruit press</li>
+          </ul>
+        </div>
+        <div>
+          <h3>What you arrange</h3>
+          <ul class="checks">
+            <li>Drinks, ice and fresh ingredients, following my list</li>
+            <li>A sturdy table or bar as a workspace</li>
+            <li>A sink with running water nearby</li>
+            <li>Glasses, or I arrange them for you (from €0.50 per glass)</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -177,14 +187,13 @@
     <div class="container">
       <div class="cta-band reveal">
         <div>
-          <p class="eyebrow">Curious about the cost?</p>
           <h2>A 4-hour party <em>from €300.</em></h2>
           <p>Hourly rate, preparation and cocktail menu in one overview, plus travel costs. Work out your own party or request a quote straight away.</p>
         </div>
         <div class="cta-band__knoppen">
           <a class="btn" href="#boeken">Request a free quote</a>
           <a class="btn btn--ghost" href="#calculator">Calculate your price</a>
-          <p class="cta-band__klein">Prefer to talk first? <a href="https://wa.me/31639658662" target="_blank" rel="noopener">Send a WhatsApp</a></p>
+          <p class="cta-band__klein">Prefer to talk first? <a href="https://wa.me/31639658662?text=Hi%20Rutger%2C%20I%20have%20a%20question%20about%20a%20party%20on%20" target="_blank" rel="noopener">Send a WhatsApp</a></p>
         </div>
       </div>
     </div>
@@ -204,7 +213,6 @@
         <div class="portrait__quote">"A good cocktail starts with listening."</div>
       </div>
       <div class="reveal">
-        <p class="eyebrow">About me</p>
         <h2>Hi, I'm <em>Rutger.</em></h2>
         <p class="lead">I'm an enthusiastic, up-and-coming bartender who loves working behind the bar. I gained experience in a hotel bar and completed a full cocktail training at the European Bartender School (EBS) in Barcelona.</p>
         <p>I've since worked several events. With Beck on the Rocks I come to your party with a bespoke cocktail menu, fresh garnishes and above all plenty of hospitality. I'll have a chat, read the room and make sure nobody waits long for a drink.</p>
@@ -223,8 +231,7 @@
   <section class="section section--alt">
     <div class="container">
       <div class="section__head reveal">
-        <p class="eyebrow">Experience</p>
-        <h2>My path <em>behind the bar.</em></h2>
+        <h2>My path behind the bar.</h2>
         <p>From my first shifts to my own bartending business.</p>
       </div>
       <ol class="timeline">
@@ -239,8 +246,7 @@
   <section class="section">
     <div class="container">
       <div class="section__head reveal">
-        <p class="eyebrow">Impressions</p>
-        <h2>Behind <em>the bar.</em></h2>
+        <h2>Behind the bar.</h2>
         <p>A look behind the bar.</p>
       </div>
       <div class="gallery">
@@ -259,8 +265,7 @@
   <section class="section">
     <div class="container">
       <div class="section__head reveal">
-        <p class="eyebrow">The menu</p>
-        <h2>Cocktails <em>worth savouring.</em></h2>
+        <h2>Cocktails worth savouring.</h2>
         <p>These are the cocktails I learned at the European Bartender School. Pick 1 to 5 for your menu (3 by default), or have a signature cocktail created for your party. You'll get a shopping list with everything you need.</p>
       </div>
       <div class="filters reveal" role="group" aria-label="Filter cocktails">
@@ -270,7 +275,7 @@
         <button class="filter" data-filter="mocktail" aria-pressed="false">Alcohol-free</button>
         <button class="filter" data-filter="creatie" aria-pressed="false">Bespoke</button>
       </div>
-      <div class="cards" id="cocktail-grid"><!-- filled by assets/js/main.js (COCKTAILS list) --></div>
+      <div class="menu" id="cocktail-grid"><!-- filled by assets/js/main.js (COCKTAILS list) --></div>
     </div>
   </section>
 
@@ -307,30 +312,6 @@
 </div>
 
 <!-- =====================================================
-     PAGE: SERVICES
-     ===================================================== -->
-<div class="page" id="diensten" data-titel="Services" hidden>
-  <section class="section">
-    <div class="container">
-      <div class="section__head reveal">
-        <p class="eyebrow">Services</p>
-        <h2>A bartender <em>for every party.</em></h2>
-        <p>You hire me as your bartender. I bring my bar tools and a bespoke cocktail menu; you take care of the drinks, the ice and a workspace.</p>
-      </div>
-      <div class="services">
-        <article class="service reveal"><div class="service__icon">💍</div><h3>Weddings</h3><p>A welcome cocktail on arrival, a signature drink for the happy couple and a bar that keeps going until the last dance.</p></article>
-        <article class="service reveal"><div class="service__icon">🏢</div><h3>Corporate events</h3><p>Drinks receptions, anniversaries and staff parties. If you like, with a cocktail in your company colours.</p></article>
-        <article class="service reveal"><div class="service__icon">🥂</div><h3>Private parties</h3><p>A birthday, an anniversary or simply a night of great drinks. At home, in the garden or at a venue.</p></article>
-        <article class="service reveal"><div class="service__icon">🍽️</div><h3>Dinners</h3><p>An aperitif on arrival and a digestif after dessert. Small company, big difference.</p></article>
-        <article class="service reveal"><div class="service__icon">🍸</div><h3>Bar cover</h3><p>Short on staff or expecting a busy night? I'll step in behind your bar and get going right away.</p></article>
-        <article class="service reveal"><div class="service__icon">✨</div><h3>Bespoke cocktail</h3><p>A signature cocktail for your party, with a name and taste that suit you. Alcohol-free is possible too.</p></article>
-      </div>
-    </div>
-  </section>
-
-</div>
-
-<!-- =====================================================
      PAGE: PRICES
      Change amounts here, in index.html and in TARIEF at the top of assets/js/main.js (and in the generator)
      ===================================================== -->
@@ -338,8 +319,7 @@
   <section class="section">
     <div class="container">
       <div class="section__head reveal">
-        <p class="eyebrow">Prices</p>
-        <h2>One clear rate, <em>no surprises.</em></h2>
+        <h2>One clear rate, no surprises.</h2>
         <p>You hire me as your bartender. You arrange the drinks and ice; I bring my own bar tools and take care of the cocktail menu. You always receive a tailored quote.</p>
       </div>
 
@@ -356,6 +336,7 @@
         </ul>
       </div>
       <p class="rate__uitleg reveal"><strong>Hourly rate or total price?</strong> The €45 per hour applies to the hours I'm behind the bar. On top of that there's always 1 hour of preparation and the cocktail menu, plus travel costs. The fruit press and glasses are optional. The calculator below shows each line.</p>
+      <p class="rate__btw" data-btw hidden></p>
 
       <div class="opties">
         <article class="optie optie--gold reveal">
@@ -383,7 +364,6 @@
 
       <div class="calc reveal" id="calculator">
         <div class="calc__intro">
-          <p class="eyebrow">Work it out</p>
           <h3>What does your party cost?</h3>
           <p>Fill in your party for an estimate. If you book within a month of the party, the calculator automatically adds the short-notice surcharge.</p>
         </div>
@@ -403,7 +383,7 @@
         </form>
         <div class="calc__result" aria-live="polite">
           <span>Estimate</span>
-          <strong id="c-totaal">€ 0</strong>
+          <strong id="c-totaal">€ 300</strong>
           <small id="c-detail"></small>
           <a href="#boeken" class="btn" id="c-cta">Request a quote for this party</a>
         </div>
@@ -414,8 +394,7 @@
   <section class="section section--alt">
     <div class="container">
       <div class="section__head reveal">
-        <p class="eyebrow">Good to know</p>
-        <h2>The terms <em>at a glance.</em></h2>
+        <h2>The terms at a glance.</h2>
       </div>
       <div class="terms">
         <article class="term reveal">
@@ -463,8 +442,7 @@
   <section class="section">
     <div class="container">
       <div class="section__head reveal">
-        <p class="eyebrow">Reviews</p>
-        <h2>What guests <em>say.</em></h2>
+        <h2>What guests say.</h2>
       </div>
       <!-- Reviews are loaded from the reviews/ folder in the repository (see reviews/LEESMIJ.md) -->
       <div class="review-score reveal" id="review-score" hidden></div>
@@ -502,7 +480,7 @@
           </div>
           <label>Your review<textarea name="tekst" rows="5" required minlength="10" maxlength="800" placeholder="How was your party? What did your guests think of the cocktails?"></textarea></label>
           <label>Email (optional, not shown)<input name="email" type="email" autocomplete="email"></label>
-          <label class="tick toestemming"><input type="checkbox" name="toestemming" required> I give permission to publish my review with my name on this website.</label>
+          <label class="tick toestemming"><input type="checkbox" name="toestemming" required> I give permission to publish my review with my name on this website (see the <a href="/privacy/">privacy statement</a>, in Dutch).</label>
           <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
           <button class="btn btn--full" type="submit" id="review-knop">Send review</button>
           <p class="form__note" id="review-note">Your review appears on the site after I've checked it.</p>
@@ -525,8 +503,7 @@
   <section class="section">
     <div class="container narrow">
       <div class="section__head reveal">
-        <p class="eyebrow">Frequently asked questions</p>
-        <h2>Good <em>to know.</em></h2>
+        <h2>Good to know.</h2>
       </div>
       <div class="faq reveal">
         <details>
@@ -602,13 +579,12 @@
   <section class="section">
     <div class="container split split--contact">
       <div class="reveal">
-        <p class="eyebrow">Request a quote</p>
-        <h2>Shall we <em>raise a glass?</em></h2>
+        <h2>Shall we raise a glass?</h2>
         <p class="lead">Tell me briefly about your party or event. You'll hear from me within 48 hours, with a free tailored quote.</p>
         <ul class="contact-list">
           <li><span>Email</span><a href="mailto:rutger@beck.nl">rutger@beck.nl</a></li>
           <li><span>Phone</span><a href="tel:+31639658662">+31 6 39 65 86 62</a></li>
-          <li><span>WhatsApp</span><a href="https://wa.me/31639658662" target="_blank" rel="noopener">Send a message</a></li>
+          <li><span>WhatsApp</span><a href="https://wa.me/31639658662?text=Hi%20Rutger%2C%20I%20have%20a%20question%20about%20a%20party%20on%20" target="_blank" rel="noopener">Send a message</a></li>
           <li><span>Rate</span>From €45 per hour · <a href="#prijzen">all prices</a></li>
           <li><span>Area</span>All of the Netherlands</li>
         </ul>
@@ -670,14 +646,14 @@
         <button class="btn btn--full" type="submit" id="form-knop">Request a free quote</button>
         <ul class="form__beloftes"><li>No obligation</li><li>Reply within 48 hours</li><li>No deposit</li></ul>
         <p class="form__note" id="form-note" role="status">Prefer direct contact? Email rutger@beck.nl, or call or WhatsApp +31 6 39 65 86 62.</p>
-        <p class="form__privacy">I only use your details to reply to your request.</p>
+        <p class="form__privacy">I only use your details to reply to your request. Read my <a href="/privacy/">privacy statement</a> (in Dutch).</p>
       </form>
       <div class="form form__klaar" id="form-klaar" hidden tabindex="-1" role="status">
         <div class="form__vink" aria-hidden="true">✓</div>
         <h3>Thanks for your request!</h3>
         <p>Your request has been sent. You'll hear from me within 48 hours, usually sooner.</p>
         <ul class="form__samenvatting" id="form-samenvatting"></ul>
-        <p class="form__note">Forgot to mention something? Email <a href="mailto:rutger@beck.nl">rutger@beck.nl</a> or WhatsApp <a href="https://wa.me/31639658662" target="_blank" rel="noopener">+31 6 39 65 86 62</a>.</p>
+        <p class="form__note">Forgot to mention something? Email <a href="mailto:rutger@beck.nl">rutger@beck.nl</a> or WhatsApp <a href="https://wa.me/31639658662?text=Hi%20Rutger%2C%20I%20have%20a%20question%20about%20a%20party%20on%20" target="_blank" rel="noopener">+31 6 39 65 86 62</a>.</p>
         <button type="button" class="btn btn--ghost" id="form-opnieuw">Send another request</button>
       </div>
     </div>
@@ -694,16 +670,17 @@
       <p>Cocktail bartender on location, for parties and events anywhere in the Netherlands.</p>
     </div>
     <nav aria-label="Footer">
-      <a href="#diensten">Services</a>
       <a href="#cocktails">Cocktails</a>
       <a href="#prijzen">Prices</a>
       <a href="#reviews">Reviews</a>
       <a href="#faq">FAQ</a>
       <a href="#boeken">Contact</a>
+      <a href="/privacy/">Privacy (in Dutch)</a>
     </nav>
     <div class="footer__legal">
       <p>Enjoy, but drink responsibly. <strong>18+</strong></p>
       <p>© <span data-jaar></span> Beck on the Rocks</p>
+      <p data-kvk hidden>KvK <span></span></p>
     </div>
   </div>
 </footer>

@@ -7,15 +7,20 @@ of zet de map op een host als Netlify, Vercel of GitHub Pages.
 
 ## Opbouw
 - `index.html`: homepage met de andere onderdelen via het menu (Cocktails, Tarieven, Over mij, FAQ,
-  Offerte aanvragen; Diensten en Reviews via de footer). Elk onderdeel is een `<div class="page">`
+  Offerte aanvragen; Reviews via de footer). Elk onderdeel is een `<div class="page">`
   en opent via een #-link, bijvoorbeeld `/#prijzen`.
 - `cocktail-bartender-privefeest/` en `cocktail-bartender-bedrijfsfeest/`: losse landingspagina's voor
   Google, met eigen titel, beschrijving, FAQ en structured data. De knoppen gaan naar het aanvraagformulier
   met `?via=privefeest` of `?via=bedrijfsfeest`; dat zie je terug in de mail als *Via pagina*.
+- `privacy/`: privacyverklaring, gelinkt in de footer en bij elk formulier. Gebruik je een nieuwe dienst
+  (ander formulier, mailprogramma, statistieken), pas deze tekst dan aan.
 - `kaart/`: digitaal visitekaartje (niet in Google) voor je NFC-tag en QR-code, met
   "Opslaan in contacten" (`kaart/rutger-beck-on-the-rocks.vcf`).
 - Foto's staan in `assets/img/`; de verkleinde WebP/JPG-versies die de site laadt in `assets/img/w/`.
   Nieuwe foto? Maak er ook versies van 480, 800 en 1200 px breed van in die map.
+- Lettertypes (Cormorant Garamond en Inter) staan zelf gehost in `assets/fonts/` via `assets/css/fonts.css`:
+  sneller en er gaat geen IP-adres naar Google.
+- De cocktailkaart is een menukaart per categorie; de kleur van de stip is `c1` in de lijst `COCKTAILS`.
 
 ### NFC-tag en QR-code
 - **NFC-tag of -kaartje**: schrijf met de gratis app *NFC Tools* de link
@@ -69,8 +74,11 @@ Google reviews: plak je links bij `GOOGLE_REVIEW_SCHRIJVEN` en `GOOGLE_REVIEWS_B
 ## Nog zelf invullen vóór livegang
 - **Reviews**: de eerste staat erop; Google reviews koppelen zie hierboven.
 - **Foto's**: staan in `assets/img/` (portret + sfeerbeelden). Meer foto's toevoegen kan in de galerij op de pagina "Over mij".
-- **Contactgegevens**: zakelijk telefoonnummer (nu privénummer), Instagram, KvK na inschrijving (footer + generator).
-- **Btw**: op de site staat nog niet of prijzen incl. of excl. btw zijn. Vermeld dit zodra je keuze (KOR of 21%) vaststaat.
+- **Contactgegevens**: zakelijk telefoonnummer (nu privénummer) en Instagram.
+- **KvK**: vul na je inschrijving `kvk` in `assets/js/config.js` in; het nummer verschijnt dan in elke footer.
+  Laat het daarna ook vast in de HTML zetten, zodat het er ook zonder JavaScript staat (wettelijk verplicht).
+- **Btw**: zet `btw` in `assets/js/config.js` op `'kor'` (geen btw) of `'incl'` (prijzen incl. btw); de regel verschijnt
+  dan bij de tarieven. Reken je 21%, dan moeten consumentenprijzen inclusief btw zijn: bedragen eerst aanpassen.
 - **Cocktails**: lijst `COCKTAILS` bovenaan `assets/js/main.js`.
 
 Kleuren en lettertypes staan als variabelen bovenaan `assets/css/style.css`.
