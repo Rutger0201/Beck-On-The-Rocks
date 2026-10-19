@@ -92,6 +92,17 @@ verschijnen de Google-knoppen op de reviewpagina (NL en EN). De review-link staa
 en in de generator (Mijn gegevens & tarieven), zodat hij in de factuurmail komt. De profiellink staat ook
 in de bedrijfsgegevens voor Google (`sameAs` in `index.html` en `en/index.html`).
 
+Google-reviews op de site: de actie *Google-reviews ophalen* (`.github/workflows/google-reviews.yml`) draait
+elke ochtend `tools/google_reviews.py`. Die haalt de score, het aantal en (max. 5) reviews op via de Google
+Places API en zet ze in `assets/data/google-reviews.json`. De reviewpagina toont ze samen met de eigen reviews
+(dubbele één keer) en rekent één gemiddelde uit. Eenmalig instellen:
+1. Google Cloud Console → nieuw project → *Places API (New)* aanzetten (vraagt een betaalaccount; dit gebruik
+   valt ruim binnen het gratis maandtegoed). Zet voor de zekerheid een budgetwaarschuwing van € 1.
+2. *Credentials* → API-sleutel maken → beperken tot *Places API (New)*.
+3. GitHub → Settings → Secrets and variables → Actions → *New repository secret* `GOOGLE_PLACES_KEY`.
+4. Actions → *Google-reviews ophalen* → *Run workflow*. Het Place ID wordt de eerste keer op naam gezocht en
+   bewaard; vindt hij je profiel niet, zet het Place ID dan als variable `GOOGLE_PLACE_ID`.
+
 ## Nog zelf invullen vóór livegang
 - **Reviews**: de eerste staan erop; Google reviews zijn gekoppeld (zie hierboven).
 - **Foto's**: staan in `assets/img/` (portret + sfeerbeelden). Meer foto's toevoegen kan in de galerij op de pagina "Over mij".

@@ -418,41 +418,63 @@
     const maandJaar = d => { const x = new Date(d + 'T00:00'); return isNaN(x) ? '' : x.toLocaleDateString(LOCALE, { month: 'long', year: 'numeric' }); };
 
     // Lijst met goedgekeurde reviews ophalen: 1 verzoek voor de map, daarna de bestanden zelf
-    const laadReviews = async () => {
-      let reviews = null;
-      try { const c = JSON.parse(localStorage.getItem('beck-reviews')); if (c && Date.now() - c.t < 6 * 3600e3) reviews = c.r; } catch { /* geen cache */ }
-      if (!reviews) {
-        const res = await fetch(`https://api.github.com/repos/${REVIEWS_REPO}/contents/${REVIEWS_MAP}?ref=main`, { headers: { Accept: 'application/vnd.github+json' } });
-        if (!res.ok) return;
-        const bestanden = (await res.json()).filter(f => f.type === 'file' && f.name.endsWith('.json'));
-        reviews = (await Promise.all(bestanden.map(f => fetch(f.download_url).then(r => r.ok ? r.json() : null).catch(() => null))))
-          .filter(r => r && r.tekst && r.naam);
-        try { localStorage.setItem('beck-reviews', JSON.stringify({ t: Date.now(), r: reviews })); } catch { /* privémodus */ }
-      }
-      toonReviews(reviews);
+    const laadEigen = async () => {
+      try { const c = JSON.parse(localStorage.getItem('beck-reviews')); if (c && Date.now() - c.t < 6 * 3600e3) return c.r; } catch { /* geen cache */ }
+      const res = await fetch(`https://api.github.com/repos/${REVIEWS_REPO}/contents/${REVIEWS_MAP}?ref=main`, { headers: { Accept: 'application/vnd.github+json' } });
+      if (!res.ok) return [];
+      const bestanden = (await res.json()).filter(f => f.type === 'file' && f.name.endsWith('.json'));
+      const reviews = (await Promise.all(bestanden.map(f => fetch(f.download_url).then(r => r.ok ? r.json() : null).catch(() => null))))
+        .filter(r => r && r.tekst && r.naam);
+      try { localStorage.setItem('beck-reviews', JSON.stringify({ t: Date.now(), r: reviews })); } catch { /* privémodus */ }
+      return reviews;
     };
-    const toonReviews = reviews => {
-      if (!reviews.length) return;
+    // Google-reviews: elke ochtend opgehaald door tools/google_reviews.py, staan op onze eigen site
+    const laadGoogle = () => fetch('/assets/data/google-reviews.json').then(r => r.ok ? r.json() : null).catch(() => null);
+    const laadReviews = async () => {
+      const [eigen, google] = await Promise.all([laadEigen().catch(() => []), laadGoogle()]);
+      toonReviews(eigen, google || {});
+    };
+    const veilig = u => /^https:\/\//.test(u || '') ? u : '';
+    const toonReviews = (eigen, google) => {
+      // Staat dezelfde review op beide plekken, dan tonen en tellen we hem één keer
+      const norm = s => String(s).toLowerCase().replace(/\s+/g, ' ').trim().slice(0, 60);
+      const eigenTekst = new Set(eigen.map(r => norm(r.tekst)));
+      const gAlle = (google.reviews || []).filter(r => r && r.tekst);
+      const dubbel = gAlle.filter(r => eigenTekst.has(norm(r.tekst)));
+      const gReviews = gAlle.filter(r => !eigenTekst.has(norm(r.tekst))).map(r => ({ ...r, bron: 'google' }));
+      const gAantal = Math.max(0, (+google.aantal || 0) - dubbel.length);
+      const gSom = Math.max(0, (+google.score || 0) * (+google.aantal || 0) - dubbel.reduce((s, r) => s + (+r.sterren || 5), 0));
+      const reviews = [...eigen, ...gReviews];
+      const aantal = eigen.length + gAantal;
+      if (!aantal && !reviews.length) return;
       reviews.sort((a, b) => String(b.datum).localeCompare(String(a.datum)));
-      if (teaser) {
+      const bronTekst = r => r.bron === 'google' ? 'Google' : soortTekst(r.soort || '');
+      if (teaser && reviews.length) {
         const r = reviews.slice().sort((a, b) => (+b.sterren || 0) - (+a.sterren || 0))[0];
-        teaser.innerHTML = `<p>“${esc(r.tekst)}”</p><footer>${esc(r.naam)}${r.soort ? ' · ' + esc(soortTekst(r.soort)) : ''} · <a href="${location.pathname.startsWith('/cocktail-') ? '/' : ''}#reviews" class="tekstlink">${t('Alle reviews', 'All reviews')}</a></footer>`;
+        const bron = bronTekst(r);
+        teaser.innerHTML = `<p>“${esc(r.tekst)}”</p><footer>${esc(r.naam)}${bron ? ' · ' + esc(bron) : ''} · <a href="${location.pathname.startsWith('/cocktail-') ? '/' : ''}#reviews" class="tekstlink">${t('Alle reviews', 'All reviews')}</a></footer>`;
         teaser.hidden = false;
       }
       if (!reviewLijst) return;
       reviewLijst.innerHTML = reviews.map(r => {
         const n = Math.min(5, Math.max(1, Math.round(+r.sterren) || 5));
+        const datum = r.datum ? ' · ' + esc(maandJaar(r.datum)) : '';
+        const bron = r.bron === 'google'
+          ? (veilig(r.link) ? `<a href="${esc(r.link)}" target="_blank" rel="noopener">${t('Via Google', 'Via Google')}</a>` : t('Via Google', 'Via Google'))
+          : esc(soortTekst(r.soort || ''));
         return `<blockquote class="review">
           <div class="stars" role="img" aria-label="${t(`${n} van 5 sterren`, `${n} out of 5 stars`)}">${sterren(n)}</div>
           <p>${esc(r.tekst)}</p>
-          <footer><strong>${esc(r.naam)}</strong><span>${esc(soortTekst(r.soort || ''))}${r.datum ? ' · ' + esc(maandJaar(r.datum)) : ''}</span></footer>
+          <footer><strong>${esc(r.naam)}</strong><span>${bron}${datum}</span></footer>
         </blockquote>`;
       }).join('');
-      reviewLijst.hidden = false;
-      const gem = reviews.reduce((s, r) => s + (Math.min(5, Math.max(1, +r.sterren || 5))), 0) / reviews.length;
+      reviewLijst.hidden = !reviews.length;
+      const gem = (eigen.reduce((s, r) => s + (Math.min(5, Math.max(1, +r.sterren || 5))), 0) + gSom) / aantal;
+      const gLink = veilig(google.url)
+        ? `<a href="${esc(google.url)}" target="_blank" rel="noopener">Google</a>` : 'Google';
       const score = $('#review-score');
       score.innerHTML = `<strong>${gem.toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</strong>
-        <div><div class="stars" aria-hidden="true">${sterren(Math.round(gem))}</div><span>${t('Gemiddeld uit', 'Average of')} ${reviews.length} ${reviews.length === 1 ? 'review' : 'reviews'}</span></div>`;
+        <div><div class="stars" aria-hidden="true">${sterren(Math.round(gem))}</div><span>${t('Gemiddeld uit', 'Average of')} ${aantal} ${aantal === 1 ? 'review' : 'reviews'}${gAantal ? ` · ${gAantal} ${t('via', 'on')} ${gLink}` : ''}</span></div>`;
       score.hidden = false;
       $('#review-intro').textContent = t('Ik hoor graag hoe jij het vond. Je review helpt anderen kiezen.', 'I would love to hear what you thought. Your review helps others choose.');
     };
