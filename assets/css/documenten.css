@@ -13,7 +13,7 @@
   --sans: "Inter", system-ui, -apple-system, sans-serif;
 }
 *, *::before, *::after { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--text); font: 300 15px/1.55 var(--sans); display: grid; grid-template-columns: 400px 1fr; min-height: 100vh; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 400 15px/1.55 var(--sans); display: grid; grid-template-columns: 400px 1fr; min-height: 100vh; }
 
 /* ---------- Bewerkpaneel ---------- */
 .editor { background: var(--surface); border-right: 1px solid var(--line); padding: 24px 22px 40px; height: 100vh; overflow-y: auto; position: sticky; top: 0; }

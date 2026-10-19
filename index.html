@@ -47,9 +47,9 @@
     ]
   }
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin-400-normal.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/cormorant-garamond-latin-500-normal.woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/fonts.css">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="preload" as="image" type="image/webp" href="assets/img/w/galerij-lachen-800.webp" imagesrcset="assets/img/w/galerij-lachen-480.webp 480w, assets/img/w/galerij-lachen-800.webp 800w, assets/img/w/galerij-lachen-1200.webp 1200w" imagesizes="(max-width: 820px) 340px, 440px">
   <link rel="icon" type="image/png" href="assets/icons/favicon-48.png">
@@ -73,7 +73,7 @@
       <a href="#over">Over mij</a>
       <a href="#faq">FAQ</a>
       <a href="#boeken" class="btn btn--small">Offerte aanvragen</a>
-      <a href="en/" class="taal" data-basis="en/" hreflang="en" lang="en" aria-label="English version">EN</a>
+      <a href="en/" class="taal" data-basis="en/" hreflang="en" lang="en" aria-label="EN, English version">EN</a>
     </nav>
     <button class="nav__toggle" aria-label="Menu openen" aria-expanded="false" aria-controls="menu">
       <span></span><span></span>
@@ -107,38 +107,27 @@
     </div>
   </section>
 
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee__track">
-      <span>Verjaardagen</span><i>✦</i><span>Tuinfeesten</span><i>✦</i><span>Bruiloften</span><i>✦</i><span>Bedrijfsborrels</span><i>✦</i><span>Personeelsfeesten</span><i>✦</i><span>Recepties</span><i>✦</i><span>Mocktails</span><i>✦</i>
-      <span>Verjaardagen</span><i>✦</i><span>Tuinfeesten</span><i>✦</i><span>Bruiloften</span><i>✦</i><span>Bedrijfsborrels</span><i>✦</i><span>Personeelsfeesten</span><i>✦</i><span>Recepties</span><i>✦</i><span>Mocktails</span><i>✦</i>
-    </div>
-  </div>
 
   <section class="section" aria-labelledby="routes-titel">
     <div class="container">
       <div class="section__head reveal">
-        <p class="eyebrow">Voor wie</p>
-        <h2 id="routes-titel">Een feest thuis of <em>een event met collega's?</em></h2>
+        <h2 id="routes-titel">Een feest thuis of een event met collega's?</h2>
         <p>Ik sta achter de bar bij particuliere feesten én zakelijke evenementen. Kies wat bij jou past.</p>
       </div>
       <div class="routes">
         <article class="route reveal">
           <div class="route__foto"><picture><source type="image/webp" srcset="assets/img/w/galerij-gin-tonic-480.webp 480w, assets/img/w/galerij-gin-tonic-800.webp 800w, assets/img/w/galerij-gin-tonic-1200.webp 1200w" sizes="(max-width: 820px) 100vw, 580px"><img src="assets/img/w/galerij-gin-tonic-800.jpg" alt="Gin-tonic met komkommerlint, citroen en munt" width="1200" height="1500" loading="lazy" decoding="async"></picture></div>
           <div class="route__body">
-            <p class="eyebrow">Particulier</p>
             <h3>Particuliere feesten</h3>
             <p>Een cocktailervaring voor verjaardagen, tuinfeesten, bruiloften en andere bijzondere momenten.</p>
-            <ul><li>Verjaardag</li><li>Tuinfeest</li><li>Bruiloft</li><li>Jubileum</li></ul>
             <a class="route__go" href="cocktail-bartender-privefeest/">Bekijk particuliere feesten</a>
           </div>
         </article>
         <article class="route reveal">
           <div class="route__foto route__foto--zakelijk"><picture><source type="image/webp" srcset="assets/img/w/galerij-garneren-480.webp 480w, assets/img/w/galerij-garneren-800.webp 800w, assets/img/w/galerij-garneren-1200.webp 1200w" sizes="(max-width: 820px) 100vw, 580px"><img src="assets/img/w/galerij-garneren-800.jpg" alt="Rutger garneert een cocktail met een sinaasappelschijfje" width="1200" height="1500" loading="lazy" decoding="async"></picture></div>
           <div class="route__body">
-            <p class="eyebrow">Zakelijk</p>
             <h3>Zakelijke evenementen</h3>
             <p>Professionele cocktailservice voor bedrijfsborrels, personeelsfeesten en zakelijke bijeenkomsten.</p>
-            <ul><li>Bedrijfsborrel</li><li>Personeelsfeest</li><li>Netwerkevent</li><li>Receptie</li></ul>
             <a class="route__go" href="cocktail-bartender-bedrijfsfeest/">Bekijk zakelijke evenementen</a>
           </div>
         </article>
@@ -146,33 +135,55 @@
     </div>
   </section>
 
-  <section class="section section--alt" aria-labelledby="waarom-titel">
-    <div class="container">
-      <div class="section__head reveal">
-        <p class="eyebrow">Waarom Beck on the Rocks</p>
-        <h2 id="waarom-titel">Vakmanschap achter de bar, <em>zonder gedoe ervoor.</em></h2>
+  <section class="section section--alt ikben" aria-labelledby="ikben-titel">
+    <div class="container ikben__inner">
+      <div class="ikben__foto reveal"><picture><source type="image/webp" srcset="assets/img/w/beck-portret-480.webp 480w, assets/img/w/beck-portret-800.webp 800w, assets/img/w/beck-portret-1200.webp 1200w" sizes="(max-width: 820px) 300px, 420px"><img src="assets/img/w/beck-portret-800.jpg" alt="Rutger schenkt tonic in een glas" width="1200" height="1500" loading="lazy" decoding="async"></picture></div>
+      <div class="reveal">
+        <h2 id="ikben-titel">Achter de bar sta ik zelf.</h2>
+        <p class="lead">Ik ben Rutger: een enthousiaste bartender met ervaring in een hotelbar en een volwaardige cocktailopleiding bij de European Bartender School in Barcelona.</p>
+        <p>Op je feest maak ik een praatje, lees ik de sfeer en zorg ik dat niemand lang op zijn drankje wacht. Je hebt van aanvraag tot laatste ronde één aanspreekpunt: mij.</p>
+        <ul class="ikben__feiten">
+            <li>Cocktailkaart op maat: 1 tot 5 cocktails, ook alcoholvrij</li>
+            <li>Heldere prijzen, geen aanbetaling</li>
+            <li>Overal in Nederland</li>
+        </ul>
+        <p class="ikben__voet"><span class="signature">Rutger</span><a href="#over" class="tekstlink">Meer over mij →</a></p>
+        <blockquote class="ikben__review" id="review-teaser" hidden></blockquote>
       </div>
-      <ul class="usp reveal">
-        <li><strong>Opgeleid in Barcelona</strong><span>Een volwaardige cocktailopleiding bij de European Bartender School, plus ervaring in een hotelbar.</span></li>
-        <li><strong>Cocktailkaart op maat</strong><span>1 tot 5 cocktails (standaard 3), ook alcoholvrij. Met een boodschappenlijst erbij.</span></li>
-        <li><strong>Heldere prijzen</strong><span>€45 per uur, geen aanbetaling. Je ziet vooraf precies wat je feest kost.</span></li>
-        <li><strong>Heel Nederland</strong><span>Ik kom naar je toe, thuis of op locatie. Reiskosten €0,25 per km.</span></li>
-      </ul>
     </div>
   </section>
 
   <section class="section" aria-labelledby="werkwijze-titel">
     <div class="container">
       <div class="section__head reveal">
-        <p class="eyebrow">Zo werkt het</p>
-        <h2 id="werkwijze-titel">In vier stappen <em>naar je bar.</em></h2>
+        <h2 id="werkwijze-titel">Zo werkt het.</h2>
       </div>
       <ol class="steps">
-        <li class="reveal"><span>01</span><h3>Aanvraag</h3><p>Vertel kort over je feest. Je hoort binnen 48 uur van me.</p></li>
-        <li class="reveal"><span>02</span><h3>Offerte op maat</h3><p>Je kiest 1 tot 5 cocktails en ontvangt een duidelijke offerte. Akkoord geven kan online.</p></li>
-        <li class="reveal"><span>03</span><h3>Boodschappenlijst</h3><p>Je krijgt een lijst met precies de drank, het ijs en de ingrediënten die je nodig hebt.</p></li>
-        <li class="reveal"><span>04</span><h3>Showtime</h3><p>Ik kom op tijd, richt mijn werkplek in en shake tot het einde van het feest.</p></li>
+        <li class="reveal"><span>1</span><h3>Aanvraag</h3><p>Vertel kort over je feest. Je hoort binnen 48 uur van me.</p></li>
+        <li class="reveal"><span>2</span><h3>Offerte op maat</h3><p>Je kiest 1 tot 5 cocktails en ontvangt een duidelijke offerte. Akkoord geven kan online.</p></li>
+        <li class="reveal"><span>3</span><h3>Boodschappenlijst</h3><p>Je krijgt een lijst met precies de drank, het ijs en de ingrediënten die je nodig hebt.</p></li>
+        <li class="reveal"><span>4</span><h3>Het feest</h3><p>Ik ben op tijd, richt mijn werkplek in en shake tot de laatste ronde.</p></li>
       </ol>
+      <div class="afspraak reveal">
+        <div>
+          <h3>Wat ik meeneem</h3>
+          <ul class="checks">
+            <li>Mijn eigen bartools: shakers, jiggers, strainers en meer</li>
+            <li>Een cocktailkaart op maat</li>
+            <li>Een boodschappenlijst met de juiste hoeveelheden</li>
+            <li>Op verzoek mijn fruitpers</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Wat jij regelt</h3>
+          <ul class="checks">
+            <li>Drank, ijs en verse ingrediënten, volgens mijn lijst</li>
+            <li>Een stevige tafel of bar als werkplek</li>
+            <li>Een gootsteen met stromend water in de buurt</li>
+            <li>Glazen, of ik regel ze voor je (vanaf €0,50 per glas)</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -180,14 +191,13 @@
     <div class="container">
       <div class="cta-band reveal">
         <div>
-          <p class="eyebrow">Benieuwd wat het kost?</p>
           <h2>Een feest van 4 uur <em>vanaf €300.</em></h2>
           <p>Uurtarief, voorbereiding en cocktailmenu in één overzicht, plus reiskosten. Reken je eigen feest uit of vraag direct een offerte aan.</p>
         </div>
         <div class="cta-band__knoppen">
           <a class="btn" href="#boeken">Vraag vrijblijvend een offerte aan</a>
           <a class="btn btn--ghost" href="#calculator">Bereken je prijs</a>
-          <p class="cta-band__klein">Liever eerst even overleggen? <a href="https://wa.me/31639658662" target="_blank" rel="noopener">Stuur een appje</a></p>
+          <p class="cta-band__klein">Liever eerst even overleggen? <a href="https://wa.me/31639658662?text=Hoi%20Rutger%2C%20ik%20heb%20een%20vraag%20over%20een%20feest%20op%20" target="_blank" rel="noopener">Stuur een appje</a></p>
         </div>
       </div>
     </div>
@@ -207,7 +217,6 @@
         <div class="portrait__quote">"Een goede cocktail begint met luisteren."</div>
       </div>
       <div class="reveal">
-        <p class="eyebrow">Over mij</p>
         <h2>Hoi, ik ben <em>Rutger.</em></h2>
         <p class="lead">Ik ben een enthousiaste, beginnende bartender en sta met ontzettend veel plezier achter de bar. Ik deed ervaring op in een hotelbar en volgde een volwaardige cocktailopleiding bij de European Bartender School (EBS) in Barcelona.</p>
         <p>Inmiddels heb ik meerdere events gedraaid. Met Beck on the Rocks kom ik naar jouw feest, met een cocktailkaart op maat, verse garnituren en vooral veel gastvrijheid. Ik maak een praatje, lees de zaal en zorg dat niemand lang op zijn drankje wacht.</p>
@@ -227,8 +236,7 @@
   <section class="section section--alt">
     <div class="container">
       <div class="section__head reveal">
-        <p class="eyebrow">Ervaring</p>
-        <h2>Mijn weg <em>achter de bar.</em></h2>
+        <h2>Mijn weg achter de bar.</h2>
         <p>Van mijn eerste shifts tot mijn eigen bartenderbedrijf.</p>
       </div>
       <ol class="timeline">
@@ -243,8 +251,7 @@
   <section class="section">
     <div class="container">
       <div class="section__head reveal">
-        <p class="eyebrow">Sfeerbeelden</p>
-        <h2>Achter <em>de bar.</em></h2>
+        <h2>Achter de bar.</h2>
         <p>Een kijkje achter de bar.</p>
       </div>
       <div class="gallery">
@@ -263,8 +270,7 @@
   <section class="section">
     <div class="container">
       <div class="section__head reveal">
-        <p class="eyebrow">De kaart</p>
-        <h2>Cocktails om <em>bij stil te staan.</em></h2>
+        <h2>Cocktails om bij stil te staan.</h2>
         <p>Dit zijn de cocktails die ik bij de European Bartender School heb geleerd. Kies er 1 tot 5 voor je kaart (standaard 3), of laat een eigen cocktail voor je feest creëren. Je krijgt er een boodschappenlijst bij met alles wat je nodig hebt.</p>
       </div>
       <div class="filters reveal" role="group" aria-label="Filter cocktails">
@@ -274,7 +280,7 @@
         <button class="filter" data-filter="mocktail" aria-pressed="false">Alcoholvrij</button>
         <button class="filter" data-filter="creatie" aria-pressed="false">Op maat</button>
       </div>
-      <div class="cards" id="cocktail-grid"><!-- gevuld door assets/js/main.js (lijst COCKTAILS) --></div>
+      <div class="menu" id="cocktail-grid"><!-- gevuld door assets/js/main.js (lijst COCKTAILS) --></div>
       <p class="cocktails__cta reveal">Weet je al welke cocktails je wilt? Zet ze in je aanvraag, dan stem ik de kaart en boodschappenlijst erop af. <a href="#boeken" class="tekstlink">Vraag een offerte aan →</a></p>
     </div>
   </section>
@@ -312,46 +318,6 @@
 </div>
 
 <!-- =====================================================
-     PAGINA: DIENSTEN
-     ===================================================== -->
-<div class="page" id="diensten" data-titel="Diensten" hidden>
-  <section class="section">
-    <div class="container">
-      <div class="section__head reveal">
-        <p class="eyebrow">Diensten</p>
-        <h2>Een bartender <em>voor elk feest.</em></h2>
-        <p>Je huurt mij in als bartender. Ik neem mijn bartools en een cocktailkaart op maat mee; jij zorgt voor de drank, het ijs en een werkplek.</p>
-      </div>
-      <div class="services">
-        <article class="service reveal"><div class="service__icon">💍</div><h3>Bruiloften</h3><p>Een welkomstcocktail bij aankomst, een signature drankje voor het bruidspaar en een bar die doorgaat tot de laatste dans.</p></article>
-        <article class="service reveal"><div class="service__icon">🏢</div><h3>Bedrijfsfeesten</h3><p>Borrels, jubilea en personeelsfeesten. Desgewenst met een cocktail in de kleuren van je bedrijf.</p></article>
-        <article class="service reveal"><div class="service__icon">🥂</div><h3>Privéfeesten</h3><p>Verjaardag, jubileum of gewoon zin in een avond vol goede drankjes. Thuis, in de tuin of op locatie.</p></article>
-        <article class="service reveal"><div class="service__icon">🍽️</div><h3>Diners</h3><p>Een aperitief bij aankomst en een digestief na het dessert. Klein gezelschap, groot verschil.</p></article>
-        <article class="service reveal"><div class="service__icon">🍸</div><h3>Horeca-inval</h3><p>Personeel tekort of een drukke avond? Ik spring in achter je bar en draai direct mee.</p></article>
-        <article class="service reveal"><div class="service__icon">✨</div><h3>Cocktail op maat</h3><p>Een eigen cocktail voor jullie feest, met een naam en smaak die bij jullie past. Ook alcoholvrij.</p></article>
-      </div>
-    </div>
-  </section>
-
-  <section class="section section--alt">
-    <div class="container">
-      <div class="cta-band reveal">
-        <div>
-          <p class="eyebrow">Meer weten?</p>
-          <h2>Privé of zakelijk: <em>lees wat je kunt verwachten.</em></h2>
-          <p>Op deze pagina's lees je per soort feest hoe het werkt, wat er inbegrepen is en wat je zelf regelt.</p>
-        </div>
-        <div class="cta-band__knoppen">
-          <a class="btn btn--ghost" href="cocktail-bartender-privefeest/">Particuliere feesten</a>
-          <a class="btn btn--ghost" href="cocktail-bartender-bedrijfsfeest/">Zakelijke evenementen</a>
-          <a class="btn" href="#boeken">Vraag vrijblijvend een offerte aan</a>
-        </div>
-      </div>
-    </div>
-  </section>
-</div>
-
-<!-- =====================================================
      PAGINA: PRIJZEN
      Pas de bedragen aan hier én in TARIEF bovenaan assets/js/main.js (en in de generator)
      ===================================================== -->
@@ -359,8 +325,7 @@
   <section class="section">
     <div class="container">
       <div class="section__head reveal">
-        <p class="eyebrow">Tarieven</p>
-        <h2>Eén helder tarief, <em>geen verrassingen.</em></h2>
+        <h2>Eén helder tarief, geen verrassingen.</h2>
         <p>Je huurt mij in als bartender. Drank en ijs regel je zelf; ik neem mijn eigen bartools mee en zorg voor de cocktailkaart. Je ontvangt altijd een offerte op maat.</p>
       </div>
 
@@ -377,6 +342,7 @@
         </ul>
       </div>
       <p class="rate__uitleg reveal"><strong>Uurtarief of totaalprijs?</strong> De €45 per uur geldt voor de uren dat ik achter de bar sta. Daar komen altijd 1 uur voorbereiding en het cocktailmenu bij, plus reiskosten. Fruitpers en glazen zijn optioneel. In de calculator hieronder zie je per regel wat je betaalt.</p>
+      <p class="rate__btw" data-btw hidden></p>
 
       <div class="opties">
         <article class="optie optie--gold reveal">
@@ -404,7 +370,6 @@
 
       <div class="calc reveal" id="calculator">
         <div class="calc__intro">
-          <p class="eyebrow">Reken het uit</p>
           <h3>Wat kost jouw feest?</h3>
           <p>Vul je feest in voor een indicatie. Boek je binnen een maand voor het feest, dan rekent de calculator automatisch de spoedtoeslag mee.</p>
         </div>
@@ -424,7 +389,7 @@
         </form>
         <div class="calc__result" aria-live="polite">
           <span>Indicatie</span>
-          <strong id="c-totaal">€ 0</strong>
+          <strong id="c-totaal">€ 300</strong>
           <small id="c-detail"></small>
           <a href="#boeken" class="btn" id="c-cta">Vraag een offerte aan voor dit feest</a>
         </div>
@@ -435,8 +400,7 @@
   <section class="section section--alt">
     <div class="container">
       <div class="section__head reveal">
-        <p class="eyebrow">Goed om te weten</p>
-        <h2>Afspraken <em>op een rij.</em></h2>
+        <h2>Afspraken op een rij.</h2>
       </div>
       <div class="terms">
         <article class="term reveal">
@@ -484,8 +448,7 @@
   <section class="section">
     <div class="container">
       <div class="section__head reveal">
-        <p class="eyebrow">Reviews</p>
-        <h2>Wat gasten <em>zeggen.</em></h2>
+        <h2>Wat gasten zeggen.</h2>
       </div>
       <!-- Reviews worden geladen uit de map reviews/ in de repository (zie reviews/LEESMIJ.md) -->
       <div class="review-score reveal" id="review-score" hidden></div>
@@ -523,7 +486,7 @@
           </div>
           <label>Je review<textarea name="tekst" rows="5" required minlength="10" maxlength="800" placeholder="Hoe was je feest? Wat vonden je gasten van de cocktails?"></textarea></label>
           <label>E-mail (optioneel, wordt niet getoond)<input name="email" type="email" autocomplete="email"></label>
-          <label class="tick toestemming"><input type="checkbox" name="toestemming" required> Ik geef toestemming om mijn review met naam op deze website te plaatsen.</label>
+          <label class="tick toestemming"><input type="checkbox" name="toestemming" required> Ik geef toestemming om mijn review met naam op deze website te plaatsen (zie de <a href="/privacy/">privacyverklaring</a>).</label>
           <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
           <button class="btn btn--full" type="submit" id="review-knop">Verstuur review</button>
           <p class="form__note" id="review-note">Je review verschijnt op de site nadat ik hem heb bekeken.</p>
@@ -546,8 +509,7 @@
   <section class="section">
     <div class="container narrow">
       <div class="section__head reveal">
-        <p class="eyebrow">Veelgestelde vragen</p>
-        <h2>Goed om <em>te weten.</em></h2>
+        <h2>Goed om te weten.</h2>
       </div>
       <div class="faq reveal">
         <details>
@@ -627,13 +589,12 @@
   <section class="section">
     <div class="container split split--contact">
       <div class="reveal">
-        <p class="eyebrow">Offerte aanvragen</p>
-        <h2>Zullen we <em>proosten?</em></h2>
+        <h2>Zullen we proosten?</h2>
         <p class="lead">Vertel kort over je feest of evenement. Je hoort binnen 48 uur van me, met een vrijblijvende offerte op maat.</p>
         <ul class="contact-list">
           <li><span>E-mail</span><a href="mailto:rutger@beck.nl">rutger@beck.nl</a></li>
           <li><span>Telefoon</span><a href="tel:+31639658662">06 39 65 86 62</a></li>
-          <li><span>WhatsApp</span><a href="https://wa.me/31639658662" target="_blank" rel="noopener">Stuur een appje</a></li>
+          <li><span>WhatsApp</span><a href="https://wa.me/31639658662?text=Hoi%20Rutger%2C%20ik%20heb%20een%20vraag%20over%20een%20feest%20op%20" target="_blank" rel="noopener">Stuur een appje</a></li>
           <li><span>Tarief</span>Vanaf €45 per uur · <a href="#prijzen">alle tarieven</a></li>
           <li><span>Werkgebied</span>Heel Nederland</li>
         </ul>
@@ -695,14 +656,14 @@
         <button class="btn btn--full" type="submit" id="form-knop">Vraag vrijblijvend een offerte aan</button>
         <ul class="form__beloftes"><li>Vrijblijvend</li><li>Reactie binnen 48 uur</li><li>Geen aanbetaling</li></ul>
         <p class="form__note" id="form-note" role="status">Liever direct contact? Mail naar rutger@beck.nl of bel of app naar 06 39 65 86 62.</p>
-        <p class="form__privacy">Je gegevens gebruik ik alleen om je aanvraag te beantwoorden.</p>
+        <p class="form__privacy">Je gegevens gebruik ik alleen om je aanvraag te beantwoorden. Lees mijn <a href="/privacy/">privacyverklaring</a>.</p>
       </form>
       <div class="form form__klaar" id="form-klaar" hidden tabindex="-1" role="status">
         <div class="form__vink" aria-hidden="true">✓</div>
         <h3>Bedankt voor je aanvraag!</h3>
         <p>Je aanvraag is verstuurd. Je hoort binnen 48 uur van me, meestal sneller.</p>
         <ul class="form__samenvatting" id="form-samenvatting"></ul>
-        <p class="form__note">Vergeten iets te vermelden? Mail naar <a href="mailto:rutger@beck.nl">rutger@beck.nl</a> of app naar <a href="https://wa.me/31639658662" target="_blank" rel="noopener">06 39 65 86 62</a>.</p>
+        <p class="form__note">Vergeten iets te vermelden? Mail naar <a href="mailto:rutger@beck.nl">rutger@beck.nl</a> of app naar <a href="https://wa.me/31639658662?text=Hoi%20Rutger%2C%20ik%20heb%20een%20vraag%20over%20een%20feest%20op%20" target="_blank" rel="noopener">06 39 65 86 62</a>.</p>
         <button type="button" class="btn btn--ghost" id="form-opnieuw">Nog een aanvraag doen</button>
       </div>
     </div>
@@ -723,14 +684,15 @@
       <a href="cocktail-bartender-bedrijfsfeest/">Bedrijfsfeesten</a>
       <a href="#cocktails">Cocktails</a>
       <a href="#prijzen">Tarieven</a>
-      <a href="#diensten">Diensten</a>
       <a href="#reviews">Reviews</a>
       <a href="#faq">FAQ</a>
       <a href="#boeken">Contact</a>
+      <a href="/privacy/">Privacy</a>
     </nav>
     <div class="footer__legal">
       <p>Geniet, maar drink met mate. <strong>18+</strong></p>
       <p>© <span data-jaar></span> Beck on the Rocks</p>
+      <p data-kvk hidden>KvK <span></span></p>
     </div>
   </div>
 </footer>

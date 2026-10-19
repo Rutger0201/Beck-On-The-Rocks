@@ -22,7 +22,8 @@ window.BeckAnalyse = (() => {
       voortgang('PDF lezen…');
       await laadScript('pdfjs/pdf.min.js');
       pdfjsLib.GlobalWorkerOptions.workerSrc = basis + 'pdfjs/pdf.worker.min.js';
-      const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+      // isEvalSupported: false dicht lek CVE-2024-4367 (code uitvoeren via een kwaadaardig lettertype in een PDF)
+      const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer(), isEvalSupported: false }).promise;
       let tekst = '';
       for (let i = 1; i <= pdf.numPages; i++) {
         const inhoud = await (await pdf.getPage(i)).getTextContent();
