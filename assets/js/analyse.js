@@ -168,7 +168,7 @@ window.BeckAnalyse = (() => {
   const SOORTEN = [
     ['Bruiloft', /\b(bruiloft|trouw(?:en|dag|feest)?|huwelijk|bruids?paar|getrouwd)\b/i],
     ['Horeca-inval', /\b(inval(?:len|ler)?|invalkracht|personeel(?:s)?tekort|onderbezetting)\b/i],
-    ['Bedrijfsfeest', /\b(bedrijfs\w*|personeels\w*|borrel|kerstborrel|nieuwjaarsborrel|zakelijk|collega'?s|team(?:uitje|event)?)\b/i],
+    ['Bedrijfsfeest', /\b(bedrijfs\w*|personeels\w*|borrel|kerstborrel|nieuwjaarsborrel|zakelijk|collega'?s|team(?:uitje|event)?|netwerk\w*|receptie|relatie-?evenement)\b/i],
     ['Verjaardag', /(?:\b(?:verjaardag|abraham|sarah)\b|(?<!-)\bjarig\b|\bik word \d{2}\b|\b\d{2} (?:jaar )?(?:worden|wordt)\b|\b\d{2}(?:e|ste)? verjaardag)/i],
     ['Diner', /\b(diner|etentje|dinner)\b/i],
     ['Privéfeest', /\b(feest(?:je)?|party|tuinfeest|housewarming|vrijgezellen\w*|jubileum)\b/i]

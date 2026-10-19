@@ -6,8 +6,23 @@ Gewone HTML, CSS en JavaScript: geen build-stap nodig. Open `index.html` in je b
 of zet de map op een host als Netlify, Vercel of GitHub Pages.
 
 ## Opbouw
-Eén homescreen; de andere pagina's open je via het menu (Over mij, Cocktails, Diensten,
-Prijzen, Reviews, FAQ, Boek mij). Elke pagina is een `<div class="page">` in `index.html`.
+- `index.html`: homepage met de andere onderdelen via het menu (Cocktails, Tarieven, Over mij, FAQ,
+  Offerte aanvragen; Diensten en Reviews via de footer). Elk onderdeel is een `<div class="page">`
+  en opent via een #-link, bijvoorbeeld `/#prijzen`.
+- `cocktail-bartender-privefeest/` en `cocktail-bartender-bedrijfsfeest/`: losse landingspagina's voor
+  Google, met eigen titel, beschrijving, FAQ en structured data. De knoppen gaan naar het aanvraagformulier
+  met `?via=privefeest` of `?via=bedrijfsfeest`; dat zie je terug in de mail als *Via pagina*.
+- `kaart/`: digitaal visitekaartje (niet in Google) voor je NFC-tag en QR-code, met
+  "Opslaan in contacten" (`kaart/rutger-beck-on-the-rocks.vcf`).
+- Foto's staan in `assets/img/`; de verkleinde WebP/JPG-versies die de site laadt in `assets/img/w/`.
+  Nieuwe foto? Maak er ook versies van 480, 800 en 1200 px breed van in die map.
+
+### NFC-tag en QR-code
+- **NFC-tag of -kaartje**: schrijf met de gratis app *NFC Tools* de link
+  `https://beckontherocks.nl/kaart/?ref=nfc` op de tag (Schrijven → Record toevoegen → URL).
+- **QR-code**: `assets/img/qr-beckontherocks.svg` (of `.png`) linkt naar `https://beckontherocks.nl/?ref=qr`.
+  Staat ook op het visitekaartje, zodat iemand hem van je scherm kan scannen.
+- Met GoatCounter aan zie je bij de bronnen hoeveel bezoekers via `nfc` en `qr` kwamen.
 
 ### Engelse versie (`en/index.html`)
 Dezelfde site in het Engels op https://beckontherocks.nl/en/, met een NL/EN-knop in het menu
@@ -52,9 +67,10 @@ Google reviews: plak je links bij `GOOGLE_REVIEW_SCHRIJVEN` en `GOOGLE_REVIEWS_B
 (Mijn gegevens & tarieven), dan komt hij op je facturen.
 
 ## Nog zelf invullen vóór livegang
-- **Reviews**: nog geen; zie "Google reviews koppelen".
+- **Reviews**: de eerste staat erop; Google reviews koppelen zie hierboven.
 - **Foto's**: staan in `assets/img/` (portret + sfeerbeelden). Meer foto's toevoegen kan in de galerij op de pagina "Over mij".
 - **Contactgegevens**: zakelijk telefoonnummer (nu privénummer), Instagram, KvK na inschrijving (footer + generator).
+- **Btw**: op de site staat nog niet of prijzen incl. of excl. btw zijn. Vermeld dit zodra je keuze (KOR of 21%) vaststaat.
 - **Cocktails**: lijst `COCKTAILS` bovenaan `assets/js/main.js`.
 
 Kleuren en lettertypes staan als variabelen bovenaan `assets/css/style.css`.
@@ -101,6 +117,10 @@ generator onder **Snelkoppeling / app**. Directe links: `documenten.html?type=of
 - **Boodschappenlijst**: kies de cocktails; op basis van gasten, uren, % cocktaildrinkers en cocktails p.p. per uur
   rekent de generator uit wat de klant moet halen (flessen, fruit, siropen, ijs), met marge. Recepten volgens de
   officiële IBA-specificaties in `assets/js/recepten.js`. Te printen als A4/PDF of te delen via WhatsApp.
+- **Betaalherinnering**: bij een factuur zet *In agenda* een afspraak in Google Agenda op de vervaldatum
+  (factuurdatum + betaaltermijn, standaard 14 dagen). De link in die afspraak opent de factuur met de
+  knoppen om de herinnering via WhatsApp of mail te sturen. In het overzicht zie je welke facturen een
+  herinnering nodig hebben en wanneer je er een hebt gestuurd.
 - **Back-up**: download al je documenten en gegevens als bestand en zet ze terug op een andere telefoon/computer.
 
 Vul eenmalig je gegevens in onder **Mijn gegevens & tarieven** (adres, KvK, IBAN, btw).

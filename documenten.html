@@ -27,7 +27,7 @@
     <p>Alles wordt alleen in deze browser bewaard.</p>
   </header>
 
-  <div class="seg" role="tablist" aria-label="Soort document">
+  <div class="seg" role="group" aria-label="Soort document">
     <button type="button" data-type="offerte" class="is-on">Offerte</button>
     <button type="button" data-type="factuur">Factuur</button>
     <button type="button" data-type="annulering">Annulering</button>
@@ -176,6 +176,14 @@
       <button type="button" class="btn btn--ghost" id="stuur-wa">WhatsApp</button>
       <button type="button" class="btn btn--ghost" id="stuur-mail">Mail</button>
       <button type="button" class="btn btn--ghost" id="kopieer-akkoord" title="Link waarmee de klant online akkoord geeft">Akkoordlink</button>
+    </div>
+    <div class="herinner" id="herinner" hidden>
+      <span class="herinner__kop">Betaalherinnering <small>na de betaaltermijn</small></span>
+      <div class="verstuur">
+        <button type="button" class="btn btn--ghost" id="herinner-agenda" title="Afspraak in Google Agenda op de vervaldatum">In agenda</button>
+        <button type="button" class="btn btn--ghost" id="herinner-wa">WhatsApp</button>
+        <button type="button" class="btn btn--ghost" id="herinner-mail">Mail</button>
+      </div>
     </div>
     <p class="verstuur__tip" id="verstuur-tip">Versturen opent WhatsApp of je mail met een kant-en-klaar bericht. Voeg daar de PDF aan toe.</p>
     <button type="button" class="btn btn--ghost" id="naar-factuur" hidden>Maak factuur van deze offerte</button>
