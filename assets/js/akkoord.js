@@ -42,7 +42,7 @@
   if (o.o) { $('#o-opm').hidden = false; $('#o-opm').textContent = o.o; }
   $('#o-afspraken').innerHTML = [
     'Je huurt mij in als bartender. Drank, ijs en verse ingrediënten regel je zelf; je ontvangt van mij een boodschappenlijst.',
-    'Je zorgt voor een werkplek: een stevige tafel of bar, bij voorkeur in de buurt van water.',
+    'Je zorgt voor een werkplek: een stevige tafel of bar, met een gootsteen met stromend water in de buurt.',
     `Geen aanbetaling. Na het feest ontvang je een factuur met een betaaltermijn van ${o.bt || 14} dagen.`,
     `Boeken binnen 1 maand voor het feest geldt als spoedboeking: +${o.sp ?? 25}% over alle kosten.`,
     `Annuleren kan kosteloos tot 14 dagen voor het feest. Daarna reken ik ${o.an ?? 20}% van het afgesproken bedrag.`

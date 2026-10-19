@@ -242,7 +242,7 @@
         <h3>Afspraken</h3>
         <ul>
           <li>Je huurt mij in als bartender. Drank, ijs en verse ingrediënten regel je zelf; je ontvangt van mij een boodschappenlijst.</li>
-          <li>Je zorgt voor een werkplek: een stevige tafel of bar, bij voorkeur in de buurt van water.</li>
+          <li>Je zorgt voor een werkplek: een stevige tafel of bar, met een gootsteen met stromend water in de buurt.</li>
           <li>Geen aanbetaling. Na het feest ontvang je een factuur met een betaaltermijn van ${ins.betaal} dagen.</li>
           <li>Boeken binnen 1 maand voor het feest geldt als spoedboeking: +${ins.spoed}% over alle kosten.</li>
           <li>Annuleren kan kosteloos tot 14 dagen voor het feest. Daarna reken ik ${ins.annul}% van het afgesproken bedrag.</li>
