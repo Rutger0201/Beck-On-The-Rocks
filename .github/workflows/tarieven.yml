@@ -1,0 +1,28 @@
+# Past iemand tarieven.json aan, dan zet deze actie alle bedragen op de site goed (tools/tarieven.py)
+name: Tarieven bijwerken
+on:
+  push:
+    branches: [main]
+    paths: ['tarieven.json', 'tools/tarieven.py']
+  pull_request:
+    paths: ['**.html', 'tarieven.json', 'tools/tarieven.py']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  bijwerken:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Controleren (pull request)
+        if: github.event_name == 'pull_request'
+        run: python3 tools/tarieven.py --controleer
+      - name: Bijwerken en opslaan (main)
+        if: github.event_name != 'pull_request'
+        run: |
+          python3 tools/tarieven.py
+          if git diff --quiet; then echo "Alle tarieven klopten al."; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Tarieven bijgewerkt vanuit tarieven.json"
+          git push

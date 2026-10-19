@@ -12,6 +12,8 @@ of zet de map op een host als Netlify, Vercel of GitHub Pages.
 - `cocktail-bartender-privefeest/` en `cocktail-bartender-bedrijfsfeest/`: losse landingspagina's voor
   Google, met eigen titel, beschrijving, FAQ en structured data. De knoppen gaan naar het aanvraagformulier
   met `?via=privefeest` of `?via=bedrijfsfeest`; dat zie je terug in de mail als *Via pagina*.
+- `tarieven/` en `faq/`: eigen pagina's voor de tarieven (met calculator) en veelgestelde vragen, zodat Google ze apart
+  kan tonen. Oude links (`/#prijzen`, `/#faq`) sturen automatisch door. In de Engelse versie staan ze nog als onderdeel van `en/`.
 - `privacy/`: privacyverklaring, gelinkt in de footer en bij elk formulier. Gebruik je een nieuwe dienst
   (ander formulier, mailprogramma, statistieken), pas deze tekst dan aan.
 - `kaart/`: digitaal visitekaartje (niet in Google) voor je NFC-tag en QR-code, met
@@ -38,16 +40,21 @@ Aanvragen van de Engelse site komen gewoon in het Nederlands binnen, met de rege
 *Taal: Engels*, zodat de generator ze net zo inleest.
 
 ## Prijzen en voorwaarden
-- €45 per uur achter de bar
-- Altijd 1 uur voorbereiding (€45) en vanaf €75 voor cocktailmenu & gebruik materialen (basis 3 cocktails, 1–5 mogelijk)
-- Met fruitpers (vers geperste sappen): uurtarief +20% (€54) en menu vanaf €99
-- Reiskosten €0,25 per km (heel Nederland); glazen in overleg, vanaf €0,50 per glas
-- Boeken binnen 1 maand voor het feest: spoedtoeslag van 25% over alle kosten
-- Geen aanbetaling; annuleren binnen 14 dagen: 20% van het afgesproken bedrag
-- Klant regelt drank, ijs, ingrediënten en een werkplek
+Alle tarieven staan op één plek: **`tarieven.json`** (uurtarief, voorbereiding, cocktailmenu, fruitpers, reiskosten,
+glazen, spoed, annuleren, betaaltermijn). Zo pas je een prijs aan:
 
-Bedragen aanpassen? Doe dat op de pagina Prijzen in `index.html` en `en/index.html` én in `TARIEF`
-bovenaan `assets/js/main.js` (voor de calculator).
+1. Open `tarieven.json` op GitHub, klik op het potlood, wijzig het bedrag en klik op *Commit changes*.
+2. De GitHub-actie *Tarieven bijwerken* zet daarna binnen een minuut alle bedragen op de site goed: tekst, voorbeelden,
+   calculator, meta-omschrijvingen en de gegevens voor Google (ook de FAQ). Kijk bij *Actions* of hij groen is.
+3. De offerte-generator neemt de nieuwe tarieven vanzelf over en meldt dat bij het openen.
+
+Zelf draaien kan ook: `python3 tools/tarieven.py` (bijwerken) of `python3 tools/tarieven.py --controleer`.
+Bedragen in de HTML staan in `<span data-t="…">`; nieuwe bedragen in een tekst krijgen zo'n label, anders worden ze niet bijgewerkt.
+
+Huidige afspraken: uurtarief, altijd voorbereiding, cocktailmenu (vanaf; basis 3 cocktails, 1–5 mogelijk), fruitpers als
+toeslag op het uurtarief met een duurder menu, reiskosten per km (heel Nederland), glazen in overleg, spoedtoeslag bij
+boeken binnen 1 maand, geen aanbetaling, annuleringskosten binnen de annuleringstermijn. Klant regelt drank, ijs,
+ingrediënten, een werkplek en een gootsteen met stromend water.
 
 ## Boekingsformulier (Web3Forms)
 Aanvragen gaan via [Web3Forms](https://web3forms.com) direct naar je mail, zonder dat de klant
@@ -55,6 +62,12 @@ zijn mailprogramma opent. Vraag op web3forms.com gratis een *Access Key* aan met
 en zet die bij `web3forms` in `assets/js/config.js`.
 Zonder sleutel opent het formulier het mailprogramma van de klant (zoals voorheen).
 Kopieer een binnengekomen aanvraag in **Slim invullen** van de generator voor een offerte.
+
+### Spambescherming
+Naast het verborgen honeypot-veld: een formulier dat binnen 3 seconden na het laden wordt verstuurd, gaat niet weg
+(de bot ziet wel een bedankscherm); berichten met meer dan 2 links worden geweigerd; per browser kunnen er maximaal
+3 berichten per 10 minuten worden verstuurd. Misbruik van de Web3Forms-sleutel buiten de site om stop je alleen in
+het dashboard van Web3Forms (spamfilter, eventueel hCaptcha).
 
 ## Statistieken (GoatCounter)
 Bezoekersstatistieken zonder cookies (dus geen cookiebanner nodig). Maak gratis een account op
@@ -129,6 +142,9 @@ generator onder **Snelkoppeling / app**. Directe links: `documenten.html?type=of
   (factuurdatum + betaaltermijn, standaard 14 dagen). De link in die afspraak opent de factuur met de
   knoppen om de herinnering via WhatsApp of mail te sturen. In het overzicht zie je welke facturen een
   herinnering nodig hebben en wanneer je er een hebt gestuurd.
+- **Controlecode in de akkoordlink**: elke akkoordlink is ondertekend met een geheime sleutel die alleen in jouw
+  generator (en je back-up) staat. In de akkoordmail staat *Controleren (voor Rutger)*: open die link op het apparaat
+  met je generator. Je ziet dan of de offerte ongewijzigd is, of dat iemand het bedrag in de link heeft aangepast.
 - **Back-up**: download al je documenten en gegevens als bestand en zet ze terug op een andere telefoon/computer.
 
 Vul eenmalig je gegevens in onder **Mijn gegevens & tarieven** (adres, KvK, IBAN, btw).

@@ -15,7 +15,21 @@
     kvk: '', iban: '', btw: 'kor', btwnr: '', review: '',
     uur: 45, prep: 1, menu: 75, fruitpers: 20, menuFp: 99, km: 0.25, glas: 0.5, spoed: 25, annul: 20, betaal: 14
   };
+  // Tarieven van de website (tarieven.json → assets/js/tarieven.js) gaan voor
+  const SITE = window.BECK_TARIEVEN;
+  const SITE_TARIEF = SITE ? {
+    uur: SITE.uur, prep: SITE.voorbereidingUren, menu: SITE.menu, fruitpers: SITE.fruitpersProcent, menuFp: SITE.menuFruitpers,
+    km: SITE.km, glas: SITE.glas, spoed: SITE.spoedProcent, annul: SITE.annulerenProcent, betaal: SITE.betaalDagen
+  } : {};
+  Object.assign(STANDAARD, SITE_TARIEF);
   let ins = { ...STANDAARD, ...opslag.lees('beck-instellingen', {}) };
+  // Zijn de tarieven op de website veranderd sinds je laatste bezoek? Dan neemt de generator ze over.
+  const siteBron = JSON.stringify(SITE_TARIEF);
+  if (SITE && ins.tarievenBron && ins.tarievenBron !== siteBron) {
+    Object.assign(ins, SITE_TARIEF);
+    setTimeout(() => alert('De tarieven op je website zijn veranderd. De generator gebruikt nu ook de nieuwe tarieven.'), 300);
+  }
+  if (SITE && ins.tarievenBron !== siteBron) { ins.tarievenBron = siteBron; opslag.schrijf('beck-instellingen', ins); }
   // Oude standaardwaarden uit een eerdere versie bijwerken
   if (ins.email === 'info@beckontherocks.nl') ins.email = STANDAARD.email;
   if (!ins.web) ins.web = STANDAARD.web;
@@ -374,7 +388,21 @@
 
   // Offerte als compacte link: alles wat de klant moet zien zit in de link zelf
   const b64 = str => btoa(String.fromCharCode(...new TextEncoder().encode(str))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  function akkoordLink(d) {
+  // Controlecode: HMAC-SHA256 met een geheime sleutel die alleen in jouw generator (en back-up) staat.
+  // Past een klant iets aan in de link, dan klopt de code niet meer; de controleerlink in de akkoordmail laat dat zien.
+  function akkoordSleutel() {
+    if (!ins.akkoordSleutel) {
+      ins.akkoordSleutel = [...crypto.getRandomValues(new Uint8Array(16))].map(x => x.toString(16).padStart(2, '0')).join('');
+      opslag.schrijf('beck-instellingen', ins);
+    }
+    return ins.akkoordSleutel;
+  }
+  async function onderteken(tekst) {
+    const sleutel = await crypto.subtle.importKey('raw', new TextEncoder().encode(akkoordSleutel()), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+    const sig = new Uint8Array(await crypto.subtle.sign('HMAC', sleutel, new TextEncoder().encode(tekst)));
+    return [...sig.slice(0, 8)].map(x => x.toString(16).padStart(2, '0')).join('');
+  }
+  async function akkoordLink(d) {
     const c = cijfers(d);
     const data = {
       v: 1, n: d.nummer, dt: d.datum, gt: c.verval, k: d['k-naam'], bd: d['k-bedrijf'], s: d['f-soort'], fd: d['f-datum'],
@@ -384,10 +412,38 @@
       kor: ins.btw !== '21', sp: ins.spoed, an: ins.annul, bt: ins.betaal, o: d.opmerking || ''
     };
     const basis = location.href.replace(/[?#].*$/, '').replace(/documenten\.html$/, '');
-    return basis + 'akkoord.html?o=' + b64(JSON.stringify(data));
+    const o = b64(JSON.stringify(data));
+    return `${basis}akkoord.html?o=${o}&s=${await onderteken(o)}`;
   }
 
-  function bericht(d) {
+  // Geopend via de controleerlink uit een akkoordmail: klopt de offerte nog met wat jij hebt verstuurd?
+  async function controleerAkkoord(o, s) {
+    let data;
+    try {
+      const b = atob(o.replace(/-/g, '+').replace(/_/g, '/'));
+      data = JSON.parse(new TextDecoder().decode(Uint8Array.from(b, c => c.charCodeAt(0))));
+    } catch { alert('Deze controlelink is beschadigd of niet volledig gekopieerd.'); return; }
+    const doc = alleDocs()[data.n];
+    const nu = doc ? cijfers(doc).totaal : null;
+    const verschilt = nu != null && Math.abs(nu - data.tot) > 0.01;
+    if (!s) {
+      alert(`Deze akkoordlink heeft nog geen controlecode (verstuurd vóór de update).\n\nBedrag in de link: ${euro(data.tot)}`
+        + (nu != null ? `\nJouw offerte ${data.n}: ${euro(nu)}${verschilt ? '  ← VERSCHILT' : ' (gelijk)'}` : '\nDeze offerte staat niet in deze generator.'));
+    } else if (s !== await onderteken(o)) {
+      alert(`✗ LET OP: deze akkoordlink is aangepast, of niet met jouw generator gemaakt.\n\nBedrag in de link: ${euro(data.tot)}`
+        + (nu != null ? `\nJouw offerte ${data.n}: ${euro(nu)}` : '') + '\n\nNeem contact op met de klant voordat je de datum bevestigt.');
+    } else {
+      const tekst = `✓ Offerte ${data.n} is ongewijzigd: ${euro(data.tot)} voor ${data.k || 'de klant'}.`
+        + (verschilt ? `\n\nLet op: je hebt de offerte daarna nog aangepast (nu ${euro(nu)}). De klant gaf akkoord op ${euro(data.tot)}.` : '');
+      if (doc && doc.status !== 'akkoord' && confirm(tekst + '\n\nStatus van deze offerte op Akkoord zetten?')) {
+        const docs = alleDocs(); docs[data.n].status = 'akkoord'; opslag.schrijf('beck-documenten', docs);
+      } else if (!doc || doc.status === 'akkoord') alert(tekst);
+    }
+    const bijgewerkt = alleDocs()[data.n];
+    if (bijgewerkt) { vulForm(bijgewerkt); $('#opgeslagen').value = data.n; }
+  }
+
+  async function bericht(d) {
     const c = cijfers(d), vn = voornaam(d);
     const feest = `${(d['f-soort'] || 'feest').toLowerCase()}${d['f-datum'] ? ' op ' + lang(d['f-datum']) : ''}`;
     const groet = `\n\nGroet,\n${ins.contact || ''}\n${ins.naam}${ins.web ? '\n' + ins.web : ''}`;
@@ -395,7 +451,7 @@
       return {
         onderwerp: `Offerte ${d.nummer} · ${ins.naam}`,
         tekst: `Hoi${vn ? ' ' + vn : ''},\n\nBedankt voor je aanvraag! Hierbij mijn offerte ${d.nummer} voor je ${feest}: ${euro(c.totaal)}. De offerte stuur ik als PDF mee.`
-          + `\n\nAkkoord? Dat kun je hier direct online aangeven (ook als je nog iets wilt toevoegen):\n${akkoordLink(d)}`
+          + `\n\nAkkoord? Dat kun je hier direct online aangeven (ook als je nog iets wilt toevoegen):\n${await akkoordLink(d)}`
           + `\n\nDe offerte is geldig tot ${lang(c.verval)}. Heb je vragen, laat het gerust weten.` + groet
       };
     }
@@ -442,13 +498,13 @@
     if (type !== 'offerte') $('#verstuur-tip').textContent = `Verstuurd ✓ Zet hieronder meteen de betaalherinnering voor ${lang(cijfers(leesForm()).verval)} in je agenda.`;
   }
   const telIntl = t => { let n = String(t || '').replace(/[^\d+]/g, ''); if (n.startsWith('+')) n = n.slice(1); else if (n.startsWith('00')) n = n.slice(2); else if (n.startsWith('0')) n = '31' + n.slice(1); return n.length >= 10 ? n : ''; };
-  $('#stuur-wa').addEventListener('click', () => {
-    const d = leesForm(), m = bericht(d), nr = telIntl(d['k-tel']);
+  $('#stuur-wa').addEventListener('click', async () => {
+    const d = leesForm(), m = await bericht(d), nr = telIntl(d['k-tel']);
     open(`https://wa.me/${nr}?text=${encodeURIComponent(m.tekst)}`, '_blank', 'noopener');
     markeerVerstuurd();
   });
-  $('#stuur-mail').addEventListener('click', () => {
-    const d = leesForm(), m = bericht(d);
+  $('#stuur-mail').addEventListener('click', async () => {
+    const d = leesForm(), m = await bericht(d);
     location.href = `mailto:${encodeURIComponent(d['k-email'] || '')}?subject=${encodeURIComponent(m.onderwerp)}&body=${encodeURIComponent(m.tekst)}`;
     markeerVerstuurd();
   });
@@ -460,7 +516,7 @@
   $('#herinner-wa').addEventListener('click', () => { bewaar(); stuurHerinnering(leesForm(), 'wa'); });
   $('#herinner-mail').addEventListener('click', () => { bewaar(); stuurHerinnering(leesForm(), 'mail'); });
   $('#kopieer-akkoord').addEventListener('click', async () => {
-    const link = akkoordLink(leesForm());
+    const link = await akkoordLink(leesForm());
     try { await navigator.clipboard.writeText(link); $('#verstuur-tip').textContent = 'Akkoordlink gekopieerd ✓ Plak hem in je bericht aan de klant.'; }
     catch { prompt('Kopieer deze link:', link); }
   });
@@ -736,7 +792,10 @@
   const startParams = new URLSearchParams(location.search);
   const startType = startParams.get('type');
   const herinnerDoc = alleDocs()[startParams.get('herinner')];
-  if (herinnerDoc) {
+  if (startParams.get('controleer')) {
+    nieuw('offerte');
+    controleerAkkoord(startParams.get('controleer'), startParams.get('s'));
+  } else if (herinnerDoc) {
     // Geopend vanuit de agenda-afspraak: meteen de factuur met de herinnerknoppen
     vulForm(herinnerDoc); $('#opgeslagen').value = herinnerDoc.nummer;
     $('#verstuur-tip').textContent = herinnerDoc.status === 'betaald'

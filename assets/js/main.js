@@ -96,15 +96,15 @@
   };
   const soortTekst = s => EN ? (SOORT_EN[s] || s) : s;
 
-  // Tarieven (zelfde bedragen als op de prijzenpagina in index.html)
+  // Tarieven komen uit tarieven.json (via assets/js/tarieven.js); de getallen hier zijn alleen een terugval
+  const T = window.BECK_TARIEVEN || {};
   const TARIEF = {
-    uur: 45,            // per uur achter de bar
-    voorbereiding: 1,   // altijd 1 uur voorbereiding
-    menu: 75,           // cocktailmenu & gebruik materialen (vanaf)
-    fruitpers: 0.20,    // uurtarief +20% met fruitpers
-    menuFruitpers: 99,  // cocktailmenu met fruitpers (vanaf)
-    spoed: 0.25,        // toeslag bij boeken binnen 1 maand
-    annuleren: 0.20     // bij annuleren binnen 14 dagen
+    uur: T.uur ?? 45,                                   // per uur achter de bar
+    voorbereiding: T.voorbereidingUren ?? 1,            // altijd voorbereiding
+    menu: T.menu ?? 75,                                 // cocktailmenu & gebruik materialen (vanaf)
+    fruitpers: (T.fruitpersProcent ?? 20) / 100,        // uurtarief + dit percentage met fruitpers
+    menuFruitpers: T.menuFruitpers ?? 99,               // cocktailmenu met fruitpers (vanaf)
+    spoed: (T.spoedProcent ?? 25) / 100                 // toeslag bij boeken binnen 1 maand
   };
 
   // Web3Forms (web3forms.com): boekingen en reviews gaan direct naar je mail.
@@ -202,8 +202,11 @@
   const basisTitel = document.title;
   if (pages.length) {
     let huidige = null;
+    // Tarieven en FAQ hebben in het Nederlands eigen pagina's; oude links (/#prijzen, /#faq) sturen door
+    const VERHUISD = { prijzen: 'tarieven/', calculator: 'tarieven/#calculator', faq: 'faq/' };
     const route = () => {
       const id = decodeURIComponent(location.hash.slice(1)) || 'home';
+      if (!EN && VERHUISD[id]) { location.replace(VERHUISD[id]); return; }
       const doel = document.getElementById(id);
       const page = (doel && doel.closest('.page')) || $('#home');
       if (page !== huidige) {
@@ -302,6 +305,26 @@
     form.addEventListener('input', check);
     form.addEventListener('change', check);
   }
+  // Spambescherming naast de honeypot (botcheck). Let op: wie de Web3Forms-sleutel direct misbruikt,
+  // houd je alleen tegen via de instellingen van Web3Forms zelf.
+  const paginaGeladen = Date.now();
+  const LOG = 'beck-verzonden';
+  function spamCheck(tekst) {
+    if (Date.now() - paginaGeladen < 3000) return 'bot'; // binnen 3 seconden ingevuld en verstuurd: geen mens
+    if ((String(tekst || '').match(/https?:\/\/|www\./gi) || []).length > 2)
+      return t('Je bericht bevat te veel links. Haal ze weg, of mail me je bericht.', 'Your message contains too many links. Please remove them, or email me instead.');
+    try {
+      const log = JSON.parse(localStorage.getItem(LOG) || '[]').filter(x => Date.now() - x < 10 * 60e3);
+      if (log.length >= 3) return t('Je hebt net al een paar berichten verstuurd. Probeer het over tien minuten nog eens, of mail me.', 'You have just sent a few messages. Please try again in ten minutes, or email me.');
+    } catch { /* geen opslag: geen limiet */ }
+    return '';
+  }
+  function telVerzonden() {
+    try {
+      const log = JSON.parse(localStorage.getItem(LOG) || '[]').filter(x => Date.now() - x < 10 * 60e3);
+      localStorage.setItem(LOG, JSON.stringify([...log, Date.now()]));
+    } catch { /* geen opslag */ }
+  }
   async function verstuur(json) {
     const res = await fetch('https://api.web3forms.com/submit', {
       method: 'POST',
@@ -344,9 +367,17 @@
     [cU, cD, cC, cF].forEach(el => { el.addEventListener('input', bereken); el.addEventListener('change', bereken); });
     bereken();
 
-    // "Vraag dit aan": neem de berekening mee naar het aanvraagformulier
-    $('#c-cta').addEventListener('click', () => {
-      if (!boekForm) return;
+    // "Vraag een offerte aan": neem de berekening mee naar het aanvraagformulier
+    $('#c-cta').addEventListener('click', e => {
+      if (!boekForm) {
+        // Formulier staat op de homepage: gegevens via de link meegeven
+        e.preventDefault();
+        const q = new URLSearchParams({ via: 'calculator', uren: cU.value, cocktails: cC.value });
+        if (cF.checked) q.set('fruitpers', 'ja');
+        if (cD.value) q.set('datum', cD.value);
+        location.href = `/?${q}#boeken`;
+        return;
+      }
       const f = boekForm.elements;
       f.uren.value = cU.value;
       f.cocktails.value = cC.value;
@@ -449,6 +480,9 @@
         'Afwijzen': 'Doe niets: de review verschijnt dan niet.'
       };
       const onderwerp = `Nieuwe review van ${review.naam} (${review.sterren}/5)`;
+      const spam = spamCheck(review.tekst);
+      if (spam === 'bot') { reviewForm.hidden = true; $('#review-klaar').hidden = false; return; } // doen alsof, niets versturen
+      if (spam) { note.textContent = spam; note.classList.add('is-fout'); return; }
       if (!WEB3FORMS_SLEUTEL) {
         location.href = `mailto:${MAIL}?subject=${encodeURIComponent(onderwerp)}&body=${encodeURIComponent(Object.entries(velden).map(([k, v]) => `${k}: ${v}`).join('\n'))}`;
         return;
@@ -458,6 +492,7 @@
       try {
         await verstuur({ subject: onderwerp, from_name: 'Beck on the Rocks · reviews', ...(d.email ? { replyto: d.email } : {}), ...velden });
         reviewForm.hidden = true; reviewForm.reset();
+        telVerzonden();
         telBezoek('review-verstuurd', 'Review verstuurd', true);
         const klaar = $('#review-klaar'); klaar.hidden = false; klaar.focus();
       } catch {
@@ -508,6 +543,15 @@
     // Vanaf een landingspagina: /?soort=Bedrijfsborrel#boeken vult het type feest alvast in
     const soort = params.get('soort');
     if (soort && [...boekForm.elements.soort.options].some(o => o.value === soort)) boekForm.elements.soort.value = soort;
+    // Vanuit de calculator op /tarieven/: uren, cocktails, fruitpers en datum alvast invullen
+    if (params.get('via') === 'calculator') {
+      const f = boekForm.elements;
+      if (/^\d{1,2}$/.test(params.get('uren') || '')) f.uren.value = params.get('uren');
+      if (/^[1-5]$/.test(params.get('cocktails') || '')) f.cocktails.value = params.get('cocktails');
+      f.fruitpers.checked = params.get('fruitpers') === 'ja';
+      if (/^\d{4}-\d{2}-\d{2}$/.test(params.get('datum') || '')) { f.datum.value = params.get('datum'); f.datum.dispatchEvent(new Event('input')); }
+      const meer = $('.form__meer', boekForm); if (meer) meer.open = true;
+    }
 
     const note = $('#form-note'), noteTekst = note.textContent;
     boekForm.addEventListener('submit', async e => {
@@ -534,6 +578,9 @@
         const body = Object.entries(velden).map(([k, v]) => `${k}: ${v}`).join('\n');
         location.href = `mailto:${MAIL}?subject=${encodeURIComponent(onderwerp)}&body=${encodeURIComponent(body)}`;
       };
+      const spam = spamCheck(d.bericht);
+      if (spam === 'bot') { toonBedankt(velden); return; } // doen alsof, niets versturen
+      if (spam) { note.textContent = spam; note.classList.add('is-fout'); return; }
       if (!WEB3FORMS_SLEUTEL) { naarMail(); note.textContent = t('Dank je! Je mailprogramma opent nu met je aanvraag.', 'Thank you! Your email app will now open with your request.'); return; }
 
       const knop = $('#form-knop'), knopTekst = knop.textContent;
@@ -541,6 +588,7 @@
       try {
         await verstuur({ subject: onderwerp, from_name: 'Beck on the Rocks · website', replyto: d.email, ...velden });
         toonBedankt(velden);
+        telVerzonden();
         telBezoek('aanvraag-verstuurd', 'Aanvraag verstuurd', true);
         boekForm.reset();
         $('#form-spoed').hidden = true;
