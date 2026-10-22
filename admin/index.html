@@ -4,13 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>Events · Beck on the Rocks</title>
+  <title>Admin · Beck on the Rocks</title>
   <meta name="theme-color" content="#0f0d0b">
   <link rel="stylesheet" href="/assets/css/fonts.css">
   <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/admin/marketing.css">
   <link rel="icon" type="image/png" href="/assets/icons/favicon-48.png">
   <style>
-    .admin { max-width: 860px; margin: 0 auto; padding: 48px 16px 80px; }
+    .admin { max-width: 960px; margin: 0 auto; padding: 48px 16px 80px; }
     .admin h1 { font-family: var(--serif); font-weight: 500; font-size: 2.4rem; margin: 0 0 .2em; }
     .admin__sub { color: var(--muted); margin: 0 0 2rem; }
     .slot { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -34,10 +35,10 @@
   </style>
 </head>
 <body>
-<!-- Adminpagina: niet in Google en niet in de sitemap. De lijst is versleuteld; zie tools/events.py. -->
+<!-- Adminpagina: niet in Google en niet in de sitemap. Alles is versleuteld; zie tools/events.py en tools/marketing/. -->
 <main class="admin">
-  <h1>Mogelijke klussen</h1>
-  <p class="admin__sub">De beste events en oproepen voor de komende maand.</p>
+  <h1 id="titel">Admin</h1>
+  <p class="admin__sub" id="sub">Mogelijke klussen en je marketingplanning voor de komende maand.</p>
 
   <form id="slot" class="slot">
     <input type="password" id="ww" placeholder="Wachtwoord" autocomplete="current-password" required>
@@ -46,27 +47,35 @@
   </form>
   <p class="melding" id="melding" hidden></p>
 
+  <nav class="a-tabs" id="tabs" hidden>
+    <button type="button" class="a-tab" data-tab="klussen">Mogelijke klussen</button>
+    <button type="button" class="a-tab" data-tab="marketing">Marketing</button>
+    <a href="#" id="uit" class="a-uit">Vergrendelen</a>
+  </nav>
+
   <section id="lijst" hidden>
     <div class="balk">
       <span id="info"></span>
       <span>
         <label><input type="checkbox" id="toonweg"> Toon ook "niet interessant"</label>
-        · <a href="#" id="uit">Vergrendelen</a>
       </span>
     </div>
     <div id="events"></div>
   </section>
+
+  <section id="marketing" hidden></section>
 </main>
 
 <script src="/assets/js/config.js"></script>
+<script src="/admin/marketing.js"></script>
 <script>
 (() => {
-  const OPSLAG = 'beck-admin-ww', WEG = 'beck-admin-weg';
+  const OPSLAG = 'beck-admin-ww', WEG = 'beck-admin-weg', TAB = 'beck-admin-tab';
   const $ = id => document.getElementById(id);
   const lees = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const schrijf = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} };
   const weg = new Set(JSON.parse(lees(WEG) || '[]'));
-  let gegevens = null;
+  let gegevens = null, eventsStaat = 'geen';
 
   const bytes = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
   async function ontsleutel(bestand, ww) {
@@ -79,19 +88,37 @@
 
   function meld(t) { $('melding').textContent = t; $('melding').hidden = !t; }
 
+  // Opent beide onderdelen; het wachtwoord klopt als minstens één ervan open gaat.
   async function open(ww) {
     meld('');
-    let bestand;
+    let bestand = null, events = 'geen';
     try {
       const r = await fetch('/assets/data/events.enc.json?' + Date.now(), { cache: 'no-store' });
-      if (!r.ok) throw new Error();
-      bestand = await r.json();
-    } catch (e) { return meld('Er is nog geen lijst. Die verschijnt na de eerste run van "Events zoeken" op GitHub.'); }
-    try { gegevens = await ontsleutel(bestand, ww); }
-    catch (e) { schrijf(OPSLAG, null); return meld('Wachtwoord klopt niet.'); }
+      if (r.ok) bestand = await r.json();
+    } catch (e) {}
+    if (bestand) {
+      try { gegevens = await ontsleutel(bestand, ww); events = 'ok'; }
+      catch (e) { events = 'fout'; }
+    }
+    eventsStaat = events;
+    const marketing = await window.BeckMarketing.open(ww, gegevens ? gegevens.events : []);
+    if (events !== 'ok' && marketing !== 'ok') {
+      if (events === 'geen' && marketing === 'geen') return meld('Er is nog niets. Draai op GitHub eerst "Events zoeken" of "Marketing bijwerken".');
+      schrijf(OPSLAG, null); return meld('Wachtwoord klopt niet.');
+    }
     if ($('onthoud').checked) schrijf(OPSLAG, ww);
-    $('slot').hidden = true; $('lijst').hidden = false;
-    toon();
+    $('slot').hidden = true; $('tabs').hidden = false;
+    kiesTab(location.hash === '#marketing' ? 'marketing' : location.hash === '#klussen' ? 'klussen' : lees(TAB) || 'klussen');
+  }
+
+  function kiesTab(tab) {
+    schrijf(TAB, tab);
+    document.querySelectorAll('.a-tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === tab));
+    $('lijst').hidden = tab !== 'klussen'; $('marketing').hidden = tab !== 'marketing';
+    $('titel').textContent = tab === 'marketing' ? 'Marketing' : 'Mogelijke klussen';
+    $('sub').textContent = tab === 'marketing' ? 'Je beste marketingkansen voor de komende 30 dagen. Niets wordt gepubliceerd zonder jouw akkoord.'
+      : 'De beste events en oproepen voor de komende maand.';
+    if (tab === 'klussen') toon();
   }
 
   const veiligeLink = u => /^https?:\/\//i.test(u || '') ? u : '';
@@ -120,6 +147,12 @@
 
   function toon() {
     const doos = $('events'); doos.textContent = '';
+    if (!gegevens) {
+      $('info').textContent = '';
+      doos.textContent = eventsStaat === 'fout' ? 'Deze lijst is met een ander wachtwoord versleuteld. Draai "Events zoeken" op GitHub opnieuw.'
+        : 'Er is nog geen lijst. Die verschijnt na de eerste run van "Events zoeken" op GitHub.';
+      return;
+    }
     const alle = gegevens.events || [];
     const zicht = alle.filter(e => $('toonweg').checked || !weg.has(e.id));
     $('info').textContent = `${zicht.length} van ${alle.length} · bijgewerkt ${new Date(gegevens.bijgewerkt).toLocaleString('nl-NL', { dateStyle: 'medium', timeStyle: 'short' })}`;
@@ -149,6 +182,7 @@
 
   $('slot').addEventListener('submit', ev => { ev.preventDefault(); open($('ww').value); });
   $('toonweg').addEventListener('change', toon);
+  document.querySelectorAll('.a-tab').forEach(b => b.addEventListener('click', () => kiesTab(b.dataset.tab)));
   $('uit').addEventListener('click', ev => { ev.preventDefault(); schrijf(OPSLAG, null); location.reload(); });
   const bewaard = lees(OPSLAG);
   if (bewaard) { $('onthoud').checked = true; open(bewaard); }
