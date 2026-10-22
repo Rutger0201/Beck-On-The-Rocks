@@ -8,12 +8,18 @@
   "min_score": 20,
   "bronnen": [
     "https://www.eventbrite.nl/d/netherlands--almere/all-events/",
-    "https://www.eventbrite.nl/d/netherlands--almere/business--events/",
-    "https://www.eventbrite.nl/d/netherlands--lelystad/all-events/",
     "https://www.eventbrite.nl/d/netherlands--amsterdam/business--events/",
-    "https://www.eventbrite.nl/d/netherlands--amsterdam/networking/",
-    "https://www.eventbrite.nl/d/netherlands--hilversum/all-events/",
-    "https://www.visitalmere.nl/agenda"
+    "https://allevents.in/almere/all",
+    "https://allevents.in/almere/business",
+    "https://allevents.in/amsterdam/business",
+    "https://allevents.in/lelystad/all",
+    "https://www.meetup.com/find/?location=nl--Almere&source=EVENTS",
+    "https://www.visitflevoland.nl/agenda",
+    "https://www.uitinflevoland.nl/agenda",
+    "https://www.iamsterdam.com/uit/agenda",
+    "https://www.ticketmaster.nl/discover/almere",
+    "https://www.uitagenda.nl/almere",
+    "https://www.facebook.com/events/explore/almere-netherlands/"
   ],
   "zoeken_met_claude": false,
   "claude_zoekopdrachten": 12,
