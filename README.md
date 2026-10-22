@@ -123,6 +123,18 @@ Eenmalig instellen:
 
 Wachtwoord veranderd? Draai de actie opnieuw, dan wordt de lijst met het nieuwe wachtwoord versleuteld.
 
+## Marketingcentrum (`admin/`, tabblad Marketing)
+Op dezelfde adminpagina staat het tabblad **Marketing**: de 10 tot 20 beste marketingkansen voor de komende 30 dagen,
+elk met doelgroep, score (1-100), waarom, platform, datum, complete tekst, beeldsuggestie, call-to-action, hashtags,
+kosten en impact. Je kunt teksten aanpassen, goedkeuren, afwijzen, inplannen (ook in je agenda) en kopiëren.
+Er is een kalender met dag-, week- en maandweergave waarin ook je mogelijke klussen staan. Er wordt niets automatisch
+gepubliceerd. Elke tekst wordt gecontroleerd op alcoholreclameregels en 18+.
+
+De actie *Marketing bijwerken* (`.github/workflows/marketing.yml`) draait elke nacht `tools/marketing/`, en elke maandag
+doet een geplande Claude-taak webonderzoek (trends, zoekwoorden, concurrenten, kansen) met bronnen en datums.
+Alles is versleuteld met hetzelfde `ADMIN_WACHTWOORD`. Uitleg, bestanden en het formaat van het onderzoek staan in
+`tools/marketing/LEESMIJ.md`. Seizoensmomenten en vaste ideeën pas je aan in `tools/marketing/kalender.json` en `ideeen.json`.
+
 ## Nog zelf invullen vóór livegang
 - **Reviews**: de eerste staan erop; Google reviews zijn gekoppeld (zie hierboven).
 - **Foto's**: staan in `assets/img/` (portret + sfeerbeelden). Meer foto's toevoegen kan in de galerij op de pagina "Over mij".

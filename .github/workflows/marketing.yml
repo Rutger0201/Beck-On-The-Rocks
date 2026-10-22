@@ -1,0 +1,37 @@
+# Kiest elke nacht de beste marketingkansen voor de komende 30 dagen (tools/marketing, tabblad Marketing op /admin/).
+# Draait ook direct als de wekelijkse Claude-run nieuw onderzoek op de branch marketing-onderzoek zet.
+name: Marketing bijwerken
+on:
+  schedule:
+    - cron: '17 4 * * *'
+  push:
+    branches: [marketing-onderzoek]
+    paths: ['assets/data/marketing-onderzoek.enc.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: marketing
+jobs:
+  bijwerken:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Nieuw onderzoek overnemen
+        if: github.event_name == 'push'
+        run: |
+          git fetch origin "$GITHUB_SHA"
+          git checkout "$GITHUB_SHA" -- assets/data/marketing-onderzoek.enc.json
+      - name: Kansen kiezen en versleuteld opslaan
+        env:
+          ADMIN_WACHTWOORD: ${{ secrets.ADMIN_WACHTWOORD }}
+        run: |
+          pip install --quiet cryptography
+          python3 tools/marketing --toon
+          git add assets/data/marketing.enc.json assets/data/marketing-sleutel.json assets/data/marketing-onderzoek.enc.json
+          if git diff --cached --quiet; then echo "Niets nieuws."; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Marketing bijgewerkt"
+          for i in 1 2 3; do git pull --rebase origin main && git push origin HEAD:main && break; sleep 5; done

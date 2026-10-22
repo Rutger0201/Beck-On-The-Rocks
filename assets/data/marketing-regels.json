@@ -1,0 +1,22 @@
+{
+  "_uitleg": "Controle op alcoholreclame en 18+ voor het marketingcentrum. Gebruikt door tools/marketing (bij het maken van voorstellen) en admin/marketing.js (bij bewerken). Rood = niet goed te keuren, oranje = let op. Patronen zijn reguliere expressies zonder hoofdlettergevoeligheid.",
+  "rood": [
+    { "patroon": "\\b(zuip|zuipen|comazuipen|zatlap|stomdronken|lazarus|ladderzat|bezopen)\\b", "uitleg": "Geen overmatig drinken aanprijzen (Reclamecode Alcohol)." },
+    { "patroon": "\\b(onbeperkt|onbeperkte|all you can drink|drink zoveel|hoe meer hoe beter|zoveel je wilt)\\b", "uitleg": "Geen onbeperkt of veel drinken aanprijzen." },
+    { "patroon": "\\b(adtje|atten|trechteren|drinkspel|drinkspelletje|beerpong|shotjesrace|shotjes race)\\b", "uitleg": "Geen drinkspellen of snel drinken." },
+    { "patroon": "\\b(dronken|lam|kater|hangover)\\b", "uitleg": "Dronkenschap niet positief neerzetten." },
+    { "patroon": "\\b(gratis (drank|drankjes|shots?|cocktails?)|happy hour|2 voor 1|twee voor een)\\b", "uitleg": "Geen prijsacties of gratis alcohol (Alcoholwet en Reclamecode)." },
+    { "patroon": "\\b(kids|kinderen|kinderfeest|tieners?|scholieren|minderjarig\\w*|eindexamen\\w*|examenfeest|sweet sixteen|schoolfeest|brugklas)\\b", "uitleg": "Niets dat jongeren onder 18 aanspreekt of op hen gericht is." },
+    { "patroon": "\\b(maakt je (populair|populairder|sexy|succesvol|succesvoller)|sexier|stoerder door)\\b", "uitleg": "Geen sociaal of seksueel succes door alcohol suggereren." },
+    { "patroon": "\\b(autorijden|achter het stuur|op de fiets naar huis)\\b", "uitleg": "Alcohol en verkeer horen niet samen in reclame." }
+  ],
+  "alcohol": "\\b(cocktails?|gin|gin-tonic|rum|wodka|vodka|whisk(e)?y|tequila|mezcal|likeur|bier|wijn|prosecco|champagne|cava|spritz|aperol|martini|mojito|negroni|margarita|daiquiri|sour|shots?|alcohol|espresso martini|old fashioned|cosmopolitan)\\b",
+  "geen_alcohol": "\\b(mocktails?|alcoholvrij|alcoholvrije|zonder alcohol|0,0|0\\.0)\\b",
+  "slogan_kanalen": ["instagram", "facebook", "tiktok", "linkedin", "youtube", "pinterest", "google"],
+  "slogan_niet_bij": ["profiel", "bericht", "pagina", "samenwerking", "update"],
+  "slogan": "Geniet, maar drink met mate.",
+  "oranje": [
+    { "patroon": "\\b(korting|aanbieding|actieprijs|% off)", "uitleg": "Een actie mag alleen over je dienst gaan, niet over de prijs van drank. Zeg dat duidelijk." },
+    { "patroon": "\\b(student|studenten|studentenfeest|ontgroening)\\b", "uitleg": "Studenten zijn vaak net 18: richt je liever op 25+." }
+  ]
+}

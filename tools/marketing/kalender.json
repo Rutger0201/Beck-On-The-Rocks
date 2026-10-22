@@ -1,0 +1,289 @@
+{
+  "_uitleg": "Vaste marketingmomenten per jaar. 'datum' is MM-DD of {maand, weekdag (0 = maandag), nr (1 = eerste, -1 = laatste)}. Elke post verschijnt 'voor' dagen vóór het moment. In teksten: {link} = link met eigen ?ref=, {jaar} = jaar van het moment, {uur} = uurtarief uit tarieven.json.",
+  "momenten": [
+    {
+      "sleutel": "halloween", "naam": "Halloween", "datum": "10-31",
+      "posts": [
+        {
+          "voor": 7, "soort": "snel", "kanaal": "Instagram", "formaat": "reel", "tijd": "19:30",
+          "titel": "Halloween-cocktail in 15 seconden",
+          "doelgroep": "Particulieren 25-45 in Almere en omgeving die thuis een feest geven",
+          "waarom": "Rond Halloween zoeken mensen naar thema-ideeën voor thuisfeesten. Een korte reel met een donkere cocktail is makkelijk te maken en laat je vakmanschap zien.",
+          "tekst": "Spooky, maar stijlvol. 🖤\nZo maak je een Black Widow: bramen, limoen, een vleugje gember en een donkere twist. Geshaked, gezeefd, klaar.\n\nGeef jij een Halloweenfeest of plan je al een feest voor de feestdagen? Ik sta achter de bar, jij geniet met je gasten.\n\nGeniet, maar drink met mate.",
+          "hashtags": ["halloween", "halloweencocktail", "cocktailbartender", "almere", "thuisfeest", "beckontherocks"],
+          "cta": "Vraag vrijblijvend een offerte aan via de link in mijn bio",
+          "pagina": "/",
+          "beeld": { "foto": "galerij-garneren", "idee": "Close-up van het garneren met donkere bramen; 3 shots: shaken, zeven, garnering. Gezicht niet nodig." },
+          "kosten": { "euro": 0, "uren": 1, "toelichting": "Eigen ingrediënten (± €10) en een uur filmen en monteren." },
+          "impact": { "niveau": "middel", "toelichting": "Reels krijgen het meeste bereik buiten je volgers; het gaat vooral om zichtbaarheid." },
+          "criteria": { "relevantie": 3, "impact": 3, "haalbaarheid": 5, "tijd": 4, "budget": 5 }
+        }
+      ]
+    },
+    {
+      "sleutel": "kerstborrel", "naam": "Kerstborrels en personeelsfeesten", "datum": "12-12",
+      "posts": [
+        {
+          "voor": 50, "soort": "betaald", "kanaal": "LinkedIn", "formaat": "advertentie", "tijd": "08:00",
+          "titel": "LinkedIn-advertentie: kerstborrel met cocktailbar",
+          "doelgroep": "HR, office managers en ondernemers, 25+, binnen 40 km van Almere",
+          "waarom": "Bedrijven boeken hun kerstborrel in oktober en november. Wie nu zichtbaar is bij office managers, krijgt de aanvragen voordat de agenda's vol zitten.",
+          "tekst": "Dit jaar een kerstborrel waar je collega's nog over praten?\n\nIk ben Rutger, freelance cocktailbartender uit Almere. Ik kom met mijn eigen cocktailgereedschap en maak verse cocktails en mocktails op jullie locatie. Jullie regelen de drank, ik zorg voor de bar, de show en blije gasten.\n\nBoek ruim een maand vooruit, dan betaal je geen spoedtoeslag.\n\nGeniet, maar drink met mate.",
+          "hashtags": ["kerstborrel", "personeelsfeest", "bedrijfsfeest", "almere", "cocktailbartender"],
+          "cta": "Vraag een offerte aan: {link}",
+          "pagina": "/cocktail-bartender-bedrijfsfeest/",
+          "beeld": { "foto": "beck-portret", "idee": "Portret achter de bar, warm licht. Eventueel kerstgroen op de achtergrond." },
+          "kosten": { "euro": 50, "uren": 1, "toelichting": "Testbudget €5 per dag, 10 dagen. LinkedIn is duur per klik (vaak €3 tot €8), dus klein beginnen." },
+          "impact": { "niveau": "middel", "toelichting": "Eén geboekte kerstborrel van 4 uur levert al meer op dan het testbudget." },
+          "criteria": { "relevantie": 5, "impact": 4, "haalbaarheid": 3, "tijd": 4, "budget": 2 }
+        },
+        {
+          "voor": 45, "soort": "snel", "kanaal": "LinkedIn", "formaat": "post", "tijd": "08:15",
+          "titel": "Kerstborrel nog zonder bar?",
+          "doelgroep": "Office managers, HR en ondernemers in Flevoland en het Gooi",
+          "waarom": "Begin november is hét moment waarop bedrijven de kerstborrel regelen. Een persoonlijke LinkedIn-post bereikt beslissers zonder kosten.",
+          "tekst": "Kerstborrel gepland, maar nog geen bar?\n\nAfgelopen tijd stond ik achter de bar op verjaardagen, tuinfeesten en bedrijfsborrels. Wat me opvalt: een goede cocktail breekt het ijs sneller dan elke speech.\n\nZo werkt het:\n• Jullie regelen de drank en het ijs (ik maak een boodschappenlijst)\n• Ik kom met mijn eigen gereedschap en een cocktailmenu op maat\n• Ook alcoholvrije cocktails, zodat iedereen meedoet\n\nVoor december heb ik nog een paar avonden vrij. Boek je ruim een maand vooruit, dan betaal je geen spoedtoeslag.\n\nGeniet, maar drink met mate.",
+          "hashtags": ["kerstborrel", "bedrijfsborrel", "personeelsfeest", "almere", "flevoland"],
+          "cta": "Stuur me een bericht of kijk op {link}",
+          "pagina": "/cocktail-bartender-bedrijfsfeest/",
+          "beeld": { "foto": "galerij-lachen", "idee": "Sfeerfoto met lachende gasten bij de bar." },
+          "kosten": { "euro": 0, "uren": 0.5, "toelichting": "Alleen je tijd." },
+          "impact": { "niveau": "hoog", "toelichting": "Zakelijke boekingen zijn langer en groter; één reactie kan een vaste klant worden." },
+          "criteria": { "relevantie": 5, "impact": 4, "haalbaarheid": 5, "tijd": 5, "budget": 5 }
+        },
+        {
+          "voor": 40, "soort": "snel", "kanaal": "Instagram", "formaat": "carrousel", "tijd": "19:00",
+          "titel": "Carrousel: zo regel je een kerstborrel met cocktails",
+          "doelgroep": "Particulieren en kleine ondernemers, 25-50, regio Almere",
+          "waarom": "Een uitleg in slides wordt bewaard en gedeeld. Zo beantwoord je de vraag 'hoe werkt dat?' voordat iemand hem stelt.",
+          "tekst": "Kerstborrel met een echte cocktailbar? Zo simpel is het 👇\n\n1. Je kiest 3 cocktails (ook alcoholvrij)\n2. Je krijgt van mij een boodschappenlijst\n3. Jij regelt drank en ijs, ik neem mijn gereedschap mee\n4. Ik bouw de bar op, jij ontvangt je gasten\n\nNog een avond vrij in december? Kijk snel.\n\nGeniet, maar drink met mate.",
+          "hashtags": ["kerstborrel", "kerstfeest", "cocktailbartender", "almere", "cocktailbar", "feestdagen"],
+          "cta": "Plan je datum via de link in mijn bio",
+          "pagina": "/",
+          "beeld": { "foto": "galerij-gin-tonic", "idee": "Slide 1 de foto, slides 2-5 tekst op donkere achtergrond in goud (huisstijl)." },
+          "kosten": { "euro": 0, "uren": 1, "toelichting": "Slides maken in Canva (gratis)." },
+          "impact": { "niveau": "middel", "toelichting": "Carrousels worden vaak bewaard; goed voor vertrouwen bij twijfelaars." },
+          "criteria": { "relevantie": 5, "impact": 3, "haalbaarheid": 4, "tijd": 4, "budget": 5 }
+        },
+        {
+          "voor": 30, "soort": "snel", "kanaal": "Instagram", "formaat": "story", "tijd": "12:00",
+          "titel": "Story: laatste data in december",
+          "doelgroep": "Volgers die al interesse hebben getoond",
+          "waarom": "Schaarste werkt: een eerlijke update over de laatste vrije data zet twijfelaars aan om te boeken.",
+          "tekst": "December loopt vol 🎄 Nog een paar avonden vrij voor kerstborrels en feesten. Vraag je datum aan voordat hij weg is.",
+          "hashtags": ["kerstborrel", "almere"],
+          "cta": "Tik op de linksticker: {link}",
+          "pagina": "/",
+          "beeld": { "foto": "beck-portret", "idee": "Korte video of foto van de bar met een kalender-sticker." },
+          "kosten": { "euro": 0, "uren": 0.25, "toelichting": "Vijf minuten werk." },
+          "impact": { "niveau": "laag", "toelichting": "Bereikt vooral volgers, maar die zijn het meest warm." },
+          "criteria": { "relevantie": 4, "impact": 3, "haalbaarheid": 5, "tijd": 5, "budget": 5 }
+        }
+      ]
+    },
+    {
+      "sleutel": "oudennieuw", "naam": "Oud en nieuw", "datum": "12-31",
+      "posts": [
+        {
+          "voor": 35, "soort": "snel", "kanaal": "Instagram", "formaat": "post", "tijd": "19:30",
+          "titel": "Oud en nieuw thuis met een cocktailbar",
+          "doelgroep": "Particulieren 25-45 die thuis oud en nieuw vieren",
+          "waarom": "Steeds meer mensen vieren oud en nieuw thuis met vrienden. Een bartender maakt het een avond om te onthouden.",
+          "tekst": "Dit jaar oud en nieuw thuis, maar dan als in een cocktailbar? 🥂\nJij nodigt de vrienden uit, ik sta achter de bar met verse cocktails en mocktails tot middernacht.\n\nDe laatste avond van het jaar is snel vol. Plan hem nu.\n\nGeniet, maar drink met mate.",
+          "hashtags": ["oudennieuw", "oudjaarsavond", "cocktailbartender", "thuisfeest", "almere"],
+          "cta": "Vraag je offerte aan via de link in mijn bio",
+          "pagina": "/cocktail-bartender-privefeest/",
+          "beeld": { "foto": "galerij-gin-tonic", "idee": "Glas met bubbels en goud, avondlicht." },
+          "kosten": { "euro": 0, "uren": 0.5, "toelichting": "Bestaande foto." },
+          "impact": { "niveau": "middel", "toelichting": "Oudjaar is een populaire avond met een hoger budget bij klanten." },
+          "criteria": { "relevantie": 4, "impact": 3, "haalbaarheid": 5, "tijd": 4, "budget": 5 }
+        }
+      ]
+    },
+    {
+      "sleutel": "nieuwjaarsborrel", "naam": "Nieuwjaarsborrels", "datum": "01-15",
+      "posts": [
+        {
+          "voor": 55, "soort": "snel", "kanaal": "LinkedIn", "formaat": "post", "tijd": "08:15",
+          "titel": "Nieuwjaarsborrel: begin het jaar met een cocktailbar",
+          "doelgroep": "Office managers, HR, ondernemersverenigingen in Almere en het Gooi",
+          "waarom": "Nieuwjaarsborrels worden in november en december gepland. Bedrijven die al een kerstborrel hebben, zoeken voor januari iets anders.",
+          "tekst": "De nieuwjaarsborrel van {jaar} anders aanpakken?\n\nIn plaats van de standaard bar: een cocktailbar met een menu op maat, inclusief alcoholvrije opties. Ik ben Rutger, freelance cocktailbartender uit Almere, en ik kom met mijn eigen gereedschap naar jullie locatie.\n\nJanuari heeft nog ruimte. Boek je vóór half december, dan betaal je geen spoedtoeslag.\n\nGeniet, maar drink met mate.",
+          "hashtags": ["nieuwjaarsborrel", "bedrijfsborrel", "almere", "eventplanning"],
+          "cta": "Bekijk de mogelijkheden: {link}",
+          "pagina": "/cocktail-bartender-bedrijfsfeest/",
+          "beeld": { "foto": "galerij-lachen", "idee": "Gasten die proosten, rustig zakelijk." },
+          "kosten": { "euro": 0, "uren": 0.5, "toelichting": "Alleen je tijd." },
+          "impact": { "niveau": "hoog", "toelichting": "Januari is voor bartenders een rustige maand; elke zakelijke boeking telt." },
+          "criteria": { "relevantie": 5, "impact": 4, "haalbaarheid": 5, "tijd": 5, "budget": 5 }
+        }
+      ]
+    },
+    {
+      "sleutel": "dryjanuary", "naam": "Dry January", "datum": "01-02",
+      "posts": [
+        {
+          "voor": 3, "soort": "snel", "kanaal": "Instagram", "formaat": "reel", "tijd": "19:00",
+          "titel": "Dry January: drie mocktails die niet saai zijn",
+          "doelgroep": "Gezondheidsbewuste 25-45-jarigen en organisatoren van zakelijke borrels",
+          "waarom": "Alcoholvrij groeit hard. Laten zien dat jouw mocktails volwaardig zijn, maakt je interessant voor bedrijven en voor gasten die niet drinken.",
+          "tekst": "Dry January hoeft niet saai te zijn. 🍋\nDrie mocktails die ik op elk feest maak: een Virgin Mojito, een Gingerbread Sour zonder alcohol en een Espresso Tonic.\n\nOp jouw feest drinkt iedereen mee, met of zonder alcohol.",
+          "hashtags": ["dryjanuary", "mocktails", "alcoholvrij", "cocktailbartender", "almere"],
+          "cta": "Vraag naar een menu met mocktails via de link in mijn bio",
+          "pagina": "/",
+          "beeld": { "foto": "galerij-garneren", "idee": "Drie glazen naast elkaar, snel achter elkaar gemaakt." },
+          "kosten": { "euro": 15, "uren": 1.5, "toelichting": "Ingrediënten voor drie mocktails." },
+          "impact": { "niveau": "middel", "toelichting": "Positief en breed deelbaar; geen alcoholregels van toepassing." },
+          "criteria": { "relevantie": 4, "impact": 3, "haalbaarheid": 4, "tijd": 4, "budget": 4 }
+        }
+      ]
+    },
+    {
+      "sleutel": "trouwen", "naam": "Bruiloftsplanning en huwelijksbeurzen", "datum": "01-25",
+      "posts": [
+        {
+          "voor": 14, "soort": "structureel", "kanaal": "Instagram", "formaat": "carrousel", "tijd": "20:00",
+          "titel": "Trouwen in {jaar}? Een cocktailbar op je bruiloft",
+          "doelgroep": "Stellen die gaan trouwen, 25-40, Flevoland, Amsterdam en het Gooi",
+          "waarom": "Januari en februari zijn de maanden van huwelijksbeurzen en planning. Bruiloften zijn lange boekingen met een groot bereik onder gasten.",
+          "tekst": "Gaan jullie trouwen in {jaar}? 💍\nEen cocktailbar maakt de borrel en het feest compleet. Een signature cocktail met jullie namen, verse garnering en een bartender die gasten op hun gemak stelt.\n\nVraag vrijblijvend naar de mogelijkheden; populaire zaterdagen gaan snel.\n\nGeniet, maar drink met mate.",
+          "hashtags": ["bruiloft", "trouwen", "bruiloftinspiratie", "weddingbar", "cocktailbartender", "flevoland"],
+          "cta": "Plan een kennismaking via de link in mijn bio",
+          "pagina": "/cocktail-bartender-privefeest/",
+          "beeld": { "foto": "galerij-gin-tonic", "idee": "Elegante foto, wit en goud; slide met 'signature cocktail'-voorbeeld." },
+          "kosten": { "euro": 0, "uren": 1.5, "toelichting": "Slides maken." },
+          "impact": { "niveau": "hoog", "toelichting": "Bruiloften brengen nieuwe aanvragen via gasten." },
+          "criteria": { "relevantie": 4, "impact": 4, "haalbaarheid": 4, "tijd": 4, "budget": 5 }
+        }
+      ]
+    },
+    {
+      "sleutel": "valentijn", "naam": "Valentijnsdag", "datum": "02-14",
+      "posts": [
+        {
+          "voor": 18, "soort": "snel", "kanaal": "Instagram", "formaat": "post", "tijd": "19:30",
+          "titel": "Valentijn: cocktailavond voor twee (of met vrienden)",
+          "doelgroep": "Stellen en vriendengroepen 25-45 in Almere",
+          "waarom": "Rond Valentijn zoeken mensen een origineel uitje. Een privé-cocktailavond thuis is onderscheidend.",
+          "tekst": "Geen standaard diner deze Valentijn? ❤️\nEen avond thuis met je eigen bartender: cocktails op maat, mocktails voor wie niet drinkt, en jij hoeft niets te doen.\n\nOok leuk met een groep vrienden: Galentine's of Palentine's.\n\nGeniet, maar drink met mate.",
+          "hashtags": ["valentijn", "valentijnsdag", "datenight", "cocktailbartender", "almere"],
+          "cta": "Vraag je datum aan via de link in mijn bio",
+          "pagina": "/cocktail-bartender-privefeest/",
+          "beeld": { "foto": "galerij-gin-tonic", "idee": "Twee glazen, warm licht, rood accent." },
+          "kosten": { "euro": 0, "uren": 0.5, "toelichting": "Bestaande foto." },
+          "impact": { "niveau": "laag", "toelichting": "Kleine boekingen, maar goed voor naamsbekendheid." },
+          "criteria": { "relevantie": 3, "impact": 2, "haalbaarheid": 5, "tijd": 5, "budget": 5 }
+        }
+      ]
+    },
+    {
+      "sleutel": "koningsdag", "naam": "Koningsdag", "datum": "04-27",
+      "posts": [
+        {
+          "voor": 28, "soort": "snel", "kanaal": "Instagram", "formaat": "post", "tijd": "19:30",
+          "titel": "Koningsdagfeest met een oranje cocktailbar",
+          "doelgroep": "Particulieren en buurtverenigingen 25+, Almere",
+          "waarom": "Koningsdag is een van de drukste feestdagen. Mensen plannen hun straat- of tuinfeest een maand vooruit.",
+          "tekst": "Koningsdag in de tuin of op straat? 🧡\nIk sta achter de bar met oranje cocktails en mocktails, jij viert het met de buren.\n\nKoningsdag is altijd snel vol, dus plan op tijd.\n\nGeniet, maar drink met mate.",
+          "hashtags": ["koningsdag", "oranje", "tuinfeest", "cocktailbartender", "almere"],
+          "cta": "Vraag je offerte aan via de link in mijn bio",
+          "pagina": "/cocktail-bartender-privefeest/",
+          "beeld": { "foto": "galerij-garneren", "idee": "Oranje garnering (sinaasappel), buitenlicht." },
+          "kosten": { "euro": 0, "uren": 0.5, "toelichting": "Bestaande foto of één nieuwe." },
+          "impact": { "niveau": "middel", "toelichting": "Grote vraag, maar maar één dag beschikbaar." },
+          "criteria": { "relevantie": 4, "impact": 3, "haalbaarheid": 5, "tijd": 5, "budget": 5 }
+        }
+      ]
+    },
+    {
+      "sleutel": "cocktaildag", "naam": "Wereld Cocktaildag", "datum": "05-13",
+      "posts": [
+        {
+          "voor": 0, "soort": "snel", "kanaal": "Instagram", "formaat": "reel", "tijd": "18:00",
+          "titel": "Wereld Cocktaildag: mijn signature cocktail",
+          "doelgroep": "Volgers en cocktailliefhebbers 25+",
+          "waarom": "Een dag waarop cocktailcontent extra wordt gezocht en gedeeld; goed moment om je eigen stijl te laten zien.",
+          "tekst": "Het is Wereld Cocktaildag 🍸\nDit is de cocktail die ik het vaakst maak op feesten. Raad jij wat erin zit?\n\nGeniet, maar drink met mate.",
+          "hashtags": ["worldcocktailday", "cocktaildag", "cocktailbartender", "signaturecocktail", "beckontherocks"],
+          "cta": "Benieuwd wat ik op jouw feest maak? Link in bio",
+          "pagina": "/",
+          "beeld": { "foto": "galerij-garneren", "idee": "Reel van begin tot eind, 20 seconden, met muziek." },
+          "kosten": { "euro": 10, "uren": 1, "toelichting": "Ingrediënten en montage." },
+          "impact": { "niveau": "middel", "toelichting": "Vooral bereik en interactie." },
+          "criteria": { "relevantie": 3, "impact": 3, "haalbaarheid": 5, "tijd": 4, "budget": 5 }
+        }
+      ]
+    },
+    {
+      "sleutel": "moederdag", "naam": "Moederdag", "datum": { "maand": 5, "weekdag": 6, "nr": 2 },
+      "posts": [
+        {
+          "voor": 21, "soort": "snel", "kanaal": "Facebook", "formaat": "post", "tijd": "19:30",
+          "titel": "Moederdag: een cocktailbar-brunch thuis",
+          "doelgroep": "Volwassen kinderen 25-50 die iets bijzonders willen voor hun moeder",
+          "waarom": "Cadeau-ideeën voor Moederdag worden twee tot drie weken vooruit gezocht; Facebook bereikt deze leeftijdsgroep goed.",
+          "tekst": "Iets anders dan bloemen voor Moederdag? 🌷\nEen brunch of borrel thuis met een eigen bartender: frisse cocktails en mocktails, en mam hoeft niets te doen.\n\nGeniet, maar drink met mate.",
+          "hashtags": ["moederdag", "moederdagcadeau", "brunch", "almere"],
+          "cta": "Vraag een offerte aan: {link}",
+          "pagina": "/cocktail-bartender-privefeest/",
+          "beeld": { "foto": "galerij-lachen", "idee": "Lichte, vrolijke foto; bloemen als garnering." },
+          "kosten": { "euro": 0, "uren": 0.5, "toelichting": "Bestaande foto." },
+          "impact": { "niveau": "laag", "toelichting": "Kleinere boekingen, wel goed voor naamsbekendheid." },
+          "criteria": { "relevantie": 3, "impact": 2, "haalbaarheid": 5, "tijd": 5, "budget": 5 }
+        }
+      ]
+    },
+    {
+      "sleutel": "zomerfeest", "naam": "Zomer- en tuinfeesten", "datum": "06-27",
+      "posts": [
+        {
+          "voor": 40, "soort": "structureel", "kanaal": "LinkedIn", "formaat": "post", "tijd": "08:15",
+          "titel": "Zomerborrel voor het team",
+          "doelgroep": "Office managers en ondernemers in Flevoland en Amsterdam",
+          "waarom": "Bedrijven plannen hun zomerborrel in mei. Na de kerstborrel is dit het tweede zakelijke piekmoment.",
+          "tekst": "Zomerborrel met het team gepland? ☀️\nEen cocktailbar op het terras of in de tuin, met verse cocktails en alcoholvrije opties. Jullie regelen de drank, ik de bar.\n\nGeniet, maar drink met mate.",
+          "hashtags": ["zomerborrel", "bedrijfsuitje", "teamuitje", "almere"],
+          "cta": "Bekijk de mogelijkheden: {link}",
+          "pagina": "/cocktail-bartender-bedrijfsfeest/",
+          "beeld": { "foto": "galerij-lachen", "idee": "Buitenfoto in de zon." },
+          "kosten": { "euro": 0, "uren": 0.5, "toelichting": "Alleen je tijd." },
+          "impact": { "niveau": "hoog", "toelichting": "Zakelijke boekingen in het hoogseizoen." },
+          "criteria": { "relevantie": 5, "impact": 4, "haalbaarheid": 5, "tijd": 5, "budget": 5 }
+        },
+        {
+          "voor": 30, "soort": "snel", "kanaal": "Instagram", "formaat": "reel", "tijd": "19:30",
+          "titel": "Tuinfeest-reel: de bar in 30 seconden opgebouwd",
+          "doelgroep": "Particulieren 25-50 met een verjaardag of tuinfeest in de zomer",
+          "waarom": "Een timelapse van de opbouw laat zien hoe makkelijk het is voor de klant; populair format.",
+          "tekst": "Van lege tuin tot cocktailbar in 30 seconden ⏱️\nJij zorgt voor de gasten, ik voor de rest.\n\nZomerdata gaan snel: plan je tuinfeest nu.\n\nGeniet, maar drink met mate.",
+          "hashtags": ["tuinfeest", "zomerfeest", "verjaardag", "cocktailbartender", "almere"],
+          "cta": "Vraag je offerte aan via de link in mijn bio",
+          "pagina": "/cocktail-bartender-privefeest/",
+          "beeld": { "foto": "", "idee": "Timelapse met telefoon op statief tijdens je volgende klus (vraag de klant om toestemming)." },
+          "kosten": { "euro": 0, "uren": 1, "toelichting": "Filmen tijdens een klus, monteren." },
+          "impact": { "niveau": "middel", "toelichting": "Goed bereik; laat zien wat je meebrengt." },
+          "criteria": { "relevantie": 4, "impact": 3, "haalbaarheid": 4, "tijd": 4, "budget": 5 }
+        }
+      ]
+    },
+    {
+      "sleutel": "kerstprive", "naam": "Kerst thuis", "datum": "12-25",
+      "posts": [
+        {
+          "voor": 21, "soort": "snel", "kanaal": "Facebook", "formaat": "post", "tijd": "19:30",
+          "titel": "Kerst thuis met je eigen bartender",
+          "doelgroep": "Families en vriendengroepen 30-55, Almere en omgeving",
+          "waarom": "Kerstdiners thuis worden groter en feestelijker. Facebook bereikt deze doelgroep goed.",
+          "tekst": "Dit jaar kerst thuis, maar dan net even specialer? 🎄\nIk verzorg de cocktails en mocktails bij het aperitief en het dessert, jij geniet van je familie.\n\nNog een paar data vrij rond de kerst.\n\nGeniet, maar drink met mate.",
+          "hashtags": ["kerst", "kerstdiner", "thuisfeest", "almere"],
+          "cta": "Vraag een offerte aan: {link}",
+          "pagina": "/cocktail-bartender-privefeest/",
+          "beeld": { "foto": "galerij-gin-tonic", "idee": "Warm licht, kerstgroen op de bar." },
+          "kosten": { "euro": 0, "uren": 0.5, "toelichting": "Bestaande foto." },
+          "impact": { "niveau": "middel", "toelichting": "Kerstdagen zijn duurdere avonden met minder concurrentie bij particulieren." },
+          "criteria": { "relevantie": 4, "impact": 3, "haalbaarheid": 5, "tijd": 4, "budget": 5 }
+        }
+      ]
+    }
+  ]
+}
