@@ -29,7 +29,7 @@ jobs:
         run: |
           pip install --quiet cryptography
           python3 tools/marketing --toon
-          git add assets/data/marketing.enc.json assets/data/marketing-sleutel.json assets/data/marketing-onderzoek.enc.json
+          git add -A -- 'assets/data/marketing*.json'
           if git diff --cached --quiet; then echo "Niets nieuws."; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
