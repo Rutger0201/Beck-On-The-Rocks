@@ -1,0 +1,26 @@
+# Zoekt op maandag en donderdag mogelijke klussen voor de adminpagina (tools/events.py)
+name: Events zoeken
+on:
+  schedule:
+    - cron: '23 5 * * 1,4'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  zoeken:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Zoeken en versleuteld opslaan
+        env:
+          ADMIN_WACHTWOORD: ${{ secrets.ADMIN_WACHTWOORD }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          pip install --quiet cryptography anthropic
+          python3 tools/events.py
+          git add assets/data/events.enc.json
+          if git diff --cached --quiet; then echo "Niets nieuws."; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Events bijgewerkt"
+          git push

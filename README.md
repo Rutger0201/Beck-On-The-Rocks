@@ -103,6 +103,26 @@ Places API en zet ze in `assets/data/google-reviews.json`. De reviewpagina toont
 4. Actions → *Google-reviews ophalen* → *Run workflow*. Het Place ID wordt de eerste keer op naam gezocht en
    bewaard; vindt hij je profiel niet, zet het Place ID dan als variable `GOOGLE_PLACE_ID`.
 
+## Mogelijke klussen (`admin/`)
+`https://beckontherocks.nl/admin/` toont de beste events en oproepen voor de komende maand, met een score,
+waarom het past en knoppen om een offerte te mailen, de pagina te bekijken of het event weg te klikken.
+De pagina staat niet in Google (noindex, niet in de sitemap).
+
+De actie *Events zoeken* (`.github/workflows/events.yml`) draait op maandag en donderdag `tools/events.py`. Die zoekt in
+de agenda's uit `tools/event-instellingen.json` (pagina's met schema.org-events of iCal-links) en, als er een
+sleutel is, laat Claude op het web zoeken naar openbare events en oproepen als "barman gezocht". Er wordt nergens
+ingelogd. De lijst komt **versleuteld** in `assets/data/events.enc.json`: zonder wachtwoord is hij onleesbaar.
+Eenmalig instellen:
+1. GitHub → Settings → Secrets and variables → Actions → *New repository secret* `ADMIN_WACHTWOORD` (kies een lang
+   wachtwoord; dit typ je op de adminpagina).
+2. Optioneel: secret `ANTHROPIC_API_KEY` (console.anthropic.com) voor het zoeken met Claude. Zonder deze sleutel
+   worden alleen de agenda's uit de instellingen gebruikt. Reken op een paar euro per maand.
+3. Vul in `tools/event-instellingen.json` je `woonplaats`, `max_km` en `plaatsen` in de buurt in. Agenda's toevoegen
+   kan onder `bronnen`; de woorden onder `plus` en `min` bepalen de score.
+4. Actions → *Events zoeken* → *Run workflow*.
+
+Wachtwoord veranderd? Draai de actie opnieuw, dan wordt de lijst met het nieuwe wachtwoord versleuteld.
+
 ## Nog zelf invullen vóór livegang
 - **Reviews**: de eerste staan erop; Google reviews zijn gekoppeld (zie hierboven).
 - **Foto's**: staan in `assets/img/` (portret + sfeerbeelden). Meer foto's toevoegen kan in de galerij op de pagina "Over mij".

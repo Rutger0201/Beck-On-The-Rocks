@@ -1,0 +1,23 @@
+{
+  "_uitleg": "Instellingen voor de eventzoeker (tools/events.py). Pas aan en de volgende run gebruikt ze.",
+  "woonplaats": "",
+  "max_km": 50,
+  "plaatsen": [],
+  "dagen_vooruit": 31,
+  "top": 15,
+  "min_score": 20,
+  "bronnen": [],
+  "zoeken_met_claude": true,
+  "claude_zoekopdrachten": 12,
+  "plus": {
+    "barman gezocht": 40, "bartender gezocht": 40, "cocktailbar gezocht": 40, "barpersoneel": 25,
+    "bedrijfsfeest": 20, "personeelsfeest": 20, "kerstborrel": 20, "nieuwjaarsborrel": 20, "borrel": 12,
+    "bruiloft": 20, "trouw": 15, "jubileum": 15, "verjaardag": 10, "privéfeest": 15, "tuinfeest": 12,
+    "netwerk": 10, "opening": 12, "pop-up": 12, "gala": 15, "diner": 8, "proeverij": 10, "cocktail": 15,
+    "beurs": 8, "markt": 6, "sportclub": 8, "vereniging": 8, "huwelijksbeurs": 15
+  },
+  "min": {
+    "online": -40, "webinar": -40, "kinder": -20, "theater": -10, "concert": -10,
+    "festival": -5, "museum": -10, "lezing": -15, "cursus": -15
+  }
+}
