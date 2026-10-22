@@ -1,0 +1,10 @@
+{
+ "versie": 1,
+ "publiek": "BGQtfeDiyd4/5AwKdSIWDBDfuoQbyBQg2Wn4JAltOmx8wfFzHCFPdQOXP5cjQzp5lCFMfan4GY4HHv2UO3qkyWM=",
+ "geheim": {
+  "iteraties": 310000,
+  "zout": "JQ1hj4DX6c66MQW8+7miwg==",
+  "iv": "OVc+vNh/UUpP+Upi",
+  "data": "kuQVCkHNoTE83s0nX1Q1mBa6q/GYeRiCuJVL4vk/UpBLzJdcepsTakp5XMdAGQL7R69fzYyNpsXWUBqnJmgss4fyxMrH78hoaX5E43dxCzeyOk2+d2PkN79T+5+6UeafRNvKcTS6EdI8VrwmaB6csRGwPz67gCA/9fi0ki4vQ/GDVUXQcxbWExmyQEaaxBhpi3AHRLI7srl55w=="
+ }
+}
