@@ -1,13 +1,21 @@
 {
   "_uitleg": "Instellingen voor de eventzoeker (tools/events.py). Pas aan en de volgende run gebruikt ze.",
-  "woonplaats": "",
-  "max_km": 50,
-  "plaatsen": [],
+  "woonplaats": "Almere",
+  "max_km": 40,
+  "plaatsen": ["Almere", "Lelystad", "Zeewolde", "Amsterdam", "Diemen", "Weesp", "Muiden", "Huizen", "Blaricum", "Laren", "Bussum", "Naarden", "Hilversum", "Amstelveen", "Zaandam"],
   "dagen_vooruit": 31,
   "top": 15,
   "min_score": 20,
-  "bronnen": [],
-  "zoeken_met_claude": true,
+  "bronnen": [
+    "https://www.eventbrite.nl/d/netherlands--almere/all-events/",
+    "https://www.eventbrite.nl/d/netherlands--almere/business--events/",
+    "https://www.eventbrite.nl/d/netherlands--lelystad/all-events/",
+    "https://www.eventbrite.nl/d/netherlands--amsterdam/business--events/",
+    "https://www.eventbrite.nl/d/netherlands--amsterdam/networking/",
+    "https://www.eventbrite.nl/d/netherlands--hilversum/all-events/",
+    "https://www.visitalmere.nl/agenda"
+  ],
+  "zoeken_met_claude": false,
   "claude_zoekopdrachten": 12,
   "plus": {
     "barman gezocht": 40, "bartender gezocht": 40, "cocktailbar gezocht": 40, "barpersoneel": 25,
