@@ -261,7 +261,7 @@
           <li>Geen aanbetaling. Na het feest ontvang je een factuur met een betaaltermijn van ${ins.betaal} dagen.</li>
           <li>Boeken binnen 1 maand voor het feest geldt als spoedboeking: +${ins.spoed}% over alle kosten.</li>
           <li>Annuleren kan kosteloos tot 14 dagen voor het feest. Daarna reken ik ${ins.annul}% van het afgesproken bedrag.</li>
-          <li>Deze offerte is geldig tot ${lang(tot) || '…'}. Akkoord? Stuur hem getekend terug of laat het me weten per mail of WhatsApp, dan staat je datum vast.</li>
+          <li>Deze offerte is geldig tot ${lang(tot) || '…'}. Akkoord? Stuur hem getekend terug of laat het me weten per mail, dan staat je datum vast.</li>
         </ul>
         <div class="akkoord">
           <h3>Voor akkoord</h3>
