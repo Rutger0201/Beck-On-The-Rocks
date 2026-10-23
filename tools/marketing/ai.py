@@ -47,14 +47,21 @@ def vraag_json(systeem, vraag, temperatuur=0.7):
         req = urllib.request.Request(URL, data=body, headers={
             'Authorization': f'Bearer {token}', 'Content-Type': 'application/json',
             'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'})
+        ruw = b''
         try:
             with urllib.request.urlopen(req, timeout=120) as r:
-                antwoord = json.loads(r.read())
-            tekst = antwoord['choices'][0]['message']['content']
+                ruw = r.read()
+            antwoord = json.loads(ruw)
+            tekst = antwoord['choices'][0]['message'].get('content') or ''
             print(f'  AI: {model}, {antwoord.get("usage", {}).get("total_tokens", "?")} tokens')
-            return json.loads(tekst[tekst.find('{'):tekst.rfind('}') + 1])
+            begin, eind = tekst.find('{'), tekst.rfind('}')
+            if begin < 0 or eind < begin:
+                raise ValueError(f'geen JSON in het antwoord: {tekst[:200]!r}')
+            return json.loads(tekst[begin:eind + 1])
         except urllib.error.HTTPError as e:
             fouten.append(f'{model}: HTTP {e.code} {e.read()[:200]!r}')
-        except (urllib.error.URLError, KeyError, IndexError, ValueError, TimeoutError) as e:
+        except json.JSONDecodeError as e:
+            fouten.append(f'{model}: {e} in {ruw[:200]!r}')
+        except (urllib.error.URLError, KeyError, IndexError, TypeError, ValueError, TimeoutError) as e:
             fouten.append(f'{model}: {e}')
     raise GeenAI('; '.join(fouten))

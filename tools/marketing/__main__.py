@@ -240,9 +240,12 @@ def kies(kansen, status, van):
 
 # ---------- hoofdprogramma ----------
 
-def laad_sleutels(wachtwoord):
+def laad_sleutels(wachtwoord, nieuw_mag=True):
     bestand = lees_json(SLEUTEL)
     geheim = sleutels.open_geheim(bestand, wachtwoord) if bestand else None
+    if not geheim and not nieuw_mag:
+        sys.exit('Het wachtwoord past niet bij de sleutel. Draai eerst "Marketing bijwerken" (maakt een nieuwe sleutel) '
+                 'en probeer het daarna opnieuw.')
     if not geheim:
         if bestand:
             print('LET OP: het wachtwoord past niet bij de bestaande sleutel (gewijzigd?). Nieuw sleutelpaar gemaakt;'
@@ -389,9 +392,12 @@ def ai_verzoek():
     wachtwoord = os.environ.get('ADMIN_WACHTWOORD', '')
     if not wachtwoord:
         sys.exit('Geen ADMIN_WACHTWOORD ingesteld.')
-    publiek, geheim = laad_sleutels(wachtwoord)
+    publiek, geheim = laad_sleutels(wachtwoord, nieuw_mag=False)   # nooit een tweede sleutelpaar naast de nachtelijke run
     tarieven = lees_json(ROOT / 'tarieven.json') or {}
-    verzoek = sleutels.ontsleutel(json.loads(os.environ['VERZOEK']), geheim)
+    try:
+        verzoek = sleutels.ontsleutel(json.loads(os.environ['VERZOEK']), geheim)
+    except Exception:
+        sys.exit('Verzoek niet te openen: versleuteld met een oude sleutel. Herlaad de adminpagina en probeer opnieuw.')
     antwoord = {'id': str(verzoek.get('id', ''))[:40], 'soort': verzoek.get('soort'),
                 'gemaakt': datetime.now(timezone.utc).isoformat(timespec='seconds')}
     systeem = ai.basis(tarieven)
