@@ -30,8 +30,9 @@ Wachtwoord veranderd? Draai *Marketing bijwerken* opnieuw: er komt een nieuw sle
 gemaakt (goedkeuringen en het laatste onderzoek van vóór de wijziging vervallen).
 
 **AI (gratis)**: "Verbeter met AI" en "Nieuw idee met AI" op de adminpagina starten de actie *Marketing AI*
-(`.github/workflows/marketing-ai.yml`). Die gebruikt GitHub Models met de ingebouwde `GITHUB_TOKEN` (geen eigen sleutel,
-wel daglimieten). Verzoek en antwoord zijn versleuteld (`assets/data/marketing-ai.enc.json`). Vereist het GitHub-token
+(`.github/workflows/marketing-ai.yml`). Die gebruikt Google Gemini (gratis sleutel van aistudio.google.com als secret
+`GEMINI_API_KEY`; geen betaalgegevens invullen) en anders GitHub Models met de ingebouwde `GITHUB_TOKEN`. Beide hebben
+daglimieten. Er gaan alleen marketingteksten naar de AI, geen klant- of partnergegevens. Verzoek en antwoord zijn versleuteld (`assets/data/marketing-ai.enc.json`). Vereist het GitHub-token
 op de adminpagina met Actions: Read and write.
 
 **Resultaten** (tabblad Resultaten, `tools/marketing/resultaten.py`, elke nacht):
