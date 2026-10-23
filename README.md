@@ -161,6 +161,9 @@ de betekenistokens (`--bg`, `--text`, `--muted`, `--line`, `--accent`, `--btn-bg
   `section--alt` geeft het lichtere papier. Wissel licht en donker af, maak niet alles donker.
 - Foto's krijgen automatisch een warme, ingetogen kleurcorrectie zodat ze bij elkaar passen.
 - Beweging staat uit voor bezoekers met "minder beweging" in hun systeeminstellingen.
+- Pas je `site.css` of `main.js` aan, verhoog dan het `?v=`-nummer achter de link in alle HTML-pagina's
+  (`grep -rl 'site.css?v=' --include=*.html .`). Anders houden telefoons tot 10 minuten de oude versie vast
+  en kan nieuwe HTML er met oude opmaak uitzien (zoals een uitgerekte banner).
 - Admin, `documenten.html` en `akkoord.html` gebruiken ook `site.css`, met daarnaast hun eigen bestand voor wat alleen zij hebben
   (`admin/marketing.css`, `assets/css/documenten.css`, `assets/css/akkoord.css`). De print/PDF van offertes blijft wit papier.
 
