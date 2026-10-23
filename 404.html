@@ -7,9 +7,13 @@
   <title>Pagina niet gevonden · Beck on the Rocks</title>
   <link rel="icon" type="image/png" href="/assets/icons/favicon-48.png">
   <meta name="theme-color" content="#f1ebe1">
+  <script>(function(d){var t;try{t=localStorage.getItem('thema')}catch(e){}t=t==='licht'?'licht':'donker';d.setAttribute('data-thema',t);if(t==='donker'){var m=document.querySelector('meta[name=theme-color]');if(m)m.content='#1a1714'}})(document.documentElement)</script>
   <link rel="stylesheet" href="/assets/css/fonts.css">
   <style>
     :root { --bg: #f1ebe1; --text: #1c1a17; --muted: #5b544a; --accent: #7e6038; }
+    :root[data-thema="donker"] { --bg: #1a1714; --text: #eee7dc; --muted: #b3a998; --accent: #c2a57a; color-scheme: dark; }
+    [data-thema="donker"] img { filter: none; }
+    [data-thema="donker"] a { color: #1c1a17; }
     * { box-sizing: border-box; }
     body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: var(--bg); color: var(--text);
            font: 300 17px/1.6 "Jost", system-ui, -apple-system, "Segoe UI", sans-serif; text-align: center; padding: 24px 16px; }
