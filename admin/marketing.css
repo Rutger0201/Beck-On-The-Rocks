@@ -159,3 +159,14 @@
 .m-seo strong { color: var(--text); font-weight: 500; }
 .m-seo--hoog { border-left-color: var(--fout) !important; }
 .m-seo--middel { border-left-color: var(--spoed) !important; }
+
+/* Automatisch plaatsen (fase 3) */
+.m-auto { margin: .6em 0 .2em; padding: .55em .8em; border-left: 2px solid var(--accent); background: var(--accent-vlak); font-size: .875rem; }
+.m-auto p { margin: .15em 0; }
+.m-auto .btn { margin-top: .4em; }
+.m-auto--ok { color: #3d6b3a; }
+p.m-auto--ok { margin: .6em 0 .2em; font-size: .875rem; }
+.m-auto--fout { color: var(--fout); }
+.m-auto--let { color: var(--spoed); }
+.m-koppelingen { list-style: none; padding: 0; margin: .6em 0 1em; }
+.m-koppelingen li { padding: .35em 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }

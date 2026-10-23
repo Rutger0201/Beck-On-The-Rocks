@@ -26,6 +26,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import ai
+import publiceren
 import resultaten
 import sleutels
 from controle import controleer
@@ -38,6 +39,7 @@ UIT = DATA / 'marketing.enc.json'
 ONDERZOEK = DATA / 'marketing-onderzoek.enc.json'
 STATUS = DATA / 'marketing-status.enc.json'
 AI_UIT = DATA / 'marketing-ai.enc.json'
+PUBLICATIES = DATA / 'marketing-publicaties.enc.json'
 SITE = 'https://beckontherocks.nl'
 
 DAGEN = 30
@@ -267,6 +269,39 @@ def lees_versleuteld(pad, geheim):
         return None
 
 
+def met_publicaties(status, publicaties):
+    """Wat de Action "Marketing publiceren" heeft geplaatst telt als gepubliceerd."""
+    uit = dict(status)
+    for ident, p in publicaties.items():
+        if p.get('url') and (uit.get(ident) or {}).get('status') == 'ingepland':
+            uit[ident] = dict(uit[ident], status='gepubliceerd', gewijzigd=p.get('geplaatst', ''),
+                              datum=str(p.get('geplaatst', ''))[:10] or uit[ident].get('datum'))
+    return uit
+
+
+def publiceer():
+    """Voor de Action "Marketing publiceren": plaatst ingeplande posts met "Automatisch plaatsen"."""
+    wachtwoord = os.environ.get('ADMIN_WACHTWOORD', '')
+    if not wachtwoord:
+        sys.exit('Geen ADMIN_WACHTWOORD ingesteld.')
+    publiek, geheim = laad_sleutels(wachtwoord, nieuw_mag=False)
+    statusbestand = lees_versleuteld(STATUS, geheim) or {}
+    status = statusbestand.get('items', {})
+    if not any(s.get('automatisch') and s.get('status') == 'ingepland' for s in status.values()):
+        print('Niets ingepland om automatisch te plaatsen.')
+        return
+    data = lees_versleuteld(UIT, geheim) or {}
+    kansen = {k['id']: k for k in data.get('kansen', [])}
+    tarieven = lees_json(ROOT / 'tarieven.json') or {}
+    for k in uit_eigen(statusbestand.get('eigen', {}), date.today() - timedelta(days=2), tarieven):
+        kansen.setdefault(k['id'], k)
+    bestand = lees_versleuteld(PUBLICATIES, geheim) or {}
+    log = bestand.get('publicaties', {})
+    if publiceren.publiceer(list(kansen.values()), status, log, proef='--proef' in sys.argv):
+        PUBLICATIES.write_text(json.dumps(sleutels.versleutel({'publicaties': log}, publiek)) + '\n')
+        print('Publicatielog bijgewerkt.')
+
+
 def bijwerken():
     wachtwoord = os.environ.get('ADMIN_WACHTWOORD', '')
     if not wachtwoord:
@@ -278,7 +313,8 @@ def bijwerken():
 
     vorige = lees_versleuteld(UIT, geheim) or {}
     statusbestand = lees_versleuteld(STATUS, geheim) or {}
-    status = statusbestand.get('items', {})
+    publicaties = (lees_versleuteld(PUBLICATIES, geheim) or {}).get('publicaties', {})
+    status = met_publicaties(statusbestand.get('items', {}), publicaties)
     onderzoek = lees_versleuteld(ONDERZOEK, geheim)
     geschiedenis = dict(vorige.get('geschiedenis', {}))
 
@@ -328,7 +364,8 @@ def bijwerken():
               if not dag((t.get('bron') or {}).get('datum')) or dag(t['bron']['datum']) >= grens]
     uit = {'van': van.isoformat(), 'tot': tot.isoformat(), 'kansen': gekozen, 'trends': trends,
            'onderzoek': {'gemaakt': (onderzoek or {}).get('gemaakt', ''), 'samenvatting': (onderzoek or {}).get('samenvatting', '')},
-           'geschiedenis': geschiedenis, 'posts': posts, 'resultaten': uitslag}
+           'geschiedenis': geschiedenis, 'posts': posts, 'resultaten': uitslag,
+           'koppelingen': publiceren.koppelingen(controleren=True)}
 
     print(f'{len(kansen)} kansen bekeken, {len(gekozen)} gekozen voor {van} tot {tot}'
           f' ({", ".join(f"{sum(k["soort"] == s for k in gekozen)} {s}" for s in SOORTEN)}).')
@@ -460,5 +497,7 @@ if __name__ == '__main__':
         versleutel_onderzoek(sys.argv[2])
     elif len(sys.argv) > 1 and sys.argv[1] == 'ai-verzoek':
         ai_verzoek()
+    elif len(sys.argv) > 1 and sys.argv[1] == 'publiceer':
+        publiceer()
     else:
         bijwerken()
