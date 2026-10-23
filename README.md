@@ -127,8 +127,8 @@ Wachtwoord veranderd? Draai de actie opnieuw, dan wordt de lijst met het nieuwe 
 Op dezelfde adminpagina staat het tabblad **Marketing**: de 10 tot 20 beste marketingkansen voor de komende 30 dagen,
 elk met doelgroep, score (1-100), waarom, platform, datum, complete tekst, beeldsuggestie, call-to-action, hashtags,
 kosten en impact. Je kunt teksten aanpassen, goedkeuren, afwijzen, inplannen (ook in je agenda) en kopiëren.
-Er is een kalender met dag-, week- en maandweergave waarin ook je mogelijke klussen staan. Er wordt niets automatisch
-gepubliceerd. Elke tekst wordt gecontroleerd op alcoholreclameregels en 18+.
+Er is een kalender met dag-, week- en maandweergave waarin ook je mogelijke klussen staan. Er wordt niets gepubliceerd zonder
+jouw akkoord. Elke tekst wordt gecontroleerd op alcoholreclameregels en 18+.
 
 De actie *Marketing bijwerken* (`.github/workflows/marketing.yml`) draait elke nacht `tools/marketing/`, en elke maandag
 doet een geplande Claude-taak webonderzoek (trends, zoekwoorden, concurrenten, kansen) met bronnen en datums.
@@ -137,6 +137,8 @@ Alles is versleuteld met hetzelfde `ADMIN_WACHTWOORD`. Uitleg, bestanden en het 
 Met een GitHub-token (Instellingen op de adminpagina) kun je teksten laten verbeteren of nieuwe ideeën laten bedenken met AI
 (gratis via GitHub Models). Het tabblad Resultaten toont bezoekers, bronnen en aanvragen per post zodra het secret
 `GOATCOUNTER_TOKEN` is ingesteld, plus wekelijks advies en een SEO-controle.
+Wil je dat posts vanzelf online gaan, koppel dan Instagram, Facebook en/of LinkedIn (stappen onder Instellingen op de
+adminpagina) en zet een ingeplande post op *Automatisch plaatsen*; de actie *Marketing publiceren* plaatst hem dan op tijd.
 
 ## Nog zelf invullen vóór livegang
 - **Reviews**: de eerste staan erop; Google reviews zijn gekoppeld (zie hierboven).

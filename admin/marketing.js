@@ -151,7 +151,11 @@
     toonSync();
   }
   function zet(id, wijziging) {
-    const nu = Object.assign({}, m.status.items[id] || { status: 'nieuw' }, wijziging, { gewijzigd: new Date().toISOString() });
+    const stempel = new Date().toISOString();
+    const log = (m.publicaties || {})[id];
+    // Na een aanpassing mag de publiceeractie het opnieuw proberen, ook na een eerdere fout.
+    if (log && log.fout && !log.url) wijziging = Object.assign({ opnieuw: stempel }, wijziging);
+    const nu = Object.assign({}, m.status.items[id] || { status: 'nieuw' }, wijziging, { gewijzigd: stempel });
     m.status.items[id] = nu;
     bewaarStatus();
     toon();
@@ -161,9 +165,13 @@
   function kans(k) {
     const s = m.status.items[k.id] || {};
     const uit = Object.assign({}, k);
-    for (const v of ['tekst', 'hashtags', 'cta', 'datum', 'tijd']) if (s[v] != null) uit[v] = s[v];
+    for (const v of ['tekst', 'hashtags', 'cta', 'datum', 'tijd', 'beeld']) if (s[v] != null) uit[v] = s[v];
     uit.status = s.status || 'nieuw';
-    uit.bewerkt = ['tekst', 'hashtags', 'cta'].some(v => s[v] != null);
+    uit.automatisch = !!s.automatisch;
+    uit.bewerkt = ['tekst', 'hashtags', 'cta', 'beeld'].some(v => s[v] != null);
+    // Wat de actie "Marketing publiceren" plaatste of niet kon plaatsen.
+    uit.publicatie = (m.publicaties || {})[k.id] || null;
+    if (uit.publicatie && uit.publicatie.url && uit.status === 'ingepland') uit.status = 'gepubliceerd';
     uit.controle = s.tekst != null || s.hashtags != null || s.cta != null ? controleer(uit) : (k.controle || []);
     return uit;
   }
@@ -360,6 +368,12 @@
     const tekst = veld('Tekst', el('textarea')); tekst.value = k.tekst; tekst.rows = Math.min(16, k.tekst.split('\n').length + 3);
     const cta = veld('Call-to-action', el('input')); cta.value = k.cta || '';
     const tags = veld('Hashtags (met spaties)', el('input')); tags.value = (k.hashtags || []).map(h => '#' + h).join(' ');
+    const foto = veld('Foto', el('select'));
+    for (const [w, t] of [['', 'Geen (eigen foto of video)'], ['beck-portret', 'Portret achter de bar'], ['galerij-gin-tonic', 'Gin-tonic'],
+      ['galerij-garneren', 'Garneren'], ['galerij-lachen', 'Lachende gasten']]) {
+      const o = el('option', '', t); o.value = w; foto.append(o);
+    }
+    foto.value = (k.beeld && FOTO[k.beeld.foto] && k.beeld.foto !== 'logo-mark') ? k.beeld.foto : '';
     const rij = el('div', 'm-rij');
     const datum = el('input'); datum.type = 'date'; datum.value = k.datum; datum.required = true;
     const tijd = el('input'); tijd.type = 'time'; tijd.value = k.tijd || '19:30';
@@ -369,15 +383,16 @@
     const opslaan = el('button', 'btn btn--small', 'Opslaan'); opslaan.type = 'submit';
     kn.append(opslaan, knop('Annuleren', () => { m.bewerk = null; toon(); }, true));
     if (k.bewerkt) kn.append(knop('Origineel terugzetten', () => {
-      const s = Object.assign({}, m.status.items[k.id]); delete s.tekst; delete s.cta; delete s.hashtags;
+      const s = Object.assign({}, m.status.items[k.id]); delete s.tekst; delete s.cta; delete s.hashtags; delete s.beeld;
       m.status.items[k.id] = s; m.bewerk = null; zet(k.id, {});
     }, true));
     f.append(kn);
     f.onsubmit = ev => {
       ev.preventDefault();
       m.bewerk = null; m.open.add(k.id);
-      zet(k.id, { tekst: tekst.value.trim(), cta: cta.value.trim(), datum: datum.value, tijd: tijd.value,
-        hashtags: tags.value.split(/[\s,]+/).map(h => h.replace(/^#/, '').toLowerCase()).filter(Boolean) });
+      const beeld = foto.value === ((k.beeld && k.beeld.foto) || '') ? {} : { beeld: Object.assign({}, k.beeld, { foto: foto.value }) };
+      zet(k.id, Object.assign(beeld, { tekst: tekst.value.trim(), cta: cta.value.trim(), datum: datum.value, tijd: tijd.value,
+        hashtags: tags.value.split(/[\s,]+/).map(h => h.replace(/^#/, '').toLowerCase()).filter(Boolean) }));
     };
     return f;
   }
@@ -393,19 +408,57 @@
       if (rood) { ja.disabled = true; ja.title = 'Pas eerst de rode punten aan'; }
       rij.append(ja, bewerk, kop, knop('Afwijzen', () => zet(k.id, { status: 'afgewezen' }), true));
     } else if (k.status === 'goedgekeurd') {
-      rij.append(knop('Inplannen op ' + datumTekst(k.datum) + ' ' + (k.tijd || ''), () => zet(k.id, { status: 'ingepland', datum: k.datum, tijd: k.tijd })),
-        bewerk, kop, knop('Terug naar voorstel', () => zet(k.id, { status: 'nieuw' }), true));
+      rij.append(knop('Inplannen op ' + datumTekst(k.datum) + ' ' + (k.tijd || ''), () => zet(k.id, { status: 'ingepland', datum: k.datum, tijd: k.tijd })));
+      if (kanAutomatisch(k)) {
+        const auto = knop('Inplannen en automatisch plaatsen', () => zet(k.id, { status: 'ingepland', datum: k.datum, tijd: k.tijd, automatisch: true }), true);
+        if (rood) { auto.disabled = true; auto.title = 'Pas eerst de rode punten aan'; }
+        rij.append(auto);
+      }
+      rij.append(bewerk, kop, knop('Terug naar voorstel', () => zet(k.id, { status: 'nieuw' }), true));
     } else if (k.status === 'ingepland') {
-      rij.append(knop('Gepubliceerd', () => zet(k.id, { status: 'gepubliceerd' })), knop('In mijn agenda', () => ics([k]), true),
-        kop, bewerk, knop('Niet meer inplannen', () => zet(k.id, { status: 'goedgekeurd' }), true));
+      rij.append(knop(k.automatisch ? 'Zelf geplaatst' : 'Gepubliceerd', () => zet(k.id, { status: 'gepubliceerd', automatisch: false })),
+        knop('In mijn agenda', () => ics([k]), true), kop, bewerk);
+      if (kanAutomatisch(k)) rij.append(knop(k.automatisch ? 'Niet automatisch plaatsen' : 'Automatisch plaatsen',
+        () => zet(k.id, { automatisch: !k.automatisch }), true));
+      rij.append(knop('Niet meer inplannen', () => zet(k.id, { status: 'goedgekeurd', automatisch: false }), true));
     } else if (k.status === 'gepubliceerd') {
-      rij.append(kop, knop('Toch niet gepubliceerd', () => zet(k.id, { status: 'ingepland' }), true));
+      if (k.publicatie && k.publicatie.url) {
+        const l = el('a', 'btn btn--small btn--ghost', 'Bekijk de post'); l.href = k.publicatie.url; l.target = '_blank'; l.rel = 'noopener';
+        rij.append(l, kop);
+      } else rij.append(kop, knop('Toch niet gepubliceerd', () => zet(k.id, { status: 'ingepland' }), true));
     } else {
       rij.append(knop('Toch bewaren', () => zet(k.id, { status: 'nieuw' }), true));
     }
     if (aiKnop) rij.append(aiKnop);
     if (rood && k.status !== 'nieuw' && k.status !== 'afgewezen') rij.prepend(el('span', 'm-waarschuwing', 'Let op de rode punten vóór je publiceert.'));
-    return rij;
+    const melding = autoMelding(k);
+    if (!melding) return rij;
+    const doos = el('div');
+    doos.append(melding, rij);
+    return doos;
+  }
+
+  // ---------- automatisch plaatsen ----------
+  const AUTO = { instagram: 'Instagram', facebook: 'Facebook', linkedin: 'LinkedIn' };
+  const kanAutomatisch = k => !!AUTO[(k.kanaal || '').toLowerCase()] && ['post', 'update'].includes((k.formaat || 'post').toLowerCase());
+  const koppeling = kanaal => ((m.data && m.data.koppelingen) || {})[kanaal] || {};
+  const gekoppeld = k => { const c = koppeling((k.kanaal || '').toLowerCase()); return c.ingesteld && !c.fout; };
+  function autoMelding(k) {
+    const p = k.publicatie;
+    if (k.status === 'gepubliceerd' && p && p.url)
+      return el('p', 'm-auto m-auto--ok', 'Automatisch geplaatst op ' + new Date(p.geplaatst).toLocaleString('nl-NL', { dateStyle: 'medium', timeStyle: 'short' }) + '.');
+    if (k.status !== 'ingepland' || !k.automatisch) return null;
+    const regel = el('div', 'm-auto');
+    const zeg = (tekst, soort) => regel.append(el('p', soort ? 'm-auto--' + soort : '', tekst));
+    if (p && p.fout) {
+      zeg(p.fout, 'fout');
+      regel.append(knop('Opnieuw proberen', () => zet(k.id, { opnieuw: new Date().toISOString() }), true));
+    } else zeg('Wordt automatisch geplaatst op ' + datumTekst(k.datum) + ' rond ' + (k.tijd || '19:30') + ' (binnen het uur).');
+    if (!gekoppeld(k)) zeg(k.kanaal + ' is nog niet gekoppeld: zie Instellingen → Automatisch plaatsen. Tot dan gebeurt er niets.', 'let');
+    if (!m.token) zeg('Synchroniseren staat uit, dus de server weet nog niet dat je dit goedkeurde. Stel het in bij Instellingen.', 'let');
+    if ((k.kanaal || '').toLowerCase() === 'instagram' && !(p && p.fout && /foto/.test(p.fout)) && !(k.beeld && FOTO[k.beeld.foto] && k.beeld.foto !== 'logo-mark'))
+      zeg('Instagram heeft een foto nodig: kies er een bij Bewerken.', 'let');
+    return regel;
   }
 
   // ---------- AI (GitHub Models via de Action "Marketing AI") ----------
@@ -837,7 +890,43 @@
       }, true), knop('Token verwijderen', async () => { await bewaarToken(''); m.token = ''; m.sync = 'Alleen op dit apparaat'; toon(); }, true));
       s.append(rij);
     }
-    doos.append(s);
+    doos.append(s, koppelingenBlok());
+  }
+
+  function koppelingenBlok() {
+    const s = el('section', 'm-instellingen');
+    s.append(el('h2', 'm-kopje', 'Automatisch plaatsen'));
+    s.append(el('p', '', 'Optioneel en gratis. Met een koppeling plaatst je site een post op het moment dat je hem hebt ingepland, maar alleen als je hem hebt goedgekeurd én op "Automatisch plaatsen" hebt gezet. Elk uur wordt gekeken of er iets klaarstaat. Zonder koppeling kopieer je de tekst zelf, zoals nu.'));
+    const lijst = el('ul', 'm-koppelingen');
+    for (const [kanaal, naam] of Object.entries(AUTO)) {
+      const c = koppeling(kanaal);
+      const li = el('li', c.fout ? 'm-auto--fout' : c.ingesteld ? 'm-auto--ok' : '');
+      li.append(el('strong', '', naam + ': '), document.createTextNode(c.fout ? 'probleem: ' + c.fout
+        : c.ingesteld ? 'gekoppeld' + (c.naam ? ' (' + c.naam + ')' : '') : 'niet gekoppeld'));
+      lijst.append(li);
+    }
+    lijst.append(el('li', '', 'TikTok en Google: altijd zelf plaatsen (hun koppelingen vragen een bedrijfskeuring).'));
+    s.append(lijst);
+    const blok = (titel, stappen) => {
+      const d = el('details', 'm-details'); d.append(el('summary', '', titel));
+      const ol = el('ol', 'm-stappen'); for (const t of stappen) ol.append(el('li', '', t)); d.append(ol); s.append(d);
+    };
+    blok('Instagram en Facebook koppelen (ongeveer 20 minuten)', [
+      'Zorg dat je een Facebook-pagina voor Beck on the Rocks hebt, en zet Instagram om naar een zakelijk of creator-account dat aan die pagina gekoppeld is (Instagram → Instellingen → Accounttype en tools).',
+      'Ga naar developers.facebook.com → My Apps → Create App. Kies "Other" en daarna type "Business". Naam bijvoorbeeld "Beck planner". De app mag in ontwikkelmodus blijven: alleen jij gebruikt hem.',
+      'Open tools → Graph API Explorer. Kies rechts je app, klik "Get Token" → "Get User Access Token" en vink aan: pages_show_list, pages_read_engagement, pages_manage_posts, instagram_basic, instagram_content_publish, business_management. Klik Generate en geef toestemming voor je pagina en Instagram.',
+      'Klik op het i-icoon naast het token → "Open in Access Token Tool" → onderaan "Extend Access Token". Kopieer het nieuwe token en plak het terug in de Graph API Explorer.',
+      'Typ in de Explorer: me/accounts en klik Submit. Bij je pagina staan "access_token" (dit token verloopt niet) en "id".',
+      'Typ daarna: <pagina-id>?fields=instagram_business_account en klik Submit. Het id daarin is je Instagram-id.',
+      'Ga op GitHub naar je repository → Settings → Secrets and variables → Actions → New repository secret, en maak er drie: META_PAGE_TOKEN (het pagina-token), META_PAGE_ID (pagina-id) en META_IG_ID (Instagram-id).',
+      'Klik hierboven op "Nu bijwerken". Na een paar minuten staat hier "gekoppeld" met de naam van je pagina.']);
+    blok('LinkedIn koppelen (ongeveer 10 minuten, elke 2 maanden opnieuw)', [
+      'Ga naar linkedin.com/developers → Create app. LinkedIn vraagt om een bedrijfspagina; maak er zo nodig een voor Beck on the Rocks.',
+      'Tabblad Products: vraag "Share on LinkedIn" en "Sign In with LinkedIn using OpenID Connect" aan (gaat direct).',
+      'Ga naar linkedin.com/developers/tools/oauth/token-generator, kies je app en vink openid, profile en w_member_social aan. Klik "Request access token" en kopieer het token.',
+      'Maak op GitHub (Settings → Secrets and variables → Actions) het secret LINKEDIN_TOKEN met dit token. Posts komen op je persoonlijke profiel; dat werkt op LinkedIn meestal beter dan een bedrijfspagina.',
+      'Het token is 60 dagen geldig. Is het verlopen, dan staat dat hier en maak je op dezelfde manier een nieuw.']);
+    return s;
   }
 
   // ---------- openen ----------
@@ -852,9 +941,11 @@
     if (!sleutel) { toon(); return 'geen'; }
     try { m.geheim = await openGeheim(sleutel, ww); } catch (e) { return 'fout'; }
     m.publiek = sleutel.publiek;
-    const [data, regels] = await Promise.all([haal('/assets/data/marketing.enc.json').catch(() => null), haal('/assets/data/marketing-regels.json').catch(() => null)]);
+    const [data, regels, log] = await Promise.all(['/assets/data/marketing.enc.json', '/assets/data/marketing-regels.json',
+      '/assets/data/marketing-publicaties.enc.json'].map(pad => haal(pad).catch(() => null)));
     m.regels = regels;
     try { m.data = data ? await ontsleutel(data) : null; } catch (e) { m.data = null; }
+    try { m.publicaties = log ? (await ontsleutel(log)).publicaties || {} : {}; } catch (e) { m.publicaties = {}; }
     m.token = await leesToken();
     await laadStatus();
     toon();

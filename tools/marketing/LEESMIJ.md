@@ -2,7 +2,7 @@
 
 Tabblad **Marketing** op https://beckontherocks.nl/admin/ (zelfde wachtwoord als de klussenlijst).
 Toont de 10 tot 20 beste marketingkansen voor de komende 30 dagen, met tekst, beeld, score, kalender en goedkeuren.
-Er wordt niets automatisch gepubliceerd.
+Er wordt niets gepubliceerd zonder jouw akkoord: alleen posts die je goedkeurt, inplant én op *Automatisch plaatsen* zet.
 
 ## Hoe het werkt
 
@@ -15,6 +15,7 @@ Er wordt niets automatisch gepubliceerd.
 | Wat je goedkeurt, aanpast of afwijst | `assets/data/marketing-status.enc.json` |
 | De gekozen kansen, resultaten en advies (dit leest de adminpagina) | `assets/data/marketing.enc.json` |
 | Antwoorden van de AI | `assets/data/marketing-ai.enc.json` |
+| Wat automatisch geplaatst is (of waarom niet) | `assets/data/marketing-publicaties.enc.json` |
 | Sleutelpaar | `assets/data/marketing-sleutel.json` |
 
 De actie **Marketing bijwerken** (`.github/workflows/marketing.yml`) draait elke nacht `python3 tools/marketing`:
@@ -39,6 +40,16 @@ op de adminpagina met Actions: Read and write.
 - kanalen die meer bezoekers per post opleveren krijgen tot 5 punten extra bij het kiezen van kansen;
 - wekelijks advies met AI (of vaste regels als de AI niet bereikbaar is);
 - SEO-controle van de pagina's uit `sitemap.xml`, en optioneel Search Console (secret `GSC_SERVICE_ACCOUNT`).
+
+**Automatisch plaatsen** (`tools/marketing/publiceren.py`, actie *Marketing publiceren*, elk uur):
+- alleen posts met status *Ingepland* en *Automatisch plaatsen* aan, op of na hun geplande tijd (tot 36 uur erna);
+- alleen Instagram, Facebook en LinkedIn, alleen gewone posts (geen reels, stories of carrousels), Instagram alleen met
+  een van de foto's van de site; nooit met rode punten uit de alcoholcontrole; hoogstens 3 per uur;
+- koppelingen via repository secrets: `META_PAGE_TOKEN`, `META_PAGE_ID`, `META_IG_ID` (Meta Graph API) en
+  `LINKEDIN_TOKEN` (60 dagen geldig; optioneel `LINKEDIN_AUTHOR` voor een bedrijfspagina). Stappen staan op de adminpagina
+  onder Instellingen; de nachtelijke run controleert of de koppelingen nog werken;
+- de status moet gesynchroniseerd zijn (GitHub-token op de adminpagina), anders weet de actie niets van je akkoord;
+- proefrun zonder iets te plaatsen: *Actions → Marketing publiceren → Run workflow → proef*.
 
 **Synchroniseren**: zie het tabblad Instellingen op de adminpagina (GitHub-token met Contents en Actions: Read and write,
 alleen voor deze repository).
