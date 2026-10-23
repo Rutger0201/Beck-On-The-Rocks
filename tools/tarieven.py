@@ -19,7 +19,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 PAGINAS = ['index.html', 'en/index.html', 'tarieven/index.html', 'faq/index.html',
-           'cocktail-bartender-privefeest/index.html', 'cocktail-bartender-bedrijfsfeest/index.html']
+           'cocktail-bartender-privefeest/index.html', 'cocktail-bartender-bedrijfsfeest/index.html',
+           'cocktail-bartender-bruiloft/index.html']
 
 
 def waarden(t):
@@ -33,6 +34,7 @@ def waarden(t):
         'menu': ('euro', t['menu']), 'menuFp': ('euro', t['menuFruitpers']),
         'km': ('euro', t['km']), 'glas': ('euro', t['glas']),
         'vb': ('euro', vb * t['uur'] + prep + t['menu']), 'vbFp': ('euro', vb * uur_fp + prep_fp + t['menuFruitpers']),
+        'vb5': ('euro', 5 * t['uur'] + prep + t['menu']),  # voorbeeld bruiloft: 5 uur
         'calc': ('calc', vb * t['uur'] + prep + t['menu']),
         'spoed': ('pct', t['spoedProcent']), 'fruitpers': ('pct', t['fruitpersProcent']), 'annuleer': ('pct', t['annulerenProcent']),
         'annuleerDagen': ('getal', t['annulerenDagen']), 'betaalDagen': ('getal', t['betaalDagen']),

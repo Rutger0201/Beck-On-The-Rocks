@@ -445,7 +445,7 @@ def ai_verzoek():
                      + (f'Kanaal: {verzoek["kanaal"]}.\n' if verzoek.get('kanaal') else '') +
                      'Antwoord als JSON met: titel, soort ("snel", "structureel" of "betaald"), kanaal, formaat, tijd (UU:MM), '
                      'doelgroep, waarom, tekst (volledig en direct bruikbaar), cta (met {link}), hashtags (lijst zonder #), '
-                     'pagina ("/", "/cocktail-bartender-privefeest/", "/cocktail-bartender-bedrijfsfeest/", "/tarieven/" of "/faq/"), '
+                     'pagina ("/", "/cocktail-bartender-privefeest/", "/cocktail-bartender-bedrijfsfeest/", "/cocktail-bartender-bruiloft/", "/tarieven/" of "/faq/"), '
                      'beeld {foto: "beck-portret", "galerij-gin-tonic", "galerij-garneren", "galerij-lachen" of "", idee}, '
                      'kosten {euro, uren, toelichting}, impact {niveau: "laag", "middel" of "hoog", toelichting}, '
                      'criteria {relevantie, impact, haalbaarheid, tijd, budget} elk 1 tot 5.')
