@@ -5,6 +5,7 @@ Wordt gebruikt voor "Verbeter met AI" en "Nieuw idee" op de adminpagina en voor 
 import json
 import os
 import urllib.error
+import urllib.parse
 import urllib.request
 
 URL = 'https://models.github.ai/inference/chat/completions'
@@ -30,6 +31,19 @@ class GeenAI(Exception):
     pass
 
 
+class _HoudPost(urllib.request.HTTPRedirectHandler):
+    """urllib maakt van een doorverwezen POST een GET zonder vraag (en krijgt dan "OK" terug); stuur hem opnieuw als POST."""
+    def redirect_request(self, req, fp, code, msg, headers, nieuw):
+        print(f'  AI: doorverwezen ({code}) naar {nieuw}')
+        host = urllib.parse.urlsplit(nieuw).hostname or ''
+        if not (host == 'models.github.ai' or host.endswith(('.github.ai', '.github.com', '.azure.com'))):
+            raise urllib.error.URLError(f'doorverwijzing naar onbekende host {host} niet gevolgd')
+        return urllib.request.Request(nieuw, data=req.data, headers=dict(req.header_items()), method='POST')
+
+
+_opener = urllib.request.build_opener(_HoudPost)
+
+
 def basis(tarieven):
     return BASIS.format(uur=tarieven.get('uur', 45), voorbereiding=tarieven.get('voorbereidingUren', 1),
                         menu=tarieven.get('menu', 75), spoed=tarieven.get('spoedProcent', 25))
@@ -49,7 +63,7 @@ def vraag_json(systeem, vraag, temperatuur=0.7):
             'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'})
         ruw = b''
         try:
-            with urllib.request.urlopen(req, timeout=120) as r:
+            with _opener.open(req, timeout=120) as r:
                 ruw = r.read()
             antwoord = json.loads(ruw)
             tekst = antwoord['choices'][0]['message'].get('content') or ''
