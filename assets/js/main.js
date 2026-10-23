@@ -443,8 +443,8 @@
 
   /* ================= Reviews ================= */
   // Volledige lijst op de reviewpagina; op home en de landingspagina's één uitgelichte review (#review-teaser)
-  const reviewLijst = $('#reviews-lijst'), teaser = $('#review-teaser');
-  if (reviewLijst || teaser) {
+  const reviewLijst = $('#reviews-lijst'), teaser = $('#review-teaser'), zegel = $('#review-zegel');
+  if (reviewLijst || teaser || zegel) {
     const zetLink = (id, url) => { const a = $(id); if (a && url) { a.href = url; a.hidden = false; } };
     zetLink('#google-review', GOOGLE_REVIEW_SCHRIJVEN);
     zetLink('#google-profiel', GOOGLE_REVIEWS_BEKIJKEN);
@@ -488,6 +488,14 @@
         const bron = bronTekst(r);
         teaser.innerHTML = `<p>“${esc(r.tekst)}”</p><footer>${esc(r.naam)}${bron ? ' · ' + esc(bron) : ''} · <a href="${location.pathname.startsWith('/cocktail-') ? '/' : ''}#reviews" class="tekstlink">${t('Alle reviews', 'All reviews')}</a></footer>`;
         teaser.hidden = false;
+      }
+      const gem = (eigen.reduce((s, r) => s + (Math.min(5, Math.max(1, +r.sterren || 5))), 0) + gSom) / aantal;
+      const gemTekst = gem.toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+      // Vertrouwenszegel onder de offerteknop bovenaan de homepage
+      if (zegel) {
+        zegel.innerHTML = `<span class="stars" aria-hidden="true">${sterren(Math.round(gem))}</span><strong>${gemTekst}</strong><span>${aantal} ${aantal === 1 ? 'review' : 'reviews'}</span>`;
+        zegel.setAttribute('aria-label', t(`Beoordeling ${gemTekst} van 5 uit ${aantal} reviews`, `Rated ${gemTekst} out of 5 from ${aantal} reviews`));
+        zegel.hidden = false;
       }
       if (!reviewLijst) return;
       const gLogo = '<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
@@ -536,12 +544,11 @@
         x0 = null; auto();
       });
       toon(0); auto();
-      const gem = (eigen.reduce((s, r) => s + (Math.min(5, Math.max(1, +r.sterren || 5))), 0) + gSom) / aantal;
       const gLink = veilig(google.url)
         ? `<a href="${esc(google.url)}" target="_blank" rel="noopener">${t('Bekijk op Google', 'See on Google')}</a>` : 'Google';
       const score = $('#review-score');
       score.innerHTML = `<span class="review-score__label">${t('Beoordeling', 'Rating')}</span>
-        <strong>${gem.toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</strong>
+        <strong>${gemTekst}</strong>
         <div class="stars" aria-hidden="true">${sterren(Math.round(gem))}</div>
         <span>${t('Gebaseerd op', 'Based on')} ${aantal} ${aantal === 1 ? 'review' : 'reviews'}</span>
         ${gAantal ? `<span class="review-score__g">${gLogo}${gAantal} ${t('op', 'on')} Google · ${gLink}</span>` : ''}`;
@@ -554,6 +561,8 @@
     const pagina = reviewLijst && reviewLijst.closest('.page');
     if (reviewLijst && (!pagina || !pagina.hidden)) start();
     document.addEventListener('beck:pagina', e => { if (e.detail === 'reviews') start(); });
+    // Het zegel staat bovenaan: laden zodra de browser even niets te doen heeft
+    if (zegel) (window.requestIdleCallback || (f => setTimeout(f, 1500)))(start);
     // De uitgelichte review laadt pas als het blok eromheen in beeld komt
     if (teaser && 'IntersectionObserver' in window) {
       const io = new IntersectionObserver(e => { if (e.some(x => x.isIntersecting)) { start(); io.disconnect(); } }, { rootMargin: '300px' });
