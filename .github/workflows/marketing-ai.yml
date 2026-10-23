@@ -22,6 +22,7 @@ jobs:
         env:
           ADMIN_WACHTWOORD: ${{ secrets.ADMIN_WACHTWOORD }}
           GITHUB_TOKEN: ${{ github.token }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           VERZOEK: ${{ inputs.verzoek }}
         run: |
           pip install --quiet cryptography

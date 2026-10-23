@@ -1,4 +1,5 @@
-"""AI via GitHub Models: gratis met daglimieten, met de ingebouwde GITHUB_TOKEN van een Action (permissions: models: read).
+"""AI, gratis met daglimieten: Google Gemini (secret GEMINI_API_KEY, gratis sleutel via aistudio.google.com) en
+GitHub Models (ingebouwde GITHUB_TOKEN van een Action, permissions: models: read). Wat het eerst antwoordt, telt.
 
 Wordt gebruikt voor "Verbeter met AI" en "Nieuw idee" op de adminpagina en voor het advies bij de resultaten.
 """
@@ -9,6 +10,8 @@ import urllib.parse
 import urllib.request
 
 URL = 'https://models.github.ai/inference/chat/completions'
+GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions'
+GEMINI_MODELLEN = ['gemini-2.5-flash', 'gemini-2.5-flash-lite']
 MODELLEN = ['openai/gpt-4.1', 'openai/gpt-4.1-mini']   # bij een limiet of fout de volgende
 # GitHub wisselt af en toe van API-versie; geeft een combinatie geen JSON terug, dan de volgende.
 KOPPEN = [{'Accept': 'application/json', 'X-GitHub-Api-Version': '2026-03-10'},
@@ -40,7 +43,7 @@ class _HoudPost(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, nieuw):
         print(f'  AI: doorverwezen ({code}) naar {nieuw}')
         host = urllib.parse.urlsplit(nieuw).hostname or ''
-        if not (host == 'models.github.ai' or host.endswith(('.github.ai', '.github.com', '.azure.com'))):
+        if not (host == 'models.github.ai' or host.endswith(('.github.ai', '.github.com', '.azure.com', '.googleapis.com'))):
             raise urllib.error.URLError(f'doorverwijzing naar onbekende host {host} niet gevolgd')
         return urllib.request.Request(nieuw, data=req.data, headers=dict(req.header_items()), method='POST')
 
@@ -53,37 +56,60 @@ def basis(tarieven):
                         menu=tarieven.get('menu', 75), spoed=tarieven.get('spoedProcent', 25))
 
 
-def vraag_json(systeem, vraag, temperatuur=0.7):
-    """Stelt een vraag en geeft het JSON-antwoord als dict. Gooit GeenAI als geen enkel model antwoordt."""
+def _vraag(url, sleutel, model, kop, systeem, vraag, temperatuur, json_modus):
+    """Eén chatvraag (OpenAI-formaat). Geeft het JSON-antwoord als dict."""
+    inhoud = {'model': model, 'temperature': temperatuur,
+              'messages': [{'role': 'system', 'content': systeem}, {'role': 'user', 'content': vraag}]}
+    if json_modus:
+        inhoud['response_format'] = {'type': 'json_object'}
+    req = urllib.request.Request(url, data=json.dumps(inhoud).encode(), method='POST', headers={
+        'Authorization': f'Bearer {sleutel}', 'Content-Type': 'application/json', **kop})
+    ruw, soort = b'', ''
+    try:
+        with _opener.open(req, timeout=120) as r:
+            ruw, soort = r.read(), f'{r.status} {r.url} {r.headers.get("Content-Type", "")}'
+        antwoord = json.loads(ruw)
+    except json.JSONDecodeError as e:
+        raise ValueError(f'{e} in {soort} {ruw[:200]!r}')
+    tekst = antwoord['choices'][0]['message'].get('content') or ''
+    print(f'  AI: {model}, {antwoord.get("usage", {}).get("total_tokens", "?")} tokens')
+    begin, eind = tekst.find('{'), tekst.rfind('}')
+    if begin < 0 or eind < begin:
+        raise ValueError(f'geen JSON in het antwoord: {tekst[:200]!r}')
+    return json.loads(tekst[begin:eind + 1])
+
+
+def pogingen():
+    """Welke AI's we proberen, in volgorde: Gemini (als GEMINI_API_KEY bestaat), dan GitHub Models."""
+    uit = []
+    gemini = os.environ.get('GEMINI_API_KEY', '').strip()
+    if gemini:
+        uit += [(GEMINI_URL, gemini, model, {}, False) for model in GEMINI_MODELLEN]
     token = os.environ.get('GITHUB_TOKEN', '')
-    if not token:
-        raise GeenAI('geen GITHUB_TOKEN (draait dit buiten GitHub Actions?)')
-    fouten = []
-    for model in MODELLEN:
-        body = json.dumps({'model': model, 'temperature': temperatuur, 'response_format': {'type': 'json_object'},
-                           'messages': [{'role': 'system', 'content': systeem}, {'role': 'user', 'content': vraag}]}).encode()
-        for kop in KOPPEN:
-            req = urllib.request.Request(URL, data=body, method='POST', headers={
-                'Authorization': f'Bearer {token}', 'Content-Type': 'application/json', **kop})
-            ruw, soort = b'', ''
-            try:
-                with _opener.open(req, timeout=120) as r:
-                    ruw, soort = r.read(), f'{r.status} {r.url} {r.headers.get("Content-Type", "")}'
-                antwoord = json.loads(ruw)
-                tekst = antwoord['choices'][0]['message'].get('content') or ''
-                print(f'  AI: {model}, {antwoord.get("usage", {}).get("total_tokens", "?")} tokens')
-                begin, eind = tekst.find('{'), tekst.rfind('}')
-                if begin < 0 or eind < begin:
-                    raise ValueError(f'geen JSON in het antwoord: {tekst[:200]!r}')
+    if token:
+        uit += [(URL, token, model, kop, True) for model in MODELLEN for kop in KOPPEN]
+    return uit
+
+
+def vraag_json(systeem, vraag, temperatuur=0.7):
+    """Stelt een vraag en geeft het JSON-antwoord als dict. Gooit GeenAI als geen enkele AI antwoordt."""
+    lijst = pogingen()
+    if not lijst:
+        raise GeenAI('geen GEMINI_API_KEY of GITHUB_TOKEN (draait dit buiten GitHub Actions?)')
+    fouten, overslaan = [], set()
+    for url, sleutel, model, kop, json_modus in lijst:
+        if (url, model) in overslaan:
+            continue
+        try:
+            antwoord = _vraag(url, sleutel, model, kop, systeem, vraag, temperatuur, json_modus)
+            if kop in KOPPEN:
                 KOPPEN.remove(kop)
                 KOPPEN.insert(0, kop)   # deze werkt: volgende keer meteen
-                return json.loads(tekst[begin:eind + 1])
-            except urllib.error.HTTPError as e:
-                fouten.append(f'{model}: HTTP {e.code} {e.read()[:200]!r}')
-                if e.code in (401, 403, 429):
-                    break   # andere koppen helpen dan niet
-            except json.JSONDecodeError as e:
-                fouten.append(f'{model} {kop}: {e} in {soort} {ruw[:200]!r}')
-            except (urllib.error.URLError, KeyError, IndexError, TypeError, ValueError, TimeoutError) as e:
-                fouten.append(f'{model}: {e}')
+            return antwoord
+        except urllib.error.HTTPError as e:
+            fouten.append(f'{model}: HTTP {e.code} {e.read()[:200]!r}')
+            if e.code in (401, 403, 429):
+                overslaan.add((url, model))   # andere koppen helpen dan niet
+        except (urllib.error.URLError, KeyError, IndexError, TypeError, ValueError, TimeoutError) as e:
+            fouten.append(f'{model}: {e}')
     raise GeenAI('; '.join(fouten))
