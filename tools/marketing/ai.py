@@ -5,13 +5,14 @@ Wordt gebruikt voor "Verbeter met AI" en "Nieuw idee" op de adminpagina en voor 
 """
 import json
 import os
+import re
 import urllib.error
 import urllib.parse
 import urllib.request
 
 URL = 'https://models.github.ai/inference/chat/completions'
 GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions'
-GEMINI_MODELLEN = ['gemini-2.5-flash', 'gemini-2.5-flash-lite']
+GEMINI_MODELLEN = ['gemini-3.8-flash', 'gemini-3.5-flash-lite']   # Google stopt oude modellen; zie ook nieuw_model()
 MODELLEN = ['openai/gpt-4.1', 'openai/gpt-4.1-mini']   # bij een limiet of fout de volgende
 # GitHub wisselt af en toe van API-versie; geeft een combinatie geen JSON terug, dan de volgende.
 KOPPEN = [{'Accept': 'application/json', 'X-GitHub-Api-Version': '2026-03-10'},
@@ -91,13 +92,20 @@ def pogingen():
     return uit
 
 
+def nieuw_model(melding):
+    """Google noemt bij een gestopt model de opvolger ("use models/gemini-..."); die proberen we dan."""
+    m = re.search(r'use models/([a-z0-9.\-]+)', melding)
+    return m.group(1).rstrip('.') if m else None
+
+
 def vraag_json(systeem, vraag, temperatuur=0.7):
     """Stelt een vraag en geeft het JSON-antwoord als dict. Gooit GeenAI als geen enkele AI antwoordt."""
     lijst = pogingen()
     if not lijst:
         raise GeenAI('geen GEMINI_API_KEY of GITHUB_TOKEN (draait dit buiten GitHub Actions?)')
     fouten, overslaan = [], set()
-    for url, sleutel, model, kop, json_modus in lijst:
+    while lijst:
+        url, sleutel, model, kop, json_modus = lijst.pop(0)
         if (url, model) in overslaan:
             continue
         try:
@@ -107,7 +115,12 @@ def vraag_json(systeem, vraag, temperatuur=0.7):
                 KOPPEN.insert(0, kop)   # deze werkt: volgende keer meteen
             return antwoord
         except urllib.error.HTTPError as e:
-            fouten.append(f'{model}: HTTP {e.code} {e.read()[:200]!r}')
+            melding = e.read()[:400].decode('utf-8', 'replace')
+            fouten.append(f'{model}: HTTP {e.code} {melding[:200]!r}')
+            opvolger = nieuw_model(melding) if e.code == 404 else None
+            if opvolger and (url, opvolger) not in overslaan and all(p[2] != opvolger for p in lijst):
+                print(f'  AI: {model} bestaat niet meer, probeer {opvolger}')
+                lijst.insert(0, (url, sleutel, opvolger, kop, json_modus))
             if e.code in (401, 403, 429):
                 overslaan.add((url, model))   # andere koppen helpen dan niet
         except (urllib.error.URLError, KeyError, IndexError, TypeError, ValueError, TimeoutError) as e:
