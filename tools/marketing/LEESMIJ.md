@@ -13,7 +13,8 @@ Er wordt niets automatisch gepubliceerd.
 | Regels voor alcoholreclame en 18+ | `assets/data/marketing-regels.json` |
 | Wekelijks onderzoek van Claude | `assets/data/marketing-onderzoek.enc.json` |
 | Wat je goedkeurt, aanpast of afwijst | `assets/data/marketing-status.enc.json` |
-| De gekozen kansen (dit leest de adminpagina) | `assets/data/marketing.enc.json` |
+| De gekozen kansen, resultaten en advies (dit leest de adminpagina) | `assets/data/marketing.enc.json` |
+| Antwoorden van de AI | `assets/data/marketing-ai.enc.json` |
 | Sleutelpaar | `assets/data/marketing-sleutel.json` |
 
 De actie **Marketing bijwerken** (`.github/workflows/marketing.yml`) draait elke nacht `python3 tools/marketing`:
@@ -25,6 +26,19 @@ Afgewezen of gepubliceerde ideeën komen pas na hun pauze terug.
 Iedereen kan dus iets toevoegen (de Claude-run, je browser), maar alleen met `ADMIN_WACHTWOORD` is het te lezen.
 Wachtwoord veranderd? Draai *Marketing bijwerken* opnieuw: er komt een nieuw sleutelpaar en de planning wordt opnieuw
 gemaakt (goedkeuringen en het laatste onderzoek van vóór de wijziging vervallen).
+
+**AI (gratis)**: "Verbeter met AI" en "Nieuw idee met AI" op de adminpagina starten de actie *Marketing AI*
+(`.github/workflows/marketing-ai.yml`). Die gebruikt GitHub Models met de ingebouwde `GITHUB_TOKEN` (geen eigen sleutel,
+wel daglimieten). Verzoek en antwoord zijn versleuteld (`assets/data/marketing-ai.enc.json`). Vereist het GitHub-token
+op de adminpagina met Actions: Read and write.
+
+**Resultaten** (tabblad Resultaten, `tools/marketing/resultaten.py`, elke nacht):
+- bezoekers, bronnen, pagina's en aanvragen uit GoatCounter (secret `GOATCOUNTER_TOKEN`, optioneel);
+- per gepubliceerde post de bezoeken via zijn `?ref=`-link en de aanvragen die daaruit kwamen (de site onthoudt de
+  campagnecode tijdens het bezoek en telt `aanvraag-via/<code>`; de code staat ook in de aanvraagmail);
+- kanalen die meer bezoekers per post opleveren krijgen tot 5 punten extra bij het kiezen van kansen;
+- wekelijks advies met AI (of vaste regels als de AI niet bereikbaar is);
+- SEO-controle van de pagina's uit `sitemap.xml`, en optioneel Search Console (secret `GSC_SERVICE_ACCOUNT`).
 
 **Synchroniseren**: zie het tabblad Instellingen op de adminpagina (GitHub-token met Contents en Actions: Read and write,
 alleen voor deze repository).

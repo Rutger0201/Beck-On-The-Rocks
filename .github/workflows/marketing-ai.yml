@@ -1,0 +1,33 @@
+# "Verbeter met AI" en "Nieuw idee" op de adminpagina (tools/marketing ai-verzoek). Gratis via GitHub Models.
+# Het verzoek komt versleuteld binnen en het antwoord gaat versleuteld naar assets/data/marketing-ai.enc.json.
+name: Marketing AI
+on:
+  workflow_dispatch:
+    inputs:
+      verzoek:
+        description: Versleuteld verzoek van de adminpagina
+        required: true
+permissions:
+  contents: write
+  models: read
+concurrency: marketing-ai
+jobs:
+  ai:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Verzoek verwerken
+        env:
+          ADMIN_WACHTWOORD: ${{ secrets.ADMIN_WACHTWOORD }}
+          GITHUB_TOKEN: ${{ github.token }}
+          VERZOEK: ${{ inputs.verzoek }}
+        run: |
+          pip install --quiet cryptography
+          python3 tools/marketing ai-verzoek
+          git add assets/data/marketing-ai.enc.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Marketing: AI-antwoord"
+          for i in 1 2 3; do git pull --rebase origin main && git push origin HEAD:main && break; sleep 5; done

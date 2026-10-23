@@ -11,6 +11,7 @@ Uitvoer: assets/data/marketing.enc.json, versleuteld met de publieke sleutel uit
 
 Gebruik:
   ADMIN_WACHTWOORD=... python3 tools/marketing                    bijwerken (--toon: lijst in de terminal)
+  ADMIN_WACHTWOORD=... VERZOEK=... python3 tools/marketing ai-verzoek   verzoek van de adminpagina (Action "Marketing AI")
   python3 tools/marketing versleutel-onderzoek onderzoek.json     onderzoek controleren en versleuteld opslaan
                                                                  (geen wachtwoord nodig)
 Pakket: pip install cryptography
@@ -24,6 +25,8 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+import ai
+import resultaten
 import sleutels
 from controle import controleer
 
@@ -34,6 +37,7 @@ SLEUTEL = DATA / 'marketing-sleutel.json'
 UIT = DATA / 'marketing.enc.json'
 ONDERZOEK = DATA / 'marketing-onderzoek.enc.json'
 STATUS = DATA / 'marketing-status.enc.json'
+AI_UIT = DATA / 'marketing-ai.enc.json'
 SITE = 'https://beckontherocks.nl'
 
 DAGEN = 30
@@ -180,6 +184,20 @@ def uit_onderzoek(onderzoek, van, tot, tarieven):
     return kansen
 
 
+def uit_eigen(eigen, van, tarieven):
+    """Kansen die je zelf met "Nieuw idee" hebt gemaakt en aan de planning hebt toegevoegd."""
+    kansen = []
+    for ident, ruw in eigen.items():
+        d = dag(ruw.get('datum'))
+        if not d or d < van - timedelta(days=BEWAAR_NA):
+            continue
+        k = normaliseer(ruw, 'eigen')
+        k = vul_in(k, f'{KANAALCODE.get(k["kanaal"].lower(), "x")}-eigen-{ident[:6]}', d.year, tarieven)
+        k.update(id=ident, sleutel='eigen-' + ident, datum=d.isoformat())
+        kansen.append(k)
+    return kansen
+
+
 def lijkt_op(a, b):
     wa, wb = set(slug(a['titel']).split('-')) - {''}, set(slug(b['titel']).split('-')) - {''}
     return bool(wa and wb) and len(wa & wb) / len(wa | wb) >= .6
@@ -256,7 +274,8 @@ def bijwerken():
     tot = van + timedelta(days=DAGEN)
 
     vorige = lees_versleuteld(UIT, geheim) or {}
-    status = (lees_versleuteld(STATUS, geheim) or {}).get('items', {})
+    statusbestand = lees_versleuteld(STATUS, geheim) or {}
+    status = statusbestand.get('items', {})
     onderzoek = lees_versleuteld(ONDERZOEK, geheim)
     geschiedenis = dict(vorige.get('geschiedenis', {}))
 
@@ -268,7 +287,7 @@ def bijwerken():
     open_vorige = [k for k in oud.values() if status.get(k['id'], {}).get('status') not in AFGEHANDELD]
 
     kansen = uit_kalender(van, tot, tarieven) + uit_ideeen(van, tot, open_vorige, geschiedenis, tarieven) \
-        + uit_onderzoek(onderzoek, van, tot, tarieven)
+        + uit_onderzoek(onderzoek, van, tot, tarieven) + uit_eigen(statusbestand.get('eigen', {}), van, tarieven)
     # Kansen met een status die niet meer uit de bronnen komen (bijv. oud onderzoek) blijven staan zolang ze actueel zijn.
     nieuw = {k['id'] for k in kansen}
     for k in oud.values():
@@ -277,9 +296,20 @@ def bijwerken():
         if s and k['id'] not in nieuw and datum and datum >= van - timedelta(days=BEWAAR_NA):
             kansen.append(k)
 
+    # Gepubliceerde posts onthouden, zodat de resultaten per post en per kanaal te volgen zijn.
+    posts = {p['id']: p for p in vorige.get('posts', [])}
+    for k in list(oud.values()) + kansen:
+        s = status.get(k['id'], {})
+        if s.get('status') == 'gepubliceerd' and k['id'] not in posts:
+            posts[k['id']] = {'id': k['id'], 'ref': k['ref'], 'titel': k['titel'], 'kanaal': k['kanaal'],
+                              'datum': s.get('datum') or k['datum']}
+    posts = sorted(posts.values(), key=lambda p: p['datum'], reverse=True)[:200]
+    uitslag, bonus = resultaten.verzamel(van, posts, (vorige.get('resultaten') or {}).get('advies'), tarieven)
+
     uniek = []
     for k in sorted(kansen, key=lambda k: (k['id'] not in status, -score(k))):
-        k['score'] = score(k)
+        k['bonus'] = bonus.get(k['kanaal'].lower(), 0)
+        k['score'] = max(1, min(100, score(k) + k['bonus']))
         k['controle'] = controleer(k)
         if any(k['id'] == u['id'] or (k['id'] not in status and lijkt_op(k, u)) for u in uniek):
             continue
@@ -295,7 +325,7 @@ def bijwerken():
               if not dag((t.get('bron') or {}).get('datum')) or dag(t['bron']['datum']) >= grens]
     uit = {'van': van.isoformat(), 'tot': tot.isoformat(), 'kansen': gekozen, 'trends': trends,
            'onderzoek': {'gemaakt': (onderzoek or {}).get('gemaakt', ''), 'samenvatting': (onderzoek or {}).get('samenvatting', '')},
-           'geschiedenis': geschiedenis}
+           'geschiedenis': geschiedenis, 'posts': posts, 'resultaten': uitslag}
 
     print(f'{len(kansen)} kansen bekeken, {len(gekozen)} gekozen voor {van} tot {tot}'
           f' ({", ".join(f"{sum(k["soort"] == s for k in gekozen)} {s}" for s in SOORTEN)}).')
@@ -340,8 +370,89 @@ def versleutel_onderzoek(pad):
     print(f'Onderzoek opgeslagen: {len(kansen)} kansen, {len(onderzoek.get("trends", []))} trends → {ONDERZOEK.relative_to(ROOT)}')
 
 
+OPDRACHTEN = {
+    'korter': 'Maak de tekst korter en krachtiger, ongeveer de helft van de lengte.',
+    'zakelijker': 'Maak de toon zakelijker, gericht op office managers, HR en ondernemers.',
+    'speelser': 'Maak de toon speelser en luchtiger, zonder kinderachtig te worden.',
+    'persoonlijker': 'Maak het persoonlijker: vertel het vanuit Rutger zelf, met een klein moment achter de bar.',
+    'engels': 'Vertaal naar natuurlijk Engels voor internationale gasten en expats. Gebruik dan "Enjoy responsibly." als slotzin bij alcohol.',
+    'instagram': 'Herschrijf als Instagram-caption: sterke eerste regel, korte alinea\'s, 4 tot 8 relevante hashtags.',
+    'facebook': 'Herschrijf als Facebook-post voor 30 tot 55-jarigen in de regio, zonder hashtags of met hoogstens twee.',
+    'linkedin': 'Herschrijf als LinkedIn-post voor zakelijke klanten: persoonlijk verhaal, nut voor het team, 3 hashtags.',
+    'tiktok': 'Herschrijf als TikTok-script: een hook in de eerste 2 seconden, 3 tot 5 korte scènes, en daarna een korte caption.',
+    'google': 'Herschrijf als update voor het Google-bedrijfsprofiel: maximaal 1200 tekens, geen hashtags.',
+}
+
+
+def ai_verzoek():
+    """Voor de Action "Marketing AI": verwerkt een versleuteld verzoek van de adminpagina (env VERZOEK)."""
+    wachtwoord = os.environ.get('ADMIN_WACHTWOORD', '')
+    if not wachtwoord:
+        sys.exit('Geen ADMIN_WACHTWOORD ingesteld.')
+    publiek, geheim = laad_sleutels(wachtwoord)
+    tarieven = lees_json(ROOT / 'tarieven.json') or {}
+    verzoek = sleutels.ontsleutel(json.loads(os.environ['VERZOEK']), geheim)
+    antwoord = {'id': str(verzoek.get('id', ''))[:40], 'soort': verzoek.get('soort'),
+                'gemaakt': datetime.now(timezone.utc).isoformat(timespec='seconds')}
+    systeem = ai.basis(tarieven)
+    vrij = str(verzoek.get('vrij') or '')[:1000]
+    try:
+        if verzoek.get('soort') == 'nieuw':
+            vraag = ('Bedenk één nieuwe marketingkans op basis van deze wens van Rutger: "' + vrij + '".\n'
+                     + (f'Kanaal: {verzoek["kanaal"]}.\n' if verzoek.get('kanaal') else '') +
+                     'Antwoord als JSON met: titel, soort ("snel", "structureel" of "betaald"), kanaal, formaat, tijd (UU:MM), '
+                     'doelgroep, waarom, tekst (volledig en direct bruikbaar), cta (met {link}), hashtags (lijst zonder #), '
+                     'pagina ("/", "/cocktail-bartender-privefeest/", "/cocktail-bartender-bedrijfsfeest/", "/tarieven/" of "/faq/"), '
+                     'beeld {foto: "beck-portret", "galerij-gin-tonic", "galerij-garneren", "galerij-lachen" of "", idee}, '
+                     'kosten {euro, uren, toelichting}, impact {niveau: "laag", "middel" of "hoog", toelichting}, '
+                     'criteria {relevantie, impact, haalbaarheid, tijd, budget} elk 1 tot 5.')
+            k = normaliseer(ai.vraag_json(systeem, vraag), 'eigen')
+            k['controle'] = controleer(k)
+            if any(m['niveau'] == 'rood' for m in k['controle']):
+                k = normaliseer(ai.vraag_json(systeem, vraag + '\nLet op, vorige keer ging dit mis: '
+                                              + '; '.join(m['tekst'] for m in k['controle'])), 'eigen')
+                k['controle'] = controleer(k)
+            k['score'] = score(k)
+            antwoord['kans'] = k
+        else:
+            kans = verzoek.get('kans') or {}
+            opdracht = OPDRACHTEN.get(verzoek.get('opdracht'), '')
+            vraag = ('Dit is een marketingvoorstel:\n' + json.dumps({v: kans.get(v) for v in
+                     ('titel', 'kanaal', 'formaat', 'doelgroep', 'tekst', 'cta', 'hashtags')}, ensure_ascii=False) +
+                     f'\n\nOpdracht: {opdracht} {vrij}'.rstrip() +
+                     '\nGeef twee verschillende verbeterde versies. Antwoord als JSON: {"varianten": [{"tekst": "...", '
+                     '"cta": "...", "hashtags": ["zonder", "hekje"], "toelichting": "wat je veranderde, in één zin"}]}')
+            varianten = []
+            for poging in range(2):
+                ruw = ai.vraag_json(systeem, vraag)
+                varianten = []
+                for v in (ruw.get('varianten') or [])[:3]:
+                    if not isinstance(v, dict) or not v.get('tekst'):
+                        continue
+                    n = normaliseer(dict(kans, tekst=v.get('tekst'), cta=v.get('cta') or kans.get('cta'),
+                                         hashtags=v.get('hashtags') or []), 'ai')
+                    varianten.append({'tekst': n['tekst'], 'cta': n['cta'], 'hashtags': n['hashtags'],
+                                      'toelichting': str(v.get('toelichting') or '')[:300], 'controle': controleer(n)})
+                schoon = [v for v in varianten if not any(m['niveau'] == 'rood' for m in v['controle'])]
+                if schoon:
+                    break
+                rood = [m['tekst'] for v in varianten for m in v['controle'] if m['niveau'] == 'rood']
+                vraag += '\nLet op, vorige keer ging dit mis: ' + ('; '.join(rood) or 'geen bruikbare varianten')
+            antwoord['varianten'] = schoon or varianten
+            antwoord['kans_id'] = str(kans.get('id', ''))[:20]
+    except ai.GeenAI as e:
+        print(f'AI niet beschikbaar: {e}')
+        antwoord['fout'] = 'De AI was niet bereikbaar (daglimiet of storing). Probeer het later opnieuw.'
+    alle = (lees_versleuteld(AI_UIT, geheim) or {}).get('antwoorden', [])
+    alle = [antwoord] + [a for a in alle if a.get('id') != antwoord['id']][:29]
+    AI_UIT.write_text(json.dumps(sleutels.versleutel({'antwoorden': alle}, publiek)) + '\n')
+    print('Antwoord opgeslagen' + (' (met fout)' if 'fout' in antwoord else '') + '.')
+
+
 if __name__ == '__main__':
     if len(sys.argv) > 2 and sys.argv[1] == 'versleutel-onderzoek':
         versleutel_onderzoek(sys.argv[2])
+    elif len(sys.argv) > 1 and sys.argv[1] == 'ai-verzoek':
+        ai_verzoek()
     else:
         bijwerken()

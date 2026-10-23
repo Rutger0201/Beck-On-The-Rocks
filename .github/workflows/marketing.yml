@@ -10,6 +10,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  models: read
 concurrency: marketing
 jobs:
   bijwerken:
@@ -26,6 +27,9 @@ jobs:
       - name: Kansen kiezen en versleuteld opslaan
         env:
           ADMIN_WACHTWOORD: ${{ secrets.ADMIN_WACHTWOORD }}
+          GITHUB_TOKEN: ${{ github.token }}
+          GOATCOUNTER_TOKEN: ${{ secrets.GOATCOUNTER_TOKEN }}
+          GSC_SERVICE_ACCOUNT: ${{ secrets.GSC_SERVICE_ACCOUNT }}
         run: |
           pip install --quiet cryptography
           python3 tools/marketing --toon
