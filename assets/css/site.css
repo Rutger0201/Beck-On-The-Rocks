@@ -201,7 +201,7 @@ code { font-size: .9em; }
 .nav.is-scrolled .nav__inner { height: var(--nav-h-klein); }
 /* Logo: de B uit het beeldmerk is de eerste letter van "Beck"; donker getint op licht papier */
 .logo { display: flex; align-items: flex-end; gap: 2px; text-decoration: none; flex: none; }
-.logo__mark { width: auto; height: 36px; display: block; filter: brightness(.62) saturate(.9); }
+.logo__mark { width: auto; height: 36px; display: block; filter: brightness(.78) saturate(1.05) contrast(1.08); }
 .logo__text { font: 400 1.45rem/1 var(--display); letter-spacing: .01em; white-space: nowrap; padding-bottom: 3px; color: var(--text); }
 .logo__text em { color: var(--accent); }
 .footer .logo__mark, .kaart .logo__mark { filter: none; }
@@ -298,6 +298,10 @@ code { font-size: .9em; }
 .route:has(.route__go:focus-visible) { outline: 1.5px solid var(--accent); outline-offset: 8px; }
 
 /* Over mij / "Achter de bar sta ik zelf" */
+/* Merkband: brede sfeerfoto met logo tussen de secties */
+.merkband { margin: 0; background: #0b0907; line-height: 0; }
+.merkband img { display: block; width: 100%; height: auto; max-height: 640px; object-fit: cover; object-position: 50% 55%; }
+
 .ikben__inner { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(12px, 2vw, 32px); align-items: center; }
 .ikben__foto { grid-column: 1 / span 5; aspect-ratio: 4 / 5; overflow: hidden; margin: 0; }
 .ikben__foto img { width: 100%; height: 100%; object-fit: cover; }
