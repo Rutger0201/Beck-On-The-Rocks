@@ -1,7 +1,7 @@
 /* ==========================================================
    Beck on the Rocks · design system (concept A, Editorial Luxury)
-   Voor alle publieke pagina's. Admin, documenten en akkoord gebruiken
-   voorlopig nog style.css; die krijgen later een eigen fase.
+   Voor alle pagina's, ook admin, documenten.html en akkoord.html
+   (die laden daarnaast hun eigen css voor de onderdelen die alleen zij hebben).
 
    Opbouw van dit bestand:
    1. Tokens (kleur, type, ruimte, beweging)   2. Basis

@@ -245,7 +245,7 @@
   }
 
   /* ================= Scroll-animaties ================= */
-  // Zonder JavaScript of met "minder beweging" is alles meteen zichtbaar (zie .js .reveal in style.css)
+  // Zonder JavaScript of met "minder beweging" is alles meteen zichtbaar (zie .js .reveal in site.css)
   if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver(entries => entries.forEach(e => {
       if (!e.isIntersecting) return;

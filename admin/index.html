@@ -5,32 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>Admin · Beck on the Rocks</title>
-  <meta name="theme-color" content="#0f0d0b">
+  <meta name="theme-color" content="#f1ebe1">
   <link rel="stylesheet" href="/assets/css/fonts.css">
-  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/site.css">
   <link rel="stylesheet" href="/admin/marketing.css">
   <link rel="icon" type="image/png" href="/assets/icons/favicon-48.png">
   <style>
     .admin { max-width: 960px; margin: 0 auto; padding: 48px 16px 80px; }
-    .admin h1 { font-family: var(--serif); font-weight: 500; font-size: 2.4rem; margin: 0 0 .2em; }
+    .admin h1 { font-family: var(--serif); font-weight: 300; font-size: clamp(2.4rem, 5vw, 3.2rem); margin: 0 0 .2em; }
     .admin__sub { color: var(--muted); margin: 0 0 2rem; }
     .slot { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    .slot input[type=password] { flex: 1 1 220px; padding: .8em 1em; border-radius: 999px; border: 1px solid var(--line);
-      background: var(--surface); color: var(--text); font: inherit; }
+    .slot input[type=password] { flex: 1 1 220px; }
     .slot label { color: var(--muted); font-size: .9rem; width: 100%; }
-    .melding { color: var(--amber); margin-top: 1rem; }
+    .melding { color: var(--fout); margin-top: 1rem; }
     .balk { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 1.2rem; color: var(--muted); font-size: .9rem; }
     .event { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px;
       display: grid; grid-template-columns: 56px 1fr; gap: 6px 16px; }
     .event--weg { opacity: .45; }
     .punten { grid-row: span 3; width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center;
-      border: 2px solid var(--gold); color: var(--gold-light); font-weight: 600; font-size: 1.1rem; line-height: 1; }
-    .event h2 { font-family: var(--serif); font-weight: 500; font-size: 1.45rem; margin: 0; line-height: 1.2; }
+      border: 1px solid var(--accent); color: var(--accent); font: 400 1.4rem/1 var(--display); }
+    .event h2 { font-family: var(--serif); font-weight: 400; font-size: 1.55rem; margin: 0; line-height: 1.2; }
     .event__meta { color: var(--muted); font-size: .9rem; }
     .event__waarom { margin: .2em 0 .4em; }
     .event__knoppen { grid-column: 2; display: flex; gap: 8px; flex-wrap: wrap; }
-    .label { display: inline-block; font-size: .75rem; letter-spacing: .04em; text-transform: uppercase; color: var(--bg);
-      background: var(--amber); border-radius: 999px; padding: .15em .7em; margin-left: .4em; vertical-align: middle; }
+    .label { display: inline-block; font-size: .75rem; letter-spacing: .04em; text-transform: uppercase; color: var(--papier);
+      background: var(--spoed); border-radius: var(--radius); padding: .15em .7em; margin: 0 0 0 .4em; font-weight: 500; vertical-align: middle; }
     @media (max-width: 520px) { .event { grid-template-columns: 1fr; } .punten { grid-row: auto; width: auto; height: auto; padding: .3em .9em; border-radius: 999px; justify-self: start; } .event__knoppen { grid-column: 1; } }
   </style>
 </head>
