@@ -170,3 +170,30 @@ p.m-auto--ok { margin: .6em 0 .2em; font-size: .875rem; }
 .m-auto--let { color: var(--spoed); }
 .m-koppelingen { list-style: none; padding: 0; margin: .6em 0 1em; }
 .m-koppelingen li { padding: .35em 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+
+/* Groei: campagnes en samenwerkingen (fase 4) */
+.m-intro { color: var(--muted); max-width: 70ch; margin: 0 0 1rem; }
+.m-sub { font: 600 .8125rem var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--gold); margin: 1em 0 .4em; }
+.m-lijst { padding-left: 1.2em; margin: .4em 0 .8em; }
+.m-lijst li { margin: .25em 0; }
+.m-vinkjes { margin: .8em 0; padding: 10px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg-alt); }
+.m-vinkjes .m-sub { margin-top: 0; }
+.m-vink { display: flex; gap: .5em; align-items: flex-start; padding: .3em 0; font-size: .9375rem; cursor: pointer; }
+.m-vink input { margin-top: .3em; accent-color: var(--accent); flex: none; }
+.m-cijfers { margin: .8em 0; }
+.m-uitgegeven { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin: .4em 0; }
+.m-uitgegeven label { display: grid; gap: 4px; color: var(--muted); font-size: .8125rem; flex: 1 1 220px; }
+.m-uitgegeven input, .m-partner select, .m-partner textarea, .m-mail input, .m-mail textarea, .m-bewerk select {
+  width: 100%; background: var(--veld); color: var(--text); border: 1px solid var(--line); border-radius: var(--radius); padding: 9px 11px; font: inherit; }
+.m-partner { border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin: .8em 0; background: var(--surface); }
+.m-partner__kop { display: flex; flex-wrap: wrap; gap: .3em 1em; align-items: baseline; }
+.m-partner__kop h3 { margin: 0; font-family: var(--display); font-size: 1.35rem; font-weight: 500; }
+.m-partner .m-rij { grid-template-columns: minmax(160px, 1fr) 2fr; margin: .5em 0; }
+.m-partner p { margin: .3em 0; overflow-wrap: anywhere; }
+.m-mail label { display: grid; gap: 4px; color: var(--muted); font-size: .8125rem; }
+.m-partnerform { border-top: 1px solid var(--line); padding-top: .8em; }
+@media (max-width: 640px) {
+  .m-partner .m-rij { grid-template-columns: 1fr; }
+}
+.m-mail { display: flex; flex-direction: column; }
+.m-mail input { height: auto; }

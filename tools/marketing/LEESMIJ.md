@@ -16,6 +16,7 @@ Er wordt niets gepubliceerd zonder jouw akkoord: alleen posts die je goedkeurt, 
 | De gekozen kansen, resultaten en advies (dit leest de adminpagina) | `assets/data/marketing.enc.json` |
 | Antwoorden van de AI | `assets/data/marketing-ai.enc.json` |
 | Wat automatisch geplaatst is (of waarom niet) | `assets/data/marketing-publicaties.enc.json` |
+| Stappen voor advertenties en mailvoorbeelden voor samenwerkingen (openbaar, geen persoonsgegevens) | `assets/data/marketing-groei.json` |
 | Sleutelpaar | `assets/data/marketing-sleutel.json` |
 
 De actie **Marketing bijwerken** (`.github/workflows/marketing.yml`) draait elke nacht `python3 tools/marketing`:
@@ -50,6 +51,15 @@ op de adminpagina met Actions: Read and write.
   onder Instellingen; de nachtelijke run controleert of de koppelingen nog werken;
 - de status moet gesynchroniseerd zijn (GitHub-token op de adminpagina), anders weet de actie niets van je akkoord;
 - proefrun zonder iets te plaatsen: *Actions → Marketing publiceren → Run workflow → proef*.
+
+**Groei** (tabblad Groei op de adminpagina):
+- *Betaalde campagnes*: per betaalde kans de advertentietekst, de link met meetcode, de instellingen en de stappen om hem
+  zelf aan te zetten in Google Ads, Meta of LinkedIn, plus een controlelijst (18+/25+, alcoholregels, einddatum of
+  totaalbudget). De pagina geeft nooit geld uit. Na "Ik heb hem gestart" zie je budget, uitgaven (vul je zelf in),
+  bezoeken en aanvragen via de ?ref-link, en de kosten per bezoek en per aanvraag.
+- *Samenwerkingen*: een eigen lijst met partners (locaties, slijterijen, planners, cateraars, ondernemersclubs), status,
+  notities en mailvoorbeelden. "Open in je mailprogramma" maakt een concept; je verstuurt zelf. Na een week volgt een
+  herinnering om op te volgen. De lijst staat versleuteld in het statusbestand; "Verwijderen" haalt alles weg.
 
 **Synchroniseren**: zie het tabblad Instellingen op de adminpagina (GitHub-token met Contents en Actions: Read and write,
 alleen voor deze repository).

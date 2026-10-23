@@ -139,6 +139,8 @@ Met een GitHub-token (Instellingen op de adminpagina) kun je teksten laten verbe
 `GOATCOUNTER_TOKEN` is ingesteld, plus wekelijks advies en een SEO-controle.
 Wil je dat posts vanzelf online gaan, koppel dan Instagram, Facebook en/of LinkedIn (stappen onder Instellingen op de
 adminpagina) en zet een ingeplande post op *Automatisch plaatsen*; de actie *Marketing publiceren* plaatst hem dan op tijd.
+Het tabblad Groei helpt met betaalde campagnes (stappen en controlelijst; je zet ze zelf aan, er wordt nooit geld
+uitgegeven) en met samenwerkingen (partnerlijst en mailvoorbeelden; je verstuurt elke mail zelf).
 
 ## Nog zelf invullen vóór livegang
 - **Reviews**: de eerste staan erop; Google reviews zijn gekoppeld (zie hierboven).
