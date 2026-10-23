@@ -10,6 +10,10 @@ import urllib.request
 
 URL = 'https://models.github.ai/inference/chat/completions'
 MODELLEN = ['openai/gpt-4.1', 'openai/gpt-4.1-mini']   # bij een limiet of fout de volgende
+# GitHub wisselt af en toe van API-versie; geeft een combinatie geen JSON terug, dan de volgende.
+KOPPEN = [{'Accept': 'application/json', 'X-GitHub-Api-Version': '2026-03-10'},
+          {'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'},
+          {'Accept': 'application/json'}]
 
 BASIS = """Je bent de marketingassistent van Beck on the Rocks (https://beckontherocks.nl): Rutger, een freelance
 cocktailbartender uit Almere. Hij komt alleen als bartender met eigen cocktailgereedschap; de klant regelt drank, ijs
@@ -58,24 +62,28 @@ def vraag_json(systeem, vraag, temperatuur=0.7):
     for model in MODELLEN:
         body = json.dumps({'model': model, 'temperature': temperatuur, 'response_format': {'type': 'json_object'},
                            'messages': [{'role': 'system', 'content': systeem}, {'role': 'user', 'content': vraag}]}).encode()
-        req = urllib.request.Request(URL, data=body, headers={
-            'Authorization': f'Bearer {token}', 'Content-Type': 'application/json',
-            'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'})
-        ruw = b''
-        try:
-            with _opener.open(req, timeout=120) as r:
-                ruw = r.read()
-            antwoord = json.loads(ruw)
-            tekst = antwoord['choices'][0]['message'].get('content') or ''
-            print(f'  AI: {model}, {antwoord.get("usage", {}).get("total_tokens", "?")} tokens')
-            begin, eind = tekst.find('{'), tekst.rfind('}')
-            if begin < 0 or eind < begin:
-                raise ValueError(f'geen JSON in het antwoord: {tekst[:200]!r}')
-            return json.loads(tekst[begin:eind + 1])
-        except urllib.error.HTTPError as e:
-            fouten.append(f'{model}: HTTP {e.code} {e.read()[:200]!r}')
-        except json.JSONDecodeError as e:
-            fouten.append(f'{model}: {e} in {ruw[:200]!r}')
-        except (urllib.error.URLError, KeyError, IndexError, TypeError, ValueError, TimeoutError) as e:
-            fouten.append(f'{model}: {e}')
+        for kop in KOPPEN:
+            req = urllib.request.Request(URL, data=body, method='POST', headers={
+                'Authorization': f'Bearer {token}', 'Content-Type': 'application/json', **kop})
+            ruw, soort = b'', ''
+            try:
+                with _opener.open(req, timeout=120) as r:
+                    ruw, soort = r.read(), f'{r.status} {r.url} {r.headers.get("Content-Type", "")}'
+                antwoord = json.loads(ruw)
+                tekst = antwoord['choices'][0]['message'].get('content') or ''
+                print(f'  AI: {model}, {antwoord.get("usage", {}).get("total_tokens", "?")} tokens')
+                begin, eind = tekst.find('{'), tekst.rfind('}')
+                if begin < 0 or eind < begin:
+                    raise ValueError(f'geen JSON in het antwoord: {tekst[:200]!r}')
+                KOPPEN.remove(kop)
+                KOPPEN.insert(0, kop)   # deze werkt: volgende keer meteen
+                return json.loads(tekst[begin:eind + 1])
+            except urllib.error.HTTPError as e:
+                fouten.append(f'{model}: HTTP {e.code} {e.read()[:200]!r}')
+                if e.code in (401, 403, 429):
+                    break   # andere koppen helpen dan niet
+            except json.JSONDecodeError as e:
+                fouten.append(f'{model} {kop}: {e} in {soort} {ruw[:200]!r}')
+            except (urllib.error.URLError, KeyError, IndexError, TypeError, ValueError, TimeoutError) as e:
+                fouten.append(f'{model}: {e}')
     raise GeenAI('; '.join(fouten))
