@@ -97,9 +97,10 @@
   const bewaarWeergave = () => schrijf(WEERGAVE, JSON.stringify(m.weergave));
 
   function samenvoegen(a, b) {
-    const uit = { versie: 1, items: Object.assign({}, a.items), eigen: Object.assign({}, a.eigen, b.eigen) };
-    for (const [id, s] of Object.entries(b.items || {}))
-      if (!uit.items[id] || (s.gewijzigd || '') > (uit.items[id].gewijzigd || '')) uit.items[id] = s;
+    const uit = { versie: 1, items: Object.assign({}, a.items), eigen: Object.assign({}, a.eigen, b.eigen), partners: Object.assign({}, a.partners) };
+    for (const veld of ['items', 'partners'])
+      for (const [id, s] of Object.entries(b[veld] || {}))
+        if (!uit[veld][id] || (s.gewijzigd || '') > (uit[veld][id].gewijzigd || '')) uit[veld][id] = s;
     return uit;
   }
   const api = (pad, opties = {}) => fetch('https://api.github.com/repos/' + REPO + '/' + pad, Object.assign({}, opties, {
@@ -254,13 +255,13 @@
     doos.append(kop);
 
     const tabs = el('div', 'm-tabs'); tabs.setAttribute('role', 'tablist');
-    for (const [t, naam] of [['kansen', 'Kansen'], ['kalender', 'Kalender'], ['resultaten', 'Resultaten'], ['trends', 'Onderzoek'], ['instellingen', 'Instellingen']]) {
+    for (const [t, naam] of [['kansen', 'Kansen'], ['kalender', 'Kalender'], ['resultaten', 'Resultaten'], ['trends', 'Onderzoek'], ['groei', 'Groei'], ['instellingen', 'Instellingen']]) {
       const b = knop(naam, () => { m.weergave.tab = t; bewaarWeergave(); toon(); }, m.weergave.tab !== t);
       b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', m.weergave.tab === t);
       tabs.append(b);
     }
     doos.append(tabs);
-    ({ kansen: toonKansen, kalender: toonKalender, resultaten: toonResultaten, trends: toonTrends, instellingen: toonInstellingen })[m.weergave.tab](doos, lijst);
+    ({ kansen: toonKansen, kalender: toonKalender, resultaten: toonResultaten, trends: toonTrends, groei: toonGroei, instellingen: toonInstellingen })[m.weergave.tab](doos, lijst);
     const s = el('p', 'm-sync'); s.id = 'm-sync'; s.textContent = m.sync; doos.append(s);
   }
 
@@ -852,6 +853,242 @@
   }
 
   // ---------- instellingen ----------
+  // ---------- groei: betaalde campagnes en samenwerkingen ----------
+  // Deze pagina geeft nooit geld uit en verstuurt geen mail: Rutger start en verstuurt alles zelf.
+  function toonGroei(doos, lijst) {
+    const g = m.groei;
+    if (!g) { doos.append(el('p', 'm-leeg', 'De inhoud voor dit tabblad kon niet worden geladen. Ververs de pagina.')); return; }
+    doos.append(el('p', 'm-intro', 'Plan hier je betaalde campagnes en samenwerkingen. Deze pagina geeft nooit geld uit en verstuurt geen mail: jij zet een campagne zelf aan en verstuurt elke mail zelf.'));
+    doos.append(el('h2', 'm-kopje', 'Betaalde campagnes'));
+    const betaald = lijst.filter(k => k.soort === 'betaald' && k.status !== 'afgewezen');
+    if (!betaald.length) doos.append(el('p', 'm-stil', 'Er staan nu geen betaalde kansen in de planning. Ze verschijnen hier zodra de planning er een kiest.'));
+    for (const k of betaald) doos.append(campagneKaart(k, g.platforms));
+    partnerBlok(doos, g.partners);
+  }
+
+  const platformVoor = (k, platforms) => Object.values(platforms).find(p => p.bij.includes((k.kanaal || '').toLowerCase())) || null;
+  const euro = n => '€ ' + (Math.round(n * 100) / 100).toLocaleString('nl-NL', { minimumFractionDigits: n % 1 ? 2 : 0 });
+
+  function campagneKaart(k, platforms) {
+    const p = platformVoor(k, platforms);
+    const s = m.status.items[k.id] || {};
+    const c = s.campagne || {};
+    const zetC = w => zet(k.id, { campagne: Object.assign({}, c, w) });
+    const a = el('article', 'm-kans m-kans--betaald m-campagne is-' + k.status);
+    const romp = el('div', 'm-romp');
+    romp.append(el('h2', '', k.titel));
+    const labels = el('div', 'm-labels');
+    labels.append(el('span', 'm-label m-label--betaald', p ? p.naam : k.kanaal));
+    labels.append(el('span', 'm-label m-label--status', c.gestopt ? 'Gestopt' : c.gestart ? 'Loopt' : STATUS[k.status]));
+    romp.append(labels);
+    romp.append(el('div', 'event__meta', `Voorstel: ${euro(k.kosten.euro)} totaal · ${k.kosten.toelichting || ''}`));
+    const doel = el('p', 'm-doel'); doel.append(el('strong', '', 'Doelgroep: '), document.createTextNode(k.doelgroep || '-')); romp.append(doel);
+    romp.append(el('p', 'event__waarom', k.waarom));
+
+    const d = el('details', 'm-details');
+    d.open = m.open.has('c-' + k.id);
+    d.ontoggle = () => { d.open ? m.open.add('c-' + k.id) : m.open.delete('c-' + k.id); };
+    d.append(el('summary', '', 'Advertentie, instellingen en stappen'));
+    d.append(el('h3', 'm-sub', 'Advertentietekst'), el('div', 'm-tekst', k.tekst));
+    const link = k.link || linkVoor(k);
+    const l = el('p', 'm-stil'); l.append(document.createTextNode('Link met meetcode: ' + link)); d.append(l);
+    const kn = el('div', 'event__knoppen');
+    kn.append(knop('Kopieer tekst', ev => kopieer(k.tekst, ev.currentTarget), true), knop('Kopieer link', ev => kopieer(link, ev.currentTarget), true));
+    d.append(kn);
+    if (p) {
+      d.append(el('h3', 'm-sub', 'Instellingen'));
+      const ul = el('ul', 'm-lijst'); for (const t of p.instellingen) ul.append(el('li', '', t)); d.append(ul);
+      d.append(el('h3', 'm-sub', 'Zo zet je hem zelf aan'));
+      const ol = el('ol', 'm-stappen'); for (const t of p.stappen) ol.append(el('li', '', t)); d.append(ol);
+    }
+    romp.append(d);
+
+    // Controle vóór het starten: alle vinkjes aan en geen rode punten.
+    const rood = k.controle.filter(x => x.niveau === 'rood');
+    if (k.controle.length) {
+      const ul = el('ul', 'm-controle');
+      for (const x of k.controle) ul.append(el('li', 'm-controle--' + x.niveau, x.tekst));
+      romp.append(ul);
+    }
+    const regels = (p ? p.regels : []).concat(['Ik heb een einddatum of totaalbudget ingesteld, zodat het nooit meer kost dan ik wil.']);
+    const vinkjes = new Set(c.vinkjes || []);
+    if (!c.gestart) {
+      const lijstje = el('div', 'm-vinkjes');
+      lijstje.append(el('p', 'm-sub', 'Controle voor je start'));
+      regels.forEach((t, i) => {
+        const lab = el('label', 'm-vink'); const cb = el('input'); cb.type = 'checkbox'; cb.checked = vinkjes.has(i);
+        cb.onchange = () => { cb.checked ? vinkjes.add(i) : vinkjes.delete(i); zetC({ vinkjes: [...vinkjes] }); };
+        lab.append(cb, document.createTextNode(' ' + t)); lijstje.append(lab);
+      });
+      romp.append(lijstje);
+    }
+
+    const rij = el('div', 'event__knoppen');
+    if (k.status === 'nieuw') {
+      const ja = knop('Goedkeuren', () => zet(k.id, { status: 'goedgekeurd' }));
+      if (rood.length) ja.disabled = true;
+      rij.append(ja, knop('Afwijzen', () => zet(k.id, { status: 'afgewezen' }), true));
+    } else if (!c.gestart) {
+      const klaar = regels.every((t, i) => vinkjes.has(i)) && !rood.length;
+      if (m.campagneForm === k.id) romp.append(startForm(k, c, zetC));
+      else {
+        const start = knop('Ik heb hem gestart', () => { m.campagneForm = k.id; toon(); });
+        if (!klaar) { start.disabled = true; start.title = rood.length ? 'Pas eerst de rode punten aan' : 'Vink eerst de controle af'; }
+        rij.append(start);
+      }
+    } else {
+      romp.append(campagneCijfers(k, c, zetC));
+      if (!c.gestopt) rij.append(knop('Gestopt', () => zetC({ gestopt: iso(new Date()) }), true));
+    }
+    romp.append(rij);
+    a.append(el('div', 'punten', String(k.score)), romp);
+    return a;
+  }
+
+  function startForm(k, c, zetC) {
+    const f = el('form', 'm-bewerk');
+    const rij = el('div', 'm-rij');
+    const veld = (label, type, waarde) => { const lab = el('label', '', label); const i = el('input'); i.type = type; i.value = waarde; i.required = true; lab.append(i); rij.append(lab); return i; };
+    const start = veld('Startdatum', 'date', iso(new Date()));
+    const eind = veld('Einddatum', 'date', iso(new Date(Date.now() + 7 * 864e5)));
+    const budget = veld('Totaalbudget (€)', 'number', String(k.kosten.euro || 0)); budget.min = '0'; budget.step = '1';
+    f.append(rij);
+    const kn = el('div', 'event__knoppen');
+    const ok = el('button', 'btn btn--small', 'Opslaan'); ok.type = 'submit';
+    kn.append(ok, knop('Annuleren', () => { m.campagneForm = null; toon(); }, true));
+    f.append(kn);
+    f.onsubmit = ev => {
+      ev.preventDefault(); m.campagneForm = null;
+      // Telt als gepubliceerd, zodat de nachtelijke run de bezoeken via de ?ref-link bijhoudt.
+      zet(k.id, { status: 'gepubliceerd', datum: start.value,
+        campagne: Object.assign({}, c, { gestart: start.value, eind: eind.value, budget: Number(budget.value) || 0 }) });
+    };
+    return f;
+  }
+
+  function campagneCijfers(k, c, zetC) {
+    const doos = el('div', 'm-cijfers');
+    const r = ((m.data.resultaten || {}).posts || []).find(p => p.id === k.id) || { bezoeken: 0, aanvragen: 0 };
+    const uit = Number(c.uitgegeven) || 0;
+    const tegels = el('div', 'm-tegels');
+    tegels.append(tegel(euro(c.budget || 0), 'Budget', `${datumTekst(c.gestart)} tot ${datumTekst(c.eind)}`),
+      tegel(euro(uit), 'Uitgegeven', 'vul je zelf in'),
+      tegel(String(r.bezoeken), 'Bezoeken', r.bezoeken && uit ? euro(uit / r.bezoeken) + ' per bezoek' : 'via de ?ref-link'),
+      tegel(String(r.aanvragen), 'Aanvragen', r.aanvragen && uit ? euro(uit / r.aanvragen) + ' per aanvraag' : 'via deze campagne'));
+    doos.append(tegels);
+    const f = el('form', 'm-uitgegeven');
+    const lab = el('label', '', 'Uitgegeven volgens Google, Meta of LinkedIn (€)');
+    const i = el('input'); i.type = 'number'; i.min = '0'; i.step = '0.01'; i.value = c.uitgegeven != null ? c.uitgegeven : '';
+    lab.append(i);
+    const ok = el('button', 'btn btn--small btn--ghost', 'Bijwerken'); ok.type = 'submit';
+    f.append(lab, ok);
+    f.onsubmit = ev => { ev.preventDefault(); zetC({ uitgegeven: Number(i.value) || 0 }); };
+    doos.append(f);
+    if (uit > (c.budget || 0) && c.budget) doos.append(el('p', 'm-auto--fout', 'Je hebt meer uitgegeven dan je budget. Controleer de einddatum en het budget in je advertentieaccount.'));
+    doos.append(el('p', 'm-stil', 'Bezoeken en aanvragen worden elke nacht bijgewerkt (GoatCounter nodig, zie Resultaten).'));
+    return doos;
+  }
+
+  // ---------- samenwerkingen ----------
+  const PARTNERSTATUS = { idee: 'Nog benaderen', benaderd: 'Gemaild', gesprek: 'In gesprek', samenwerking: 'Samenwerking', nee: 'Geen interesse' };
+  function zetPartner(id, wijziging) {
+    m.status.partners = m.status.partners || {};
+    m.status.partners[id] = Object.assign({}, m.status.partners[id], wijziging, { gewijzigd: new Date().toISOString() });
+    bewaarStatus(); toon();
+  }
+  const vul = (t, p, onderwerp) => t.split('[naam]').join(p.persoon || 'heer/mevrouw').split('[bedrijf]').join(p.naam).split('[onderwerp]').join(onderwerp || '');
+
+  function partnerBlok(doos, g) {
+    doos.append(el('h2', 'm-kopje', 'Samenwerkingen'));
+    const regels = el('ul', 'm-lijst m-stil'); for (const t of g.regels) regels.append(el('li', '', t)); doos.append(regels);
+    const soorten = Object.fromEntries(g.soorten.map(s => [s.id, s]));
+    const alle = Object.entries(m.status.partners || {}).filter(([, p]) => !p.verwijderd).map(([id, p]) => Object.assign({ id }, p));
+    const vandaag = iso(new Date());
+    const opvolgen = alle.filter(p => p.status === 'benaderd' && p.volgende && p.volgende <= vandaag);
+    if (opvolgen.length) doos.append(el('p', 'm-auto', `Opvolgen: ${opvolgen.map(p => p.naam).join(', ')}. Je mailde ze een week geleden.`));
+
+    const orde = Object.keys(PARTNERSTATUS);
+    alle.sort((a, b) => orde.indexOf(a.status) - orde.indexOf(b.status) || a.naam.localeCompare(b.naam));
+    for (const p of alle) doos.append(partnerKaart(p, soorten[p.soort] || g.soorten[0], g.opvolgen));
+    if (!alle.length) doos.append(el('p', 'm-stil', 'Nog geen partners. Voeg hieronder een bedrijf toe dat je wilt benaderen.'));
+
+    const f = el('form', 'm-bewerk m-partnerform');
+    f.append(el('h3', 'm-sub', 'Partner toevoegen'));
+    const rij = el('div', 'm-rij');
+    const veld = (label, el2) => { const lab = el('label', '', label); lab.append(el2); rij.append(lab); return el2; };
+    const naam = veld('Bedrijf', el('input')); naam.required = true; naam.maxLength = 80;
+    const soort = veld('Soort', el('select'));
+    for (const s of g.soorten) { const o = el('option', '', s.naam); o.value = s.id; soort.append(o); }
+    const persoon = veld('Contactpersoon (optioneel)', el('input')); persoon.maxLength = 60;
+    const contact = veld('Zakelijk e-mailadres of website', el('input')); contact.maxLength = 120;
+    const plaats = veld('Plaats', el('input')); plaats.maxLength = 40;
+    f.append(rij);
+    const ok = el('button', 'btn btn--small', 'Toevoegen'); ok.type = 'submit'; f.append(ok);
+    f.onsubmit = ev => {
+      ev.preventDefault();
+      const id = 'p' + Math.random().toString(36).slice(2, 10);
+      zetPartner(id, { naam: naam.value.trim(), soort: soort.value, persoon: persoon.value.trim(), contact: contact.value.trim(),
+        plaats: plaats.value.trim(), status: 'idee', notities: '' });
+    };
+    doos.append(f);
+
+    const d = el('details', 'm-details'); d.append(el('summary', '', 'Waar vind je partners?'));
+    for (const s of g.soorten) { const b = el('p'); b.append(el('strong', '', s.naam + ': '), document.createTextNode(s.waarom + ' ' + s.waar)); d.append(b); }
+    doos.append(d);
+  }
+
+  function partnerKaart(p, soort, opvolg) {
+    const a = el('article', 'm-partner');
+    const kop = el('div', 'm-partner__kop');
+    kop.append(el('h3', '', p.naam), el('span', 'm-stil', [soort.naam, p.plaats, p.persoon].filter(Boolean).join(' · ')));
+    a.append(kop);
+    if (p.contact) a.append(el('p', 'm-stil', p.contact));
+    const rij = el('div', 'm-rij');
+    const sel = el('select'); sel.setAttribute('aria-label', 'Status');
+    for (const [w, t] of Object.entries(PARTNERSTATUS)) { const o = el('option', '', t); o.value = w; sel.append(o); }
+    sel.value = p.status || 'idee';
+    sel.onchange = () => zetPartner(p.id, { status: sel.value, volgende: sel.value === 'benaderd' ? p.volgende : null });
+    const notities = el('textarea'); notities.rows = 2; notities.value = p.notities || ''; notities.placeholder = 'Notities'; notities.setAttribute('aria-label', 'Notities');
+    notities.onchange = () => zetPartner(p.id, { notities: notities.value.slice(0, 1000) });
+    rij.append(sel, notities);
+    a.append(rij);
+    if (p.laatste) a.append(el('p', 'm-stil', 'Laatst gemaild: ' + datumTekst(p.laatste) + (p.volgende ? ' · opvolgen vanaf ' + datumTekst(p.volgende) : '')));
+
+    const kn = el('div', 'event__knoppen');
+    if (m.mail === p.id) a.append(mailPaneel(p, soort, opvolg));
+    else if (p.status !== 'nee' && p.status !== 'samenwerking') kn.append(knop(p.status === 'benaderd' ? 'Opvolgmail opstellen' : 'Mail opstellen', () => { m.mail = p.id; toon(); }));
+    kn.append(knop('Verwijderen', () => {
+      if (!confirm(`${p.naam} en je notities verwijderen?`)) return;
+      // Alleen een markering blijft over, zodat een ander apparaat hem niet terugzet.
+      m.status.partners[p.id] = { verwijderd: true, gewijzigd: new Date().toISOString() };
+      bewaarStatus(); toon();
+    }, true));
+    a.append(kn);
+    return a;
+  }
+
+  function mailPaneel(p, soort, opvolg) {
+    const vervolg = p.status === 'benaderd';
+    const doos = el('div', 'm-ai m-mail');
+    const onderwerp = el('input'); onderwerp.value = vervolg ? vul(opvolg.onderwerp, p, soort.onderwerp) : soort.onderwerp;
+    const tekst = el('textarea'); tekst.rows = 12; tekst.value = vul(vervolg ? opvolg.mail : soort.mail, p);
+    const l1 = el('label', '', 'Onderwerp'); l1.append(onderwerp);
+    const l2 = el('label', '', 'Mail (pas [plaatshouders] en de toon aan)'); l2.append(tekst);
+    doos.append(l1, l2);
+    const kn = el('div', 'event__knoppen');
+    const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.contact || '') ? p.contact : '';
+    const open = el('a', 'btn btn--small', email ? 'Open in je mailprogramma' : 'Open in je mailprogramma (zonder adres)');
+    const zetLink = () => { open.href = 'mailto:' + encodeURIComponent(email) + '?subject=' + encodeURIComponent(onderwerp.value) + '&body=' + encodeURIComponent(tekst.value); };
+    zetLink(); onderwerp.oninput = zetLink; tekst.oninput = zetLink;
+    const vandaag = new Date();
+    kn.append(open, knop('Kopieer mail', ev => kopieer(tekst.value, ev.currentTarget), true),
+      knop('Verstuurd', () => { m.mail = null; zetPartner(p.id, { status: 'benaderd', laatste: iso(vandaag), volgende: vervolg ? null : iso(new Date(vandaag.getTime() + 7 * 864e5)) }); }, true),
+      knop('Sluiten', () => { m.mail = null; toon(); }, true));
+    doos.append(kn);
+    doos.append(el('p', 'm-stil', 'Er wordt niets verstuurd vanaf deze pagina. Klik op "Verstuurd" nadat je de mail zelf hebt gestuurd; na een week krijg je een herinnering om op te volgen.'));
+    return doos;
+  }
+
   function toonInstellingen(doos) {
     const s = el('section', 'm-instellingen');
     s.append(el('h2', 'm-kopje', 'Synchroniseren tussen apparaten'));
@@ -941,9 +1178,9 @@
     if (!sleutel) { toon(); return 'geen'; }
     try { m.geheim = await openGeheim(sleutel, ww); } catch (e) { return 'fout'; }
     m.publiek = sleutel.publiek;
-    const [data, regels, log] = await Promise.all(['/assets/data/marketing.enc.json', '/assets/data/marketing-regels.json',
-      '/assets/data/marketing-publicaties.enc.json'].map(pad => haal(pad).catch(() => null)));
-    m.regels = regels;
+    const [data, regels, log, groei] = await Promise.all(['/assets/data/marketing.enc.json', '/assets/data/marketing-regels.json',
+      '/assets/data/marketing-publicaties.enc.json', '/assets/data/marketing-groei.json'].map(pad => haal(pad).catch(() => null)));
+    m.regels = regels; m.groei = groei;
     try { m.data = data ? await ontsleutel(data) : null; } catch (e) { m.data = null; }
     try { m.publicaties = log ? (await ontsleutel(log)).publicaties || {} : {}; } catch (e) { m.publicaties = {}; }
     m.token = await leesToken();

@@ -1,0 +1,131 @@
+{
+  "_uitleg": "Vaste inhoud voor het tabblad Groei op /admin/: hoe je een betaalde campagne zelf opzet (deze site geeft nooit geld uit) en mailvoorbeelden voor samenwerkingen. Geen persoonsgegevens in dit bestand: het is openbaar.",
+  "platforms": {
+    "google": {
+      "naam": "Google Ads",
+      "bij": ["google"],
+      "instellingen": [
+        "Campagnetype: Zoeken (geen Display of Performance Max: die geven sneller geld uit aan slechte plekken).",
+        "Doel: websitebezoeken. Je meet aanvragen zelf via de ?ref-link in GoatCounter.",
+        "Locatie: Almere + straal 30 km, optie 'Aanwezigheid: mensen in of regelmatig in je locaties'.",
+        "Leeftijd: sluit 18-24 uit (Doelgroepen → Demografie). Google toont advertenties nooit aan minderjarigen.",
+        "Biedstrategie: maximaal aantal klikken met een maximum CPC van € 1,50.",
+        "Zoekwoorden als woordgroep (\"cocktail bartender huren\"), plus de uitsluitingswoorden uit de tekst."
+      ],
+      "stappen": [
+        "Ga naar ads.google.com en log in. Kies bij het eerste scherm 'Overschakelen naar Expertmodus' onderaan, zodat je geen slimme campagne krijgt.",
+        "Klik + Nieuwe campagne → doel 'Websiteverkeer' → type 'Zoeken'. Website: de link met ?ref hierboven.",
+        "Netwerken: haal het vinkje weg bij 'Display Netwerk'.",
+        "Vul locatie, taal (Nederlands) en het dagbudget in. Zet bij 'Begin- en einddatum' een einddatum, dan stopt hij vanzelf.",
+        "Maak één advertentiegroep met de zoekwoorden en een responsieve zoekadvertentie met de koppen en beschrijvingen hierboven.",
+        "Controleer de samenvatting: dagbudget, einddatum, geen Display. Pas dan publiceren. Google vraagt je betaalgegevens; die beheer je zelf."
+      ],
+      "regels": [
+        "Advertentie gaat over je dienst; noem geen prijsacties op drank.",
+        "Geen beloftes over hoeveel er gedronken wordt.",
+        "Leeftijd 25+ aanhouden, minimaal 18+."
+      ]
+    },
+    "meta": {
+      "naam": "Meta (Instagram en Facebook)",
+      "bij": ["instagram", "facebook"],
+      "instellingen": [
+        "Doel: Verkeer (websitebezoeken), niet 'Bereik' of 'Betrokkenheid'.",
+        "Leeftijd: 25 tot 65. Meta verplicht voor alcohol in Nederland minimaal 18; houd 25 aan.",
+        "Locatie: Almere + 25 km (of Almere, Lelystad, het Gooi en Amsterdam-Oost).",
+        "Budget: totaalbudget met einddatum, zo kan het nooit meer worden dan je kiest.",
+        "Plaatsingen: Instagram-feed, Instagram-stories en Facebook-feed. Haal Audience Network weg.",
+        "Link: de ?ref-link hierboven, zodat je de bezoekers en aanvragen terugziet."
+      ],
+      "stappen": [
+        "Snelste route: open de post in Instagram → 'Post promoten' → doel 'Meer websitebezoeken' → je link.",
+        "Kies 'Eigen doelgroep maken': locatie, leeftijd 25-65 en interesses zoals feesten, evenementen of cocktails.",
+        "Kies het budget en de looptijd (bijvoorbeeld 7 dagen). Instagram toont het totaal: dat is het maximum.",
+        "Wil je meer controle, gebruik dan business.facebook.com → Ads Manager → Maken → Verkeer, met dezelfde instellingen en een totaalbudget.",
+        "Controleer leeftijd, budget en einddatum en klik op Promoten of Publiceren. Betalen regel je zelf in Meta."
+      ],
+      "regels": [
+        "Bij alcohol in tekst of beeld: 'Geniet, maar drink met mate.' in de tekst.",
+        "Geen mensen in beeld die jonger lijken dan 25.",
+        "Meta keurt alcoholadvertenties soms af: kies dan een beeld met een mocktail of jezelf achter de bar."
+      ]
+    },
+    "linkedin": {
+      "naam": "LinkedIn Ads",
+      "bij": ["linkedin"],
+      "instellingen": [
+        "Doel: Websitebezoeken. Formaat: afbeelding (één foto).",
+        "Locatie: Almere, Flevoland, Het Gooi en Amsterdam.",
+        "Doelgroep: functies office manager, HR, management assistant, eigenaar; bedrijfsgrootte 11 tot 500.",
+        "Budget: totaalbudget met einddatum. LinkedIn is duur per klik (vaak € 3 tot € 8): houd het bij een test.",
+        "Zet 'Audience Expansion' en 'LinkedIn Audience Network' uit."
+      ],
+      "stappen": [
+        "Ga naar linkedin.com/campaignmanager en maak een advertentieaccount (koppel je bedrijfspagina).",
+        "Klik Create → Campaign → doel 'Website visits'.",
+        "Vul de doelgroep in zoals hierboven en controleer dat de grootte boven 50.000 ligt, anders start hij niet.",
+        "Kies 'Single image ad', plak de tekst hierboven en de ?ref-link.",
+        "Budget: kies 'Lifetime budget' met een einddatum. Controleer en klik Launch campaign. Betalen regel je zelf in LinkedIn."
+      ],
+      "regels": [
+        "Richt je op het teamuitje of de borrel, niet op de drank.",
+        "Noem mocktails, zodat iedereen in het team zich aangesproken voelt."
+      ]
+    }
+  },
+  "partners": {
+    "_uitleg": "Soorten bedrijven om mee samen te werken. Zoek ze zelf op Google Maps of hun website; nooit lijsten kopen of automatisch verzamelen.",
+    "soorten": [
+      {
+        "id": "locatie",
+        "naam": "Trouw- en feestlocaties",
+        "waar": "Google Maps: 'trouwlocatie Almere', 'feestlocatie Flevoland', 'zaal huren Almere'. Kies locaties zonder eigen cocktailbar.",
+        "waarom": "Locaties krijgen vaak de vraag of ze een bartender weten. Sta op hun leverancierslijst.",
+        "onderwerp": "Cocktailbartender voor jullie gasten",
+        "mail": "Beste [naam],\n\nIk ben Rutger van Beck on the Rocks, freelance cocktailbartender uit Almere. Ik kom met mijn eigen cocktailgereedschap en maak verse cocktails en mocktails op locatie; de drank komt van de klant of van jullie.\n\nKrijgen jullie bij [bedrijf] wel eens de vraag naar een bartender of een cocktailbar? Dan sta ik graag op jullie lijst met vaste leveranciers. Ik kom ook graag een keer langs om kennis te maken.\n\nMet vriendelijke groet,\nRutger\nBeck on the Rocks\nhttps://beckontherocks.nl/?ref=mail-partner-locatie"
+      },
+      {
+        "id": "slijterij",
+        "naam": "Slijterijen en wijnhandels",
+        "waar": "Google Maps: 'slijterij Almere', 'wijnhandel Almere'. Zelfstandige zaken werken het makkelijkst.",
+        "waarom": "Jouw klanten kopen zelf de drank. Een slijter kan jou aanraden, jij kunt hem aanraden voor de boodschappenlijst.",
+        "onderwerp": "Samen feesten beter maken in Almere",
+        "mail": "Beste [naam],\n\nIk ben Rutger van Beck on the Rocks, freelance cocktailbartender in Almere. Mijn klanten regelen zelf de drank; ik maak een boodschappenlijst voor ze en sta op het feest achter de bar.\n\nZou het iets zijn om elkaar aan te raden? Ik verwijs mijn klanten graag naar [bedrijf] voor hun inkopen, en jullie klanten die een feest geven kunnen bij mij terecht voor de cocktails.\n\nIk kom graag even langs om kennis te maken.\n\nMet vriendelijke groet,\nRutger\nBeck on the Rocks\nhttps://beckontherocks.nl/?ref=mail-partner-slijterij"
+      },
+      {
+        "id": "planner",
+        "naam": "Weddingplanners en eventbureaus",
+        "waar": "Google: 'weddingplanner Flevoland', 'eventbureau Almere'. Kijk op hun site naar de leveranciers die ze noemen.",
+        "waarom": "Planners zoeken betrouwbare leveranciers en boeken vaak meerdere keren per jaar.",
+        "onderwerp": "Cocktailbartender voor jullie events",
+        "mail": "Beste [naam],\n\nIk ben Rutger van Beck on the Rocks, freelance cocktailbartender uit Almere. Op bruiloften en bedrijfsfeesten sta ik met mijn eigen gereedschap achter de bar en maak ik verse cocktails en mocktails. De klant regelt de drank, ik maak de boodschappenlijst.\n\nIk zou graag een van de vaste leveranciers van [bedrijf] worden. Zal ik een keer langskomen, of mag ik meedraaien op een event zodat jullie kunnen zien hoe ik werk?\n\nMet vriendelijke groet,\nRutger\nBeck on the Rocks\nhttps://beckontherocks.nl/?ref=mail-partner-planner"
+      },
+      {
+        "id": "catering",
+        "naam": "Cateraars en foodtrucks",
+        "waar": "Google Maps: 'catering Almere', 'foodtruck huren Flevoland'.",
+        "waarom": "Wie eten regelt, krijgt vaak de vraag naar drinken. Samen bied je een compleet feest.",
+        "onderwerp": "Eten en cocktails samen aanbieden",
+        "mail": "Beste [naam],\n\nIk ben Rutger van Beck on the Rocks, freelance cocktailbartender uit Almere. Ik zie dat [bedrijf] veel feesten verzorgt. Vragen jullie klanten wel eens naar cocktails of een bar erbij?\n\nIk werk met mijn eigen gereedschap en maak cocktails en mocktails; de klant regelt de drank. Misschien kunnen we elkaar aanraden, of samen een pakket aanbieden.\n\nZin om een keer koffie te drinken?\n\nMet vriendelijke groet,\nRutger\nBeck on the Rocks\nhttps://beckontherocks.nl/?ref=mail-partner-catering"
+      },
+      {
+        "id": "zakelijk",
+        "naam": "Ondernemersclubs en coworkings",
+        "waar": "Google: 'ondernemersvereniging Almere', 'coworking Almere'. Kijk naar hun agenda met borrels.",
+        "waarom": "Netwerkborrels en eindejaarsborrels zijn precies jouw klus, en leden geven zelf ook feesten.",
+        "onderwerp": "Cocktails op jullie volgende borrel",
+        "mail": "Beste [naam],\n\nIk ben Rutger van Beck on the Rocks, freelance cocktailbartender uit Almere. Ik zag dat [bedrijf] regelmatig borrels organiseert.\n\nZou het leuk zijn om een keer cocktails en mocktails te schenken op een van jullie borrels? Jullie regelen de drank, ik kom met mijn eigen gereedschap en maak de boodschappenlijst. Voor leden heb ik graag een vaste kennismakingsprijs.\n\nMet vriendelijke groet,\nRutger\nBeck on the Rocks\nhttps://beckontherocks.nl/?ref=mail-partner-zakelijk"
+      }
+    ],
+    "opvolgen": {
+      "onderwerp": "Re: [onderwerp]",
+      "mail": "Beste [naam],\n\nVorige week stuurde ik je een berichtje over cocktails op jullie events. Ik weet hoe druk het kan zijn, dus nog even een kort zetje: heb je interesse om kennis te maken?\n\nZo niet, dan hoor ik dat ook graag; dan stuur ik je niets meer.\n\nMet vriendelijke groet,\nRutger\nBeck on the Rocks"
+    },
+    "regels": [
+      "Mail naar algemene bedrijfsadressen (info@, events@). Voor zzp'ers en eenmanszaken gebruik je hun contactformulier, LinkedIn of de telefoon: ongevraagd mailen naar personen mag niet zonder toestemming.",
+      "Stuur elke mail zelf en persoonlijk, hoogstens een paar per week. Nooit in bulk.",
+      "Vraagt iemand je te stoppen, zet hem dan op 'Geen interesse' en mail niet meer.",
+      "Bewaar alleen zakelijke gegevens. Met 'Verwijderen' haal je iemand helemaal weg."
+    ]
+  }
+}
