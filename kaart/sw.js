@@ -1,12 +1,12 @@
 // Service worker voor het visitekaartje: maakt hem installeerbaar en laat hem ook offline werken.
-const CACHE = 'beck-kaart-v3';
+const CACHE = 'beck-kaart-v4';
 const BASIS = [
   '/kaart/',
   '/kaart/rutger-beck-on-the-rocks.vcf',
   '/assets/css/fonts.css',
-  '/assets/css/style.css',
-  '/assets/fonts/inter-latin-400-normal.woff2',
-  '/assets/fonts/inter-latin-500-normal.woff2',
+  '/assets/css/site.css',
+  '/assets/fonts/jost-latin-300-normal.woff2',
+  '/assets/fonts/jost-latin-400-normal.woff2',
   '/assets/fonts/cormorant-garamond-latin-500-normal.woff2',
   '/assets/img/w/logo-dark-300.webp',
   '/assets/img/w/logo-dark-300.png',

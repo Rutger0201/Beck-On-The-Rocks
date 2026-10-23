@@ -154,7 +154,8 @@ de betekenistokens (`--bg`, `--text`, `--muted`, `--line`, `--accent`, `--btn-bg
   `section--alt` geeft het lichtere papier. Wissel licht en donker af, maak niet alles donker.
 - Foto's krijgen automatisch een warme, ingetogen kleurcorrectie zodat ze bij elkaar passen.
 - Beweging staat uit voor bezoekers met "minder beweging" in hun systeeminstellingen.
-- Admin, `documenten.html` en `akkoord.html` gebruiken nog de oude `assets/css/style.css`; die komen in een aparte fase.
+- Admin, `documenten.html` en `akkoord.html` gebruiken ook `site.css`, met daarnaast hun eigen bestand voor wat alleen zij hebben
+  (`admin/marketing.css`, `assets/css/documenten.css`, `assets/css/akkoord.css`). De print/PDF van offertes blijft wit papier.
 
 ## Logo
 - `assets/img/logo-mark.png`: alleen het beeldmerk (B met cocktailglas), transparant. Gebruikt in menu en footer.
