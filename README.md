@@ -20,7 +20,7 @@ of zet de map op een host als Netlify, Vercel of GitHub Pages.
   "Opslaan in contacten" (`kaart/rutger-beck-on-the-rocks.vcf`).
 - Foto's staan in `assets/img/`; de verkleinde WebP/JPG-versies die de site laadt in `assets/img/w/`.
   Nieuwe foto? Maak er ook versies van 480, 800 en 1200 px breed van in die map.
-- Lettertypes (Cormorant Garamond en Inter) staan zelf gehost in `assets/fonts/` via `assets/css/fonts.css`:
+- Lettertypes (Cormorant Garamond en Jost voor de site, Inter voor admin en documenten) staan zelf gehost in `assets/fonts/` via `assets/css/fonts.css`:
   sneller en er gaat geen IP-adres naar Google.
 - De cocktailkaart is een menukaart per categorie; de kleur van de stip is `c1` in de lijst `COCKTAILS`.
 
@@ -145,7 +145,16 @@ Alles is versleuteld met hetzelfde `ADMIN_WACHTWOORD`. Uitleg, bestanden en het 
   dan bij de tarieven. Reken je 21%, dan moeten consumentenprijzen inclusief btw zijn: bedragen eerst aanpassen.
 - **Cocktails**: lijst `COCKTAILS` bovenaan `assets/js/main.js`.
 
-Kleuren en lettertypes staan als variabelen bovenaan `assets/css/style.css`.
+## Vormgeving (design system)
+De publieke pagina's gebruiken `assets/css/site.css` (stijl "Editorial Luxury": ivoor, papier en houtskool met één messingtint).
+Bovenaan staan alle tokens: kleuren, lettergroottes, ruimte, breekpunten en bewegingstijden. Componenten gebruiken alleen
+de betekenistokens (`--bg`, `--text`, `--muted`, `--line`, `--accent`, `--btn-bg` …), zodat je de look op één plek aanpast.
+
+- Een donkere sectie maak je met `class="section section--donker"`: alle knoppen, lijnen en teksten erin passen zich vanzelf aan.
+  `section--alt` geeft het lichtere papier. Wissel licht en donker af, maak niet alles donker.
+- Foto's krijgen automatisch een warme, ingetogen kleurcorrectie zodat ze bij elkaar passen.
+- Beweging staat uit voor bezoekers met "minder beweging" in hun systeeminstellingen.
+- Admin, `documenten.html` en `akkoord.html` gebruiken nog de oude `assets/css/style.css`; die komen in een aparte fase.
 
 ## Logo
 - `assets/img/logo-mark.png`: alleen het beeldmerk (B met cocktailglas), transparant. Gebruikt in menu en footer.

@@ -170,10 +170,18 @@
       toggle.setAttribute('aria-label', open ? t('Menu sluiten', 'Close menu') : t('Menu openen', 'Open menu'));
       menu.classList.toggle('is-open', open);
       document.documentElement.classList.toggle('menu-open', open);
+      if (open) $('a', menu).focus();
     });
     $$('a', menu).forEach(a => a.addEventListener('click', sluitMenu));
     addEventListener('keydown', e => {
-      if (e.key === 'Escape' && menu.classList.contains('is-open')) { sluitMenu(); toggle.focus(); }
+      if (!menu.classList.contains('is-open')) return;
+      if (e.key === 'Escape') { sluitMenu(); toggle.focus(); return; }
+      // Tab blijft binnen het open menu en de sluitknop
+      if (e.key !== 'Tab') return;
+      const focusbaar = [...$$('a', menu), toggle];
+      const eerste = focusbaar[0], laatste = focusbaar[focusbaar.length - 1];
+      if (e.shiftKey && document.activeElement === eerste) { e.preventDefault(); laatste.focus(); }
+      else if (!e.shiftKey && document.activeElement === laatste) { e.preventDefault(); eerste.focus(); }
     });
   }
   // "Naar de inhoud": focus op de inhoud zonder de #pagina te wisselen
