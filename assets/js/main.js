@@ -490,25 +490,61 @@
         teaser.hidden = false;
       }
       if (!reviewLijst) return;
-      reviewLijst.innerHTML = reviews.map(r => {
+      const gLogo = '<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
+      // Eén review tegelijk, groot; bladeren met pijltjes of vegen, schuift vanzelf door
+      reviewLijst.innerHTML = `<div class="reviews-lijst__baan" aria-live="polite">${reviews.map((r, i) => {
         const n = Math.min(5, Math.max(1, Math.round(+r.sterren) || 5));
         const datum = r.datum ? ' · ' + esc(maandJaar(r.datum)) : '';
         const bron = r.bron === 'google'
-          ? (veilig(r.link) ? `<a href="${esc(r.link)}" target="_blank" rel="noopener">${t('Via Google', 'Via Google')}</a>` : t('Via Google', 'Via Google'))
+          ? (veilig(r.link) ? `<a href="${esc(r.link)}" target="_blank" rel="noopener">${gLogo.replace('<svg', '<svg class="review__g"')}Google</a>` : 'Google')
           : esc(soortTekst(r.soort || ''));
-        return `<blockquote class="review">
-          <div class="stars" role="img" aria-label="${t(`${n} van 5 sterren`, `${n} out of 5 stars`)}">${sterren(n)}</div>
+        return `<blockquote class="review${r.tekst.length > 220 ? ' review--lang' : ''}${i ? '' : ' is-actief'}" aria-roledescription="${t('review', 'review')}" aria-label="${i + 1} / ${reviews.length}"${i ? ' aria-hidden="true"' : ''}>
           <p>${esc(r.tekst)}</p>
-          <footer><strong>${esc(r.naam)}</strong><span>${bron}${datum}</span></footer>
+          <footer><strong>${esc(r.naam)}</strong><div class="stars" role="img" aria-label="${t(`${n} van 5 sterren`, `${n} out of 5 stars`)}">${sterren(n)}</div><span>${bron}${datum}</span></footer>
         </blockquote>`;
-      }).join('');
+      }).join('')}</div>${reviews.length > 1 ? `<div class="reviews-lijst__nav">
+        <button type="button" data-stap="-1" aria-label="${t('Vorige review', 'Previous review')}">←</button>
+        <button type="button" data-stap="1" aria-label="${t('Volgende review', 'Next review')}">→</button>
+        <span class="reviews-lijst__teller">01 / ${String(reviews.length).padStart(2, '0')}</span>
+        <span class="reviews-lijst__balk" aria-hidden="true"><i></i></span>
+      </div>` : ''}`;
+      reviewLijst.setAttribute('role', 'region');
+      reviewLijst.setAttribute('aria-roledescription', t('carrousel', 'carousel'));
+      reviewLijst.setAttribute('aria-label', t('Reviews van gasten', 'Guest reviews'));
       reviewLijst.hidden = !reviews.length;
+      const slides = [...reviewLijst.querySelectorAll('.review')];
+      let huidig = 0, timer = null;
+      const toon = i => {
+        huidig = (i + slides.length) % slides.length;
+        slides.forEach((el, j) => { el.classList.toggle('is-actief', j === huidig); el.toggleAttribute('aria-hidden', j !== huidig); });
+        const teller = reviewLijst.querySelector('.reviews-lijst__teller');
+        if (teller) teller.textContent = `${String(huidig + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
+        const balk = reviewLijst.querySelector('.reviews-lijst__balk i');
+        if (balk) balk.style.width = `${(huidig + 1) / slides.length * 100}%`;
+      };
+      const stop = () => { clearInterval(timer); timer = null; };
+      const auto = () => { stop(); if (slides.length > 1 && !matchMedia('(prefers-reduced-motion: reduce)').matches) timer = setInterval(() => toon(huidig + 1), 8000); };
+      reviewLijst.querySelectorAll('[data-stap]').forEach(k => k.addEventListener('click', () => { toon(huidig + +k.dataset.stap); auto(); }));
+      reviewLijst.addEventListener('mouseenter', stop);
+      reviewLijst.addEventListener('mouseleave', auto);
+      reviewLijst.addEventListener('focusin', stop);
+      let x0 = null;
+      reviewLijst.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; stop(); }, { passive: true });
+      reviewLijst.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - (x0 ?? 0);
+        if (x0 !== null && Math.abs(dx) > 40) toon(huidig + (dx < 0 ? 1 : -1));
+        x0 = null; auto();
+      });
+      toon(0); auto();
       const gem = (eigen.reduce((s, r) => s + (Math.min(5, Math.max(1, +r.sterren || 5))), 0) + gSom) / aantal;
       const gLink = veilig(google.url)
-        ? `<a href="${esc(google.url)}" target="_blank" rel="noopener">Google</a>` : 'Google';
+        ? `<a href="${esc(google.url)}" target="_blank" rel="noopener">${t('Bekijk op Google', 'See on Google')}</a>` : 'Google';
       const score = $('#review-score');
-      score.innerHTML = `<strong>${gem.toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</strong>
-        <div><div class="stars" aria-hidden="true">${sterren(Math.round(gem))}</div><span>${t('Gemiddeld uit', 'Average of')} ${aantal} ${aantal === 1 ? 'review' : 'reviews'}${gAantal ? ` · ${gAantal} ${t('via', 'on')} ${gLink}` : ''}</span></div>`;
+      score.innerHTML = `<span class="review-score__label">${t('Beoordeling', 'Rating')}</span>
+        <strong>${gem.toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</strong>
+        <div class="stars" aria-hidden="true">${sterren(Math.round(gem))}</div>
+        <span>${t('Gebaseerd op', 'Based on')} ${aantal} ${aantal === 1 ? 'review' : 'reviews'}</span>
+        ${gAantal ? `<span class="review-score__g">${gLogo}${gAantal} ${t('op', 'on')} Google · ${gLink}</span>` : ''}`;
       score.hidden = false;
       $('#review-intro').textContent = t('Ik hoor graag hoe jij het vond. Je review helpt anderen kiezen.', 'I would love to hear what you thought. Your review helps others choose.');
     };
