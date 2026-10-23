@@ -40,11 +40,19 @@ def vraag(pad, sleutel, velden, data=None):
 
 
 def zoek_place_id(sleutel):
-    res = vraag('places:searchText', sleutel, 'places.id,places.displayName,places.websiteUri',
-                {'textQuery': ZOEK, 'languageCode': 'nl', 'regionCode': 'NL'})
-    for p in res.get('places', []):
-        if SITE in (p.get('websiteUri') or '') or (p.get('displayName') or {}).get('text', '').lower() == ZOEK.lower():
-            return p['id']
+    # Een bedrijf zonder vast adres staat soms onder een iets andere naam: meerdere zoekopdrachten
+    # proberen en de gevonden namen tonen (zonder gevoelige gegevens) zodat het Place ID te vinden is
+    schoon = lambda t: ''.join(c for c in t.lower() if c.isalnum())
+    for zoek in (ZOEK, f'{ZOEK} Almere', f'{ZOEK} cocktail bartender', 'beckontherocks.nl'):
+        res = vraag('places:searchText', sleutel, 'places.id,places.displayName,places.websiteUri',
+                    {'textQuery': zoek, 'languageCode': 'nl', 'regionCode': 'NL'})
+        gevonden = res.get('places', [])
+        print(f'Zoeken naar "{zoek}": {len(gevonden)} resultaten: ' +
+              ', '.join((p.get('displayName') or {}).get('text', '?') for p in gevonden))
+        for p in gevonden:
+            naam = (p.get('displayName') or {}).get('text', '')
+            if SITE in (p.get('websiteUri') or '') or schoon(ZOEK) in schoon(naam):
+                return p['id']
     return None
 
 
