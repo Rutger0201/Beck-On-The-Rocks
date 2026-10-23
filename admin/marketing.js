@@ -89,14 +89,15 @@
   // ---------- toestand ----------
   const m = {
     ww: '', geheim: null, publiek: '', data: null, regels: null, events: [], token: '', sha: null,
-    status: { versie: 1, items: {} }, sync: '', open: new Set(), bewerk: null,
+    status: { versie: 1, items: {}, eigen: {} }, sync: '', open: new Set(), bewerk: null,
+    ai: { open: null, nieuw: false, wacht: {}, perKans: {}, nieuwAntwoord: null, geladen: false },
     weergave: Object.assign({ tab: 'kansen', soort: 'alle', filter: 'open', sorteer: 'score', kal: 'maand' }, JSON.parse(lees(WEERGAVE) || '{}')),
     dag: new Date()
   };
   const bewaarWeergave = () => schrijf(WEERGAVE, JSON.stringify(m.weergave));
 
   function samenvoegen(a, b) {
-    const uit = { versie: 1, items: Object.assign({}, a.items) };
+    const uit = { versie: 1, items: Object.assign({}, a.items), eigen: Object.assign({}, a.eigen, b.eigen) };
     for (const [id, s] of Object.entries(b.items || {}))
       if (!uit.items[id] || (s.gewijzigd || '') > (uit.items[id].gewijzigd || '')) uit.items[id] = s;
     return uit;
@@ -166,7 +167,15 @@
     uit.controle = s.tekst != null || s.hashtags != null || s.cta != null ? controleer(uit) : (k.controle || []);
     return uit;
   }
-  const alleKansen = () => (m.data.kansen || []).map(kans);
+  const KANAALCODE = { instagram: 'ig', facebook: 'fb', linkedin: 'li', tiktok: 'tt', google: 'gg', website: 'web', mail: 'mail', whatsapp: 'wa' };
+  const linkVoor = k => 'https://beckontherocks.nl' + (k.pagina || '/') + '?ref=' + k.ref;
+  // Zelf toegevoegde kansen ("Nieuw idee") staan in de status tot de nachtelijke run ze in de planning zet.
+  function alleKansen() {
+    const ids = new Set((m.data.kansen || []).map(k => k.id));
+    const eigen = Object.entries(m.status.eigen || {}).filter(([id]) => !ids.has(id))
+      .map(([id, k]) => Object.assign({ bronnen: [], herkomst: 'eigen', bonus: 0 }, k, { id }));
+    return (m.data.kansen || []).concat(eigen).map(kans);
+  }
 
   function controleer(k) {
     const r = m.regels;
@@ -237,13 +246,13 @@
     doos.append(kop);
 
     const tabs = el('div', 'm-tabs'); tabs.setAttribute('role', 'tablist');
-    for (const [t, naam] of [['kansen', 'Kansen'], ['kalender', 'Kalender'], ['trends', 'Onderzoek'], ['instellingen', 'Instellingen']]) {
+    for (const [t, naam] of [['kansen', 'Kansen'], ['kalender', 'Kalender'], ['resultaten', 'Resultaten'], ['trends', 'Onderzoek'], ['instellingen', 'Instellingen']]) {
       const b = knop(naam, () => { m.weergave.tab = t; bewaarWeergave(); toon(); }, m.weergave.tab !== t);
       b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', m.weergave.tab === t);
       tabs.append(b);
     }
     doos.append(tabs);
-    ({ kansen: toonKansen, kalender: toonKalender, trends: toonTrends, instellingen: toonInstellingen })[m.weergave.tab](doos, lijst);
+    ({ kansen: toonKansen, kalender: toonKalender, resultaten: toonResultaten, trends: toonTrends, instellingen: toonInstellingen })[m.weergave.tab](doos, lijst);
     const s = el('p', 'm-sync'); s.id = 'm-sync'; s.textContent = m.sync; doos.append(s);
   }
 
@@ -265,6 +274,8 @@
     balk.append(chips([['open', 'Voorstellen'], ['goedgekeurd', 'Goedgekeurd'], ['ingepland', 'Ingepland'], ['gepubliceerd', 'Gepubliceerd'], ['afgewezen', 'Afgewezen'], ['alles', 'Alles']], w.filter, v => { w.filter = v; }));
     balk.append(chips([['score', 'Beste eerst'], ['datum', 'Op datum']], w.sorteer, v => { w.sorteer = v; }));
     doos.append(balk);
+    if (m.ai.nieuw) doos.append(nieuwPaneel());
+    else doos.append(knop('Nieuw idee met AI', () => { m.ai.nieuw = true; toon(); }, true, 'm-nieuwknop'));
     const pastStatus = k => w.filter === 'alles' || (w.filter === 'open' ? k.status === 'nieuw' : k.status === w.filter);
     const zicht = lijst.filter(k => (w.soort === 'alle' || k.soort === w.soort) && pastStatus(k))
       .sort(w.sorteer === 'datum' ? (a, b) => (a.datum + a.tijd).localeCompare(b.datum + b.tijd) : (a, b) => b.score - a.score);
@@ -281,6 +292,7 @@
     if (k.status !== 'nieuw') labels.append(el('span', 'm-label m-label--status', STATUS[k.status]));
     if (k.bewerkt) labels.append(el('span', 'm-label m-label--stil', 'Aangepast'));
     if (k.herkomst === 'onderzoek') labels.append(el('span', 'm-label m-label--stil', 'Uit onderzoek'));
+    if (k.herkomst === 'eigen') labels.append(el('span', 'm-label m-label--stil', 'Eigen idee'));
     const meta = el('div', 'event__meta', [k.kanaal, k.formaat, datumTekst(k.datum) + ' ' + (k.tijd || '')].filter(Boolean).join(' · '));
     const doel = el('p', 'm-doel'); doel.append(el('strong', '', 'Doelgroep: '), document.createTextNode(k.doelgroep || '-'));
     const waarom = el('p', 'event__waarom', k.waarom);
@@ -294,6 +306,7 @@
     }
     if (m.bewerk === k.id) romp.append(bewerkForm(k));
     else romp.append(details(k));
+    if (m.ai.open === k.id) romp.append(aiPaneel(k));
     romp.append(knoppen(k, rood.length > 0));
     a.append(p, romp);
     return a;
@@ -326,6 +339,7 @@
       const v = el('span', 'm-balk__vol'); v.style.setProperty('--w', (k.criteria[c] / 5 * 100) + '%'); v.title = k.criteria[c] + ' van 5';
       r.append(v); opbouw.append(r);
     }
+    if (k.bonus) opbouw.append(el('p', 'm-stil', `${k.bonus > 0 ? '+' : ''}${k.bonus} punten: ${k.kanaal} levert je ${k.bonus > 0 ? 'meer' : 'minder'} bezoekers per post op dan gemiddeld.`));
     if (k.moment) blok('Moment', el('p', '', `${k.moment.naam}, ${datumTekst(k.moment.datum, true)}`));
     if (k.bronnen && k.bronnen.length) {
       const b = blok('Bronnen'); const ul = el('ul', 'm-bronnen');
@@ -334,7 +348,7 @@
         li.append(l, document.createTextNode(bron.datum ? ' · ' + datumTekst(bron.datum) : '')); ul.append(li);
       }
       b.append(ul);
-    } else blok('Bron', el('p', 'm-stil', k.herkomst === 'kalender' ? 'Vaste seizoenskalender' : k.herkomst === 'idee' ? 'Vaste ideeënlijst' : 'Onderzoek'));
+    } else blok('Bron', el('p', 'm-stil', { kalender: 'Vaste seizoenskalender', idee: 'Vaste ideeënlijst', eigen: 'Je eigen idee (AI)' }[k.herkomst] || 'Onderzoek'));
     d.append(raster);
     if (k.link) { const l = el('p', 'm-stil'); l.append(document.createTextNode('Link met meetcode: ' + k.link)); d.append(l); }
     return d;
@@ -372,6 +386,8 @@
     const rij = el('div', 'event__knoppen');
     const kop = knop('Kopieer tekst', ev => kopieer(kopieertekst(k), ev.currentTarget), true);
     const bewerk = knop('Bewerken', () => { m.bewerk = k.id; toon(); }, true);
+    const aiKnop = k.status !== 'afgewezen' && k.status !== 'gepubliceerd' && m.ai.open !== k.id
+      ? knop('Verbeter met AI', () => { m.ai.open = k.id; toon(); }, true) : null;
     if (k.status === 'nieuw') {
       const ja = knop('Goedkeuren', () => zet(k.id, { status: 'goedgekeurd' }));
       if (rood) { ja.disabled = true; ja.title = 'Pas eerst de rode punten aan'; }
@@ -387,8 +403,281 @@
     } else {
       rij.append(knop('Toch bewaren', () => zet(k.id, { status: 'nieuw' }), true));
     }
+    if (aiKnop) rij.append(aiKnop);
     if (rood && k.status !== 'nieuw' && k.status !== 'afgewezen') rij.prepend(el('span', 'm-waarschuwing', 'Let op de rode punten vóór je publiceert.'));
     return rij;
+  }
+
+  // ---------- AI (GitHub Models via de Action "Marketing AI") ----------
+  const OPDRACHT = [['korter', 'Korter'], ['zakelijker', 'Zakelijker'], ['speelser', 'Speelser'], ['persoonlijker', 'Persoonlijker'],
+    ['instagram', 'Voor Instagram'], ['facebook', 'Voor Facebook'], ['linkedin', 'Voor LinkedIn'], ['tiktok', 'TikTok-script'],
+    ['google', 'Google-profiel'], ['engels', 'Engels']];
+  const willekeurig = () => Array.from(crypto.getRandomValues(new Uint8Array(8)), b => b.toString(16).padStart(2, '0')).join('');
+
+  async function stuurAi(verzoek, waarvoor) {
+    if (!m.token) throw new Error('Hiervoor is een GitHub-token nodig (tabblad Instellingen).');
+    const r = await api('actions/workflows/marketing-ai.yml/dispatches', { method: 'POST',
+      body: JSON.stringify({ ref: 'main', inputs: { verzoek: JSON.stringify(await versleutel(verzoek)) } }) });
+    if (r.status !== 204) throw new Error(r.status === 403 || r.status === 404 ? 'Het token mist Actions-rechten (zie Instellingen).' : 'GitHub ' + r.status);
+    m.ai.wacht[verzoek.id] = { waarvoor, start: Date.now() };
+    peilAi();
+  }
+  async function haalAiAntwoorden() {
+    const r = await api('contents/assets/data/marketing-ai.enc.json?ref=main', { cache: 'no-store' });
+    if (!r.ok) return [];
+    const j = await r.json();
+    return (await ontsleutel(JSON.parse(atob(j.content.replace(/\s/g, ''))))).antwoorden || [];
+  }
+  function bewaarAntwoord(a) {
+    if (a.soort === 'nieuw') m.ai.nieuwAntwoord = a;
+    else if (a.kans_id) m.ai.perKans[a.kans_id] = a;
+  }
+  let peilen = null;
+  function peilAi() {
+    clearTimeout(peilen);
+    if (!Object.keys(m.ai.wacht).length) return;
+    peilen = setTimeout(async () => {
+      try {
+        const antwoorden = await haalAiAntwoorden();
+        for (const a of antwoorden) if (m.ai.wacht[a.id]) { delete m.ai.wacht[a.id]; bewaarAntwoord(a); }
+      } catch (e) {}
+      for (const [id, w] of Object.entries(m.ai.wacht))
+        if (Date.now() - w.start > 6 * 60000) {
+          delete m.ai.wacht[id];
+          bewaarAntwoord({ id, soort: w.waarvoor === 'nieuw' ? 'nieuw' : 'verbeter', kans_id: w.waarvoor, fout: 'Geen antwoord binnen 6 minuten. Kijk bij Actions → Marketing AI op GitHub.' });
+        }
+      toon();
+      peilAi();
+    }, 10000);
+  }
+  async function laadEerdereAntwoorden() {
+    if (m.ai.geladen || !m.token) return;
+    m.ai.geladen = true;
+    try { (await haalAiAntwoorden()).slice().reverse().forEach(bewaarAntwoord); toon(); } catch (e) {}
+  }
+  const bezig = waarvoor => Object.values(m.ai.wacht).some(w => w.waarvoor === waarvoor);
+
+  function aiPaneel(k) {
+    laadEerdereAntwoorden();
+    const p = el('div', 'm-ai');
+    p.append(el('h3', '', 'Verbeter met AI'));
+    if (!m.token) {
+      p.append(el('p', 'm-stil', 'Hiervoor is een GitHub-token met Actions-rechten nodig. Stel het in bij Instellingen; het is gratis.'));
+      p.append(knop('Sluiten', () => { m.ai.open = null; toon(); }, true));
+      return p;
+    }
+    let keuze = 'korter';
+    const rij = el('div', 'm-chips');
+    for (const [waarde, naam] of OPDRACHT) {
+      const b = el('button', 'm-chip' + (waarde === keuze ? ' is-aan' : ''), naam); b.type = 'button';
+      b.onclick = () => { keuze = waarde; rij.querySelectorAll('.m-chip').forEach(c => c.classList.toggle('is-aan', c === b)); };
+      rij.append(b);
+    }
+    const vrij = el('input', 'm-invoer'); vrij.placeholder = 'Extra wens (optioneel), bijv. "noem de kerstmarkt in Almere"';
+    const kn = el('div', 'event__knoppen');
+    const ga = knop(bezig(k.id) ? 'Bezig…' : 'Genereer twee versies', async () => {
+      ga.disabled = true; ga.textContent = 'Versturen…';
+      try {
+        await stuurAi({ id: willekeurig(), soort: 'verbeter', opdracht: keuze, vrij: vrij.value.trim(),
+          kans: { id: k.id, titel: k.titel, kanaal: k.kanaal, formaat: k.formaat, doelgroep: k.doelgroep, tekst: k.tekst, cta: k.cta, hashtags: k.hashtags } }, k.id);
+        delete m.ai.perKans[k.id];
+      } catch (e) { m.ai.perKans[k.id] = { fout: e.message }; }
+      toon();
+    });
+    ga.disabled = bezig(k.id);
+    kn.append(ga, knop('Sluiten', () => { m.ai.open = null; toon(); }, true));
+    p.append(rij, vrij, kn);
+    if (bezig(k.id)) p.append(el('p', 'm-stil', 'De AI is bezig. Dit duurt meestal één tot twee minuten; je kunt intussen verder werken.'));
+    const a = m.ai.perKans[k.id];
+    if (a && a.fout) p.append(el('p', 'm-controle--rood m-melding', a.fout));
+    if (a && a.varianten) {
+      if (!a.varianten.length) p.append(el('p', 'm-stil', 'De AI gaf geen bruikbare versie. Probeer een andere opdracht.'));
+      a.varianten.forEach((v, i) => {
+        const vak = el('div', 'm-variant');
+        vak.append(el('h4', '', `Versie ${i + 1}` + (v.toelichting ? ': ' + v.toelichting : '')), el('div', 'm-tekst', v.tekst));
+        if (v.cta) vak.append(el('p', 'm-cta', 'Call-to-action: ' + v.cta));
+        if (v.hashtags && v.hashtags.length) vak.append(el('p', 'm-tags', v.hashtags.map(h => '#' + h).join(' ')));
+        if (v.controle && v.controle.length) {
+          const c = el('ul', 'm-controle'); v.controle.forEach(x => c.append(el('li', 'm-controle--' + x.niveau, x.tekst))); vak.append(c);
+        }
+        const link = k.link || linkVoor(k);
+        vak.append(knop('Gebruik deze versie', () => {
+          m.ai.open = null; m.open.add(k.id);
+          zet(k.id, { tekst: v.tekst.split('{link}').join(link), cta: (v.cta || '').split('{link}').join(link), hashtags: v.hashtags || [] });
+        }));
+        p.append(vak);
+      });
+    }
+    return p;
+  }
+
+  function nieuwPaneel() {
+    laadEerdereAntwoorden();
+    const p = el('div', 'm-ai m-ai--nieuw');
+    p.append(el('h3', '', 'Nieuw idee met AI'));
+    if (!m.token) {
+      p.append(el('p', 'm-stil', 'Hiervoor is een GitHub-token met Actions-rechten nodig. Stel het in bij Instellingen; het is gratis.'));
+      p.append(knop('Sluiten', () => { m.ai.nieuw = false; toon(); }, true));
+      return p;
+    }
+    const wens = el('textarea', 'm-invoer'); wens.rows = 3;
+    wens.placeholder = 'Waar wil je een post of actie over? Bijv. "een reel over mijn nieuwe kerstcocktail" of "samenwerking met een trouwlocatie in Zeewolde"';
+    const kanaal = el('select', 'm-invoer');
+    for (const n of ['', 'Instagram', 'Facebook', 'LinkedIn', 'TikTok', 'Google', 'Website', 'Mail']) {
+      const o = el('option', '', n || 'Kanaal: laat de AI kiezen'); o.value = n; kanaal.append(o);
+    }
+    const kn = el('div', 'event__knoppen');
+    const ga = knop(bezig('nieuw') ? 'Bezig…' : 'Bedenk het', async () => {
+      if (!wens.value.trim()) { wens.focus(); return; }
+      ga.disabled = true; ga.textContent = 'Versturen…';
+      try { await stuurAi({ id: willekeurig(), soort: 'nieuw', vrij: wens.value.trim(), kanaal: kanaal.value }, 'nieuw'); m.ai.nieuwAntwoord = null; }
+      catch (e) { m.ai.nieuwAntwoord = { fout: e.message }; }
+      toon();
+    });
+    ga.disabled = bezig('nieuw');
+    kn.append(ga, knop('Sluiten', () => { m.ai.nieuw = false; toon(); }, true));
+    p.append(wens, kanaal, kn);
+    if (bezig('nieuw')) p.append(el('p', 'm-stil', 'De AI is bezig. Dit duurt meestal één tot twee minuten.'));
+    const a = m.ai.nieuwAntwoord;
+    if (a && a.fout) p.append(el('p', 'm-controle--rood m-melding', a.fout));
+    if (a && a.kans) {
+      const k = Object.assign({}, a.kans);
+      const vak = el('div', 'm-variant');
+      vak.append(el('h4', '', `${k.titel} · ${k.kanaal} · score ${k.score}`), el('p', 'm-stil', k.waarom || ''), el('div', 'm-tekst', k.tekst));
+      if (k.cta) vak.append(el('p', 'm-cta', 'Call-to-action: ' + k.cta));
+      if (k.controle && k.controle.length) {
+        const c = el('ul', 'm-controle'); k.controle.forEach(x => c.append(el('li', 'm-controle--' + x.niveau, x.tekst))); vak.append(c);
+      }
+      const datum = el('input', 'm-invoer'); datum.type = 'date';
+      const morgen = new Date(); morgen.setDate(morgen.getDate() + 1); datum.value = iso(morgen);
+      const l = el('label', 'm-datumlabel', 'Datum '); l.append(datum);
+      vak.append(l, knop('Toevoegen aan planning', () => {
+        const id = 'e' + (a.id || willekeurig()).slice(0, 9);
+        k.ref = `${KANAALCODE[(k.kanaal || '').toLowerCase()] || 'x'}-eigen-${id.slice(0, 6)}`;
+        k.link = k.pagina ? linkVoor(k) : '';
+        for (const v of ['tekst', 'cta']) k[v] = (k[v] || '').split('{link}').join(linkVoor(k));
+        k.datum = datum.value;
+        m.status.eigen = Object.assign({}, m.status.eigen, { [id]: k });
+        m.ai.nieuw = false; m.ai.nieuwAntwoord = null; m.open.add(id);
+        zet(id, { status: 'nieuw' });
+        naarKans(id);
+      }));
+      p.append(vak);
+    }
+    return p;
+  }
+
+  // ---------- resultaten ----------
+  function tegel(waarde, naam, uitleg) {
+    const t = el('div', 'm-tegel');
+    t.append(el('div', 'm-tegel__waarde', waarde), el('div', 'm-tegel__naam', naam));
+    if (uitleg) t.append(el('div', 'm-stil', uitleg));
+    return t;
+  }
+  function tabel(koppen, rijen) {
+    const t = el('table', 'm-tabel'); const kop = el('tr');
+    koppen.forEach((k, i) => { const th = el('th', i ? 'm-getal' : '', k); kop.append(th); });
+    const thead = el('thead'); thead.append(kop); t.append(thead);
+    const tb = el('tbody');
+    for (const r of rijen) { const tr = el('tr'); r.forEach((c, i) => tr.append(el('td', i ? 'm-getal' : '', String(c)))); tb.append(tr); }
+    t.append(tb);
+    const w = el('div', 'm-tabelwrap'); w.append(t);
+    return w;
+  }
+  function dagGrafiek(perDag) {
+    const ns = 'http://www.w3.org/2000/svg', W = 640, H = 160, onder = 22, boven = 8;
+    const max = Math.max(1, ...perDag.map(d => d.n));
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('class', 'm-grafiek'); svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', `Bezoekers per dag, hoogste ${max}`);
+    const maak = (tag, attrs) => { const e = document.createElementNS(ns, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); return e; };
+    for (const f of [0, .5, 1]) {
+      const y = boven + (H - onder - boven) * (1 - f);
+      svg.append(maak('line', { x1: 0, x2: W, y1: y, y2: y, class: 'm-grafiek__lijn' }));
+      const t = maak('text', { x: W, y: y - 3, 'text-anchor': 'end', class: 'm-grafiek__as' }); t.textContent = Math.round(max * f); svg.append(t);
+    }
+    const stap = W / perDag.length, breed = Math.max(2, stap - 2);
+    const tip = el('div', 'm-tip'); tip.hidden = true;
+    perDag.forEach((d, i) => {
+      const h = (H - onder - boven) * d.n / max, x = i * stap + 1, y = H - onder - h;
+      const r = Math.min(4, breed / 2, h);
+      const pad = h ? `M${x},${H - onder} V${y + r} Q${x},${y} ${x + r},${y} H${x + breed - r} Q${x + breed},${y} ${x + breed},${y + r} V${H - onder} Z` : '';
+      if (pad) svg.append(maak('path', { d: pad, class: 'm-grafiek__staaf' }));
+      const vak = maak('rect', { x: i * stap, y: 0, width: stap, height: H - onder, fill: 'transparent' });
+      vak.addEventListener('mouseenter', () => { tip.hidden = false; tip.textContent = `${datumTekst(d.dag)}: ${d.n} bezoekers`; tip.style.left = (i * stap / W * 100) + '%'; });
+      vak.addEventListener('mouseleave', () => { tip.hidden = true; });
+      svg.append(vak);
+      if (i === 0 || i === perDag.length - 1 || i % 7 === 0) {
+        const t = maak('text', { x: x + breed / 2, y: H - 6, 'text-anchor': 'middle', class: 'm-grafiek__as' }); t.textContent = datumTekst(d.dag).replace(/^\w+\.? /, ''); svg.append(t);
+      }
+    });
+    const w = el('div', 'm-grafiekwrap'); w.append(svg, tip);
+    return w;
+  }
+  function toonResultaten(doos) {
+    const r = m.data.resultaten || {};
+    const gc = r.goatcounter;
+    const sectie = titel => { const h = el('h2', 'm-kopje', titel); doos.append(h); };
+    if (r.advies && (r.advies.samenvatting || (r.advies.aanbevelingen || []).length)) {
+      const a = el('section', 'm-advies');
+      a.append(el('h2', 'm-kopje', 'Advies voor de komende weken'));
+      if (r.advies.samenvatting) a.append(el('p', '', r.advies.samenvatting));
+      const ol = el('ol');
+      for (const t of r.advies.aanbevelingen || []) { const li = el('li'); li.append(el('strong', '', t.titel), document.createTextNode(' ' + t.uitleg)); ol.append(li); }
+      a.append(ol, el('p', 'm-stil', (r.advies.bron === 'ai' ? 'Gemaakt door AI op basis van je cijfers, ' : 'Vaste regels (AI was niet beschikbaar), ') + datumTekst(r.advies.datum, true) + '. Wordt wekelijks vernieuwd.'));
+      doos.append(a);
+    }
+    if (gc) {
+      sectie('Afgelopen 30 dagen');
+      const viaPosts = (r.posts || []).reduce((s, p) => s + p.bezoeken, 0);
+      const tegels = el('div', 'm-tegels');
+      tegels.append(tegel(String(gc.bezoekers ?? '-'), 'Bezoekers'), tegel(String(gc.aanvragen ?? '-'), 'Aanvragen'),
+        tegel(gc.bezoekers ? (100 * (gc.aanvragen || 0) / gc.bezoekers).toFixed(1).replace('.', ',') + '%' : '-', 'Conversie', 'aanvragen per bezoeker'),
+        tegel(String(viaPosts), 'Via je posts', 'bezoeken met een ?ref-link'));
+      doos.append(tegels);
+      if ((gc.per_dag || []).length) doos.append(dagGrafiek(gc.per_dag));
+      if ((gc.fouten || []).length) doos.append(el('p', 'm-stil', 'Niet alles kon worden opgehaald: ' + gc.fouten.join('; ')));
+      if ((gc.bronnen || []).length) { sectie('Waar bezoekers vandaan komen'); doos.append(tabel(['Bron', 'Bezoeken'], gc.bronnen.slice(0, 12).map(b => [b.naam, b.n]))); }
+      if ((gc.paginas || []).length) { sectie('Meest bekeken'); doos.append(tabel(['Pagina', 'Bezoeken'], gc.paginas.map(b => [b.pad, b.n]))); }
+    } else {
+      sectie('Statistieken koppelen');
+      const ol = el('ol', 'm-stappen');
+      for (const t of ['Log in op botr.goatcounter.com → Settings (rechtsboven) → API → New API token.', 'Vink "Read statistics" aan en maak het token.',
+        'GitHub → Settings → Secrets and variables → Actions → New repository secret, naam GOATCOUNTER_TOKEN, plak het token.',
+        'De volgende nacht (of via Instellingen → Nu bijwerken) verschijnen hier je bezoekers, bronnen en aanvragen per post.']) ol.append(el('li', '', t));
+      doos.append(ol);
+    }
+    sectie('Je gepubliceerde posts');
+    if ((r.posts || []).length) {
+      doos.append(tabel(['Post', 'Kanaal', 'Datum', 'Bezoeken', 'Aanvragen'], r.posts.map(p => [p.titel, p.kanaal, datumTekst(p.datum), p.bezoeken, p.aanvragen])));
+      if ((r.kanalen || []).length) { sectie('Per kanaal'); doos.append(tabel(['Kanaal', 'Posts', 'Bezoeken', 'Aanvragen'], r.kanalen.map(k => [k.kanaal, k.posts, k.bezoeken, k.aanvragen]))); }
+    } else doos.append(el('p', 'm-stil', 'Nog niets. Klik bij een post op "Gepubliceerd" zodra hij online staat; dan zie je hier hoeveel bezoekers en aanvragen hij oplevert.'));
+    const gsc = r.search_console;
+    sectie('Vindbaarheid in Google');
+    if (gsc && gsc.fout) doos.append(el('p', 'm-controle--oranje m-melding', gsc.fout));
+    if (gsc && (gsc.bijna || []).length) {
+      doos.append(el('p', '', 'Bijna op de eerste pagina: met een betere tekst of een eigen pagina kun je hier snel stijgen.'));
+      doos.append(tabel(['Zoekterm', 'Positie', 'Vertoningen', 'Kliks'], gsc.bijna.map(z => [z.zoekterm, String(z.positie).replace('.', ','), z.vertoningen, z.kliks])));
+    } else if (gsc && (gsc.zoektermen || []).length) {
+      doos.append(tabel(['Zoekterm', 'Positie', 'Vertoningen', 'Kliks'], gsc.zoektermen.slice(0, 10).map(z => [z.zoekterm, String(z.positie).replace('.', ','), z.vertoningen, z.kliks])));
+    } else if (!gsc) {
+      const d = el('details', 'm-details'); d.append(el('summary', '', 'Google Search Console koppelen (optioneel)'));
+      const ol = el('ol', 'm-stappen');
+      for (const t of ['Voeg beckontherocks.nl toe in Google Search Console (search.google.com/search-console) en verifieer het domein.',
+        'Google Cloud Console (hetzelfde project als je Google-reviews) → APIs → zet "Google Search Console API" aan.',
+        'IAM → Service accounts → Create → geen rollen nodig → Keys → Add key → JSON. Het bestand wordt gedownload.',
+        'Search Console → Instellingen → Gebruikers → Gebruiker toevoegen: het e-mailadres van het serviceaccount, recht "Beperkt".',
+        'GitHub → Secrets → New repository secret GSC_SERVICE_ACCOUNT met de hele inhoud van het JSON-bestand.']) ol.append(el('li', '', t));
+      d.append(ol); doos.append(d);
+    }
+    if ((r.seo || []).length) {
+      const ul = el('ul', 'm-seo');
+      const volgorde = { hoog: 0, middel: 1, laag: 2 };
+      for (const b of r.seo.slice().sort((x, y) => volgorde[x.ernst] - volgorde[y.ernst])) {
+        const li = el('li', 'm-seo--' + b.ernst); li.append(el('strong', '', b.pagina + ' '), document.createTextNode(b.tekst)); ul.append(li);
+      }
+      doos.append(el('h3', 'm-subkop', 'Controle van je eigen pagina\'s'), ul);
+    }
   }
 
   function naarKans(id) {

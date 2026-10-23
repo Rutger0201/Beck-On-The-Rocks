@@ -134,6 +134,9 @@ De actie *Marketing bijwerken* (`.github/workflows/marketing.yml`) draait elke n
 doet een geplande Claude-taak webonderzoek (trends, zoekwoorden, concurrenten, kansen) met bronnen en datums.
 Alles is versleuteld met hetzelfde `ADMIN_WACHTWOORD`. Uitleg, bestanden en het formaat van het onderzoek staan in
 `tools/marketing/LEESMIJ.md`. Seizoensmomenten en vaste ideeën pas je aan in `tools/marketing/kalender.json` en `ideeen.json`.
+Met een GitHub-token (Instellingen op de adminpagina) kun je teksten laten verbeteren of nieuwe ideeën laten bedenken met AI
+(gratis via GitHub Models). Het tabblad Resultaten toont bezoekers, bronnen en aanvragen per post zodra het secret
+`GOATCOUNTER_TOKEN` is ingesteld, plus wekelijks advies en een SEO-controle.
 
 ## Nog zelf invullen vóór livegang
 - **Reviews**: de eerste staan erop; Google reviews zijn gekoppeld (zie hierboven).

@@ -119,3 +119,43 @@
   .m-rij { grid-template-columns: 1fr; }
 }
 @media (max-width: 420px) { .m-tabs .btn { padding: .5em 1em; } }
+
+/* Fase 2: AI en resultaten */
+.m-nieuwknop { margin-bottom: 1rem; }
+.m-ai { background: var(--bg-alt); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin: .8em 0; display: grid; gap: 10px; }
+.m-ai h3 { font: 600 .8125rem var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--gold); margin: 0; }
+.m-ai--nieuw { margin: 0 0 1.2rem; }
+.m-invoer { width: 100%; background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: 12px; padding: .65em .9em; font: 400 .9375rem/1.5 var(--sans); }
+.m-variant { border-top: 1px solid var(--line); padding-top: 10px; }
+.m-variant h4 { font: 500 .9375rem var(--sans); color: var(--text); margin: 0 0 .3em; }
+.m-variant .btn { margin-top: .4em; }
+.m-datumlabel { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: .875rem; margin: .5em 0; }
+.m-datumlabel .m-invoer { width: auto; }
+.m-melding { padding: .5em .8em; border-radius: 10px; margin: 0; font-size: .875rem; }
+.m-advies { background: var(--surface); border: 1px solid var(--gold); border-radius: var(--radius); padding: 4px 20px 12px; margin-bottom: 1.4rem; }
+.m-advies ol { padding-left: 1.2em; color: var(--muted); }
+.m-advies li { margin-bottom: .5em; }
+.m-advies strong { color: var(--text); font-weight: 500; }
+.m-tegels { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 1rem; }
+.m-tegel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+.m-tegel__waarde { font: 500 2.2rem/1 var(--serif); color: var(--gold-light); font-variant-numeric: tabular-nums; }
+.m-tegel__naam { color: var(--text); font-size: .875rem; margin-top: .3em; }
+.m-tegel .m-stil { font-size: .75rem; }
+.m-grafiekwrap { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px 6px; }
+.m-grafiek { width: 100%; height: auto; display: block; overflow: visible; }
+.m-grafiek__staaf { fill: var(--gold); }
+.m-grafiek__lijn { stroke: var(--line); stroke-width: 1; }
+.m-grafiek__as { fill: var(--muted); font: 400 11px var(--sans); }
+.m-tip { position: absolute; top: 6px; transform: translateX(-30%); background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 3px 8px; font-size: .75rem; color: var(--text); pointer-events: none; white-space: nowrap; }
+.m-tabelwrap { overflow-x: auto; }
+.m-tabel { width: 100%; border-collapse: collapse; font-size: .875rem; }
+.m-tabel th { text-align: left; color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--line); padding: 6px 8px; }
+.m-tabel td { border-bottom: 1px solid var(--line); padding: 6px 8px; color: var(--text); }
+.m-tabel .m-getal { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.m-subkop { font: 600 .8125rem var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--gold); margin: 1.4rem 0 .5rem; }
+.m-seo { list-style: none; padding: 0; font-size: .875rem; }
+.m-seo li { padding: .45em .8em; border-left: 3px solid var(--line); margin-bottom: 4px; color: var(--muted); }
+.m-seo strong { color: var(--text); font-weight: 500; }
+.m-seo--hoog { border-left-color: var(--fout) !important; }
+.m-seo--middel { border-left-color: var(--spoed) !important; }

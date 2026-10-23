@@ -138,6 +138,12 @@
   const gcCode = (CONFIG.goatcounter || '').trim();
   const gcWacht = [];
   let bron = params.get('ref') || '';
+  // De campagnecode (bijv. ?ref=li-kerstborrel-26) blijft dit bezoek bewaard, zodat een aanvraag aan de post gekoppeld wordt.
+  const campagne = (() => {
+    const r = /^[a-z0-9-]{1,40}$/i.test(bron) ? bron.toLowerCase() : '';
+    try { if (r) sessionStorage.setItem('beck-bron', r); return r || sessionStorage.getItem('beck-bron') || ''; }
+    catch (e) { return r; }
+  })();
   function telBezoek(pad, titel, event = false) {
     if (!gcCode || location.hostname === 'localhost') return;
     const data = { path: pad, title: titel, event };
@@ -620,6 +626,7 @@
         'Cocktails op de kaart': d.cocktails, 'Fruitpers': d.fruitpers ? 'ja' : 'nee', 'Glazen via Rutger': d.glazen ? 'ja' : 'nee',
         'Spoedboeking': isSpoed(d.datum) ? 'ja (binnen 1 maand)' : 'nee', 'Bericht': d.bericht || '-',
         ...(params.get('via') ? { 'Via pagina': params.get('via') } : {}),
+        ...(campagne ? { 'Via campagne': campagne } : {}),
         ...(EN ? { 'Taal': 'Engels (antwoord in het Engels)' } : {})
       };
       const onderwerp = `Aanvraag ${d.soort} op ${d.datum}`;
@@ -644,6 +651,7 @@
         }
         telVerzonden();
         telBezoek('aanvraag-verstuurd', 'Aanvraag verstuurd', true);
+        if (campagne) telBezoek('aanvraag-via/' + campagne, 'Aanvraag via ' + campagne, true);
         boekForm.reset();
         $('#form-spoed').hidden = true;
         note.textContent = noteTekst;

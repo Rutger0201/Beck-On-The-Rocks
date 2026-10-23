@@ -1,0 +1,60 @@
+"""AI via GitHub Models: gratis met daglimieten, met de ingebouwde GITHUB_TOKEN van een Action (permissions: models: read).
+
+Wordt gebruikt voor "Verbeter met AI" en "Nieuw idee" op de adminpagina en voor het advies bij de resultaten.
+"""
+import json
+import os
+import urllib.error
+import urllib.request
+
+URL = 'https://models.github.ai/inference/chat/completions'
+MODELLEN = ['openai/gpt-4.1', 'openai/gpt-4.1-mini']   # bij een limiet of fout de volgende
+
+BASIS = """Je bent de marketingassistent van Beck on the Rocks (https://beckontherocks.nl): Rutger, een freelance
+cocktailbartender uit Almere. Hij komt alleen als bartender met eigen cocktailgereedschap; de klant regelt drank, ijs
+en ingrediënten (Rutger maakt de boodschappenlijst). Ook mocktails. Geen aanbetaling. Werkgebied Almere, Flevoland,
+het Gooi en Amsterdam, soms heel Nederland. Uurtarief €{uur}, altijd {voorbereiding} uur voorbereiding, cocktailmenu
+vanaf €{menu}; binnen een maand boeken kost {spoed}% spoedtoeslag. Doelgroepen: particulieren 25+ en bedrijven.
+Toon: premium, warm, persoonlijk, Nederlands in de je-vorm, geen overdreven reclametaal, weinig emoji.
+
+Regels (Nederlandse Reclamecode voor Alcoholhoudende Dranken en AVG), altijd:
+- niets gericht op of over minderjarigen; doelgroep 18+, liefst 25+;
+- geen veel, snel of onbeperkt drinken, geen dronkenschap, drinkspellen of prijsacties op drank;
+- geen sociaal, seksueel of zakelijk succes door alcohol; geen alcohol in combinatie met verkeer;
+- komt alcohol voor in een social-mediatekst, eindig dan met de zin "Geniet, maar drink met mate.";
+- geen verzonnen feiten, cijfers, reviews of klantnamen; gebruik [plaatshouders] als iets onbekend is;
+- laat {{link}} staan als die in de tekst of call-to-action voorkomt."""
+
+
+class GeenAI(Exception):
+    pass
+
+
+def basis(tarieven):
+    return BASIS.format(uur=tarieven.get('uur', 45), voorbereiding=tarieven.get('voorbereidingUren', 1),
+                        menu=tarieven.get('menu', 75), spoed=tarieven.get('spoedProcent', 25))
+
+
+def vraag_json(systeem, vraag, temperatuur=0.7):
+    """Stelt een vraag en geeft het JSON-antwoord als dict. Gooit GeenAI als geen enkel model antwoordt."""
+    token = os.environ.get('GITHUB_TOKEN', '')
+    if not token:
+        raise GeenAI('geen GITHUB_TOKEN (draait dit buiten GitHub Actions?)')
+    fouten = []
+    for model in MODELLEN:
+        body = json.dumps({'model': model, 'temperature': temperatuur, 'response_format': {'type': 'json_object'},
+                           'messages': [{'role': 'system', 'content': systeem}, {'role': 'user', 'content': vraag}]}).encode()
+        req = urllib.request.Request(URL, data=body, headers={
+            'Authorization': f'Bearer {token}', 'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'})
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                antwoord = json.loads(r.read())
+            tekst = antwoord['choices'][0]['message']['content']
+            print(f'  AI: {model}, {antwoord.get("usage", {}).get("total_tokens", "?")} tokens')
+            return json.loads(tekst[tekst.find('{'):tekst.rfind('}') + 1])
+        except urllib.error.HTTPError as e:
+            fouten.append(f'{model}: HTTP {e.code} {e.read()[:200]!r}')
+        except (urllib.error.URLError, KeyError, IndexError, ValueError, TimeoutError) as e:
+            fouten.append(f'{model}: {e}')
+    raise GeenAI('; '.join(fouten))
