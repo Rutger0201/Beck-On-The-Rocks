@@ -100,6 +100,40 @@
   color: var(--text);
 }
 
+/* Donker thema: de standaard op de publieke pagina's. De keuze (licht of donker)
+   staat in localStorage 'thema'; een script bovenin de <head> zet data-thema op <html>
+   voordat er iets getekend wordt, zodat er geen lichte flits is. */
+:root[data-thema="donker"] {
+  --bg: #1a1714;
+  --bg-alt: #1f1c18;
+  --surface: #27231e;
+  --text: var(--op-donker);
+  --muted: var(--op-donker-zacht);
+  --line: rgba(238, 231, 220, .15);
+  --line-sterk: rgba(238, 231, 220, .6);
+  --accent: var(--champagne);
+  --accent-vlak: rgba(194, 165, 122, .1);
+  --btn-bg: var(--op-donker);
+  --btn-fg: var(--inkt);
+  --btn-hover: #ffffff;
+  --fout: #f0a08c;
+  --spoed: #e9a46a;
+  --veld: #1f1c18;
+  --schaduw: 0 40px 80px -48px rgba(0, 0, 0, .8);
+  color-scheme: dark;
+}
+/* De donkere vlakken worden in het donkere thema nog een tint dieper, zodat ze blijven opvallen */
+[data-thema="donker"] :is(.section--donker, .footer, .rate__main, .calc__result) { --bg: #0f0d0b; --bg-alt: #0f0d0b; --surface: #1d1a17; }
+[data-thema="donker"] .logo__mark { filter: none; }
+[data-thema="donker"] .nav.is-scrolled, [data-thema="donker"] .nav.is-solid { background: rgba(26, 23, 20, .92); }
+[data-thema="donker"] .optie--gold { background: var(--surface); }
+[data-thema="donker"] .skiplink, [data-thema="donker"] .fab { background: var(--btn-bg); color: var(--btn-fg); }
+[data-thema="donker"] .fab { box-shadow: 0 16px 40px -16px rgba(0, 0, 0, .8); }
+[data-thema="donker"] .sterren-kies label { color: #5b544a; }
+[data-thema="donker"] input[type=checkbox], [data-thema="donker"] input[type=radio] { accent-color: var(--champagne); }
+[data-thema="donker"] input[type=range]::-webkit-slider-thumb { background: var(--text); box-shadow: 0 0 0 1px var(--text); }
+[data-thema="donker"] input[type=range]::-moz-range-thumb { background: var(--text); }
+
 /* ---------- 2. Basis ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -180,6 +214,14 @@ code { font-size: .9em; }
 .nav__extra { display: none; }
 .nav__onder { display: contents; }
 .nav__admin { display: none; } /* Alleen in het mobiele menu */
+/* Themaknop (licht/donker): op desktop een rond icoon naast de taalknop, mobiel een knop met tekst */
+.thema-knop { display: none; align-items: center; justify-content: center; gap: .55rem; width: 36px; height: 36px; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: none; color: var(--muted); cursor: pointer; font: 500 .74rem var(--sans); letter-spacing: .16em; text-transform: uppercase; transition: color var(--kort), border-color var(--kort); }
+.js .thema-knop { display: inline-flex; }
+.thema-knop:hover { color: var(--text); border-color: var(--line-sterk); }
+.thema-knop svg { width: 16px; height: 16px; flex: none; }
+.thema-knop__tekst { display: none; }
+.thema-knop .icoon-zon, [data-thema="licht"] .thema-knop .icoon-maan { display: block; }
+.thema-knop .icoon-maan, [data-thema="licht"] .thema-knop .icoon-zon { display: none; }
 .nav__links a.taal { font-size: .74rem; letter-spacing: .16em; font-weight: 500; }
 .nav__links a.taal::after { display: none; }
 .nav__toggle { display: none; background: none; border: 0; width: 48px; height: 48px; margin-right: -12px; cursor: pointer; position: relative; color: var(--text); }
@@ -585,7 +627,7 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
   :root { --nav-h: 72px; --nav-h-klein: 64px; }
   .nav__toggle { display: block; }
   /* Mobiel menu: papieren scherm met grote serif-links, contact en offerteknop onderaan */
-  .nav__links { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; height: 100svh; flex-direction: column; align-items: flex-start; gap: 0; padding: 104px var(--gutter) max(28px, env(safe-area-inset-bottom)); background: var(--papier); opacity: 0; visibility: hidden; transform: translateY(-12px); transition: opacity .45s var(--ease), transform .6s var(--ease), visibility 0s .6s; z-index: -1; overflow-y: auto; }
+  .nav__links { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; height: 100svh; flex-direction: column; align-items: flex-start; gap: 0; padding: 104px var(--gutter) max(28px, env(safe-area-inset-bottom)); background: var(--bg-alt); opacity: 0; visibility: hidden; transform: translateY(-12px); transition: opacity .45s var(--ease), transform .6s var(--ease), visibility 0s .6s; z-index: -1; overflow-y: auto; }
   .nav__links.is-open { opacity: 1; visibility: visible; transform: none; transition: opacity .45s var(--ease), transform .6s var(--ease); }
   .nav__links > a:not(.btn):not(.taal) { font: 300 2.3rem/1.15 var(--display); color: var(--text); padding: .3rem 0; opacity: 0; transform: translateY(12px); transition: opacity .6s var(--ease), transform .6s var(--ease), color var(--kort); }
   .nav__links a:not(.btn)::after { display: none; }
@@ -604,6 +646,9 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
   .nav__onder { display: flex; align-items: center; width: 100%; margin-top: 1rem; }
   .nav__links a.taal, .nav__links a.nav__admin { display: inline-flex; align-items: center; min-height: 44px; padding: 0 .9rem; font: 500 .74rem var(--sans); letter-spacing: .16em; border: 1px solid var(--line); color: var(--muted); }
   .nav__links a.nav__admin { margin-left: auto; }
+  .nav__links .thema-knop { width: auto; height: auto; min-height: 44px; margin-left: .6rem; padding: 0 .9rem; border-radius: 0; }
+  .thema-knop__tekst { display: inline; }
+  .nav__onder > .thema-knop:first-child { margin-left: 0; }
   .nav__links a.taal:hover, .nav__links a.nav__admin:hover { border-color: var(--line-sterk); color: var(--text); }
   html.menu-open, html.menu-open body { overflow: hidden; }
   .menu-open .nav { background: transparent; border-color: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }

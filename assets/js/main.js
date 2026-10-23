@@ -184,12 +184,32 @@
       if (e.key === 'Escape') { sluitMenu(); toggle.focus(); return; }
       // Tab blijft binnen het open menu en de sluitknop
       if (e.key !== 'Tab') return;
-      const focusbaar = [...$$('a', menu), toggle];
+      const focusbaar = [...$$('a, button', menu), toggle];
       const eerste = focusbaar[0], laatste = focusbaar[focusbaar.length - 1];
       if (e.shiftKey && document.activeElement === eerste) { e.preventDefault(); laatste.focus(); }
       else if (!e.shiftKey && document.activeElement === laatste) { e.preventDefault(); eerste.focus(); }
     });
   }
+  // Thema: donker is de standaard, de keuze bewaren we in localStorage 'thema'.
+  // Het script bovenin de <head> zet data-thema al voordat de pagina getekend wordt.
+  const themaKleur = { donker: '#1a1714', licht: '#f1ebe1' };
+  function zetThemaKnoppen() {
+    const donker = document.documentElement.dataset.thema !== 'licht';
+    $$('.thema-knop').forEach(k => {
+      k.setAttribute('aria-label', donker ? t('Wissel naar licht thema', 'Switch to light theme') : t('Wissel naar donker thema', 'Switch to dark theme'));
+      const tekst = $('.thema-knop__tekst', k);
+      if (tekst) tekst.textContent = donker ? t('Licht', 'Light') : t('Donker', 'Dark');
+    });
+  }
+  $$('.thema-knop').forEach(k => k.addEventListener('click', () => {
+    const nieuw = document.documentElement.dataset.thema === 'licht' ? 'donker' : 'licht';
+    document.documentElement.dataset.thema = nieuw;
+    try { localStorage.setItem('thema', nieuw); } catch { /* privémodus */ }
+    const meta = $('meta[name="theme-color"]');
+    if (meta) meta.content = themaKleur[nieuw];
+    zetThemaKnoppen();
+  }));
+  zetThemaKnoppen();
   // "Naar de inhoud": focus op de inhoud zonder de #pagina te wisselen
   $$('.skiplink').forEach(a => a.addEventListener('click', e => {
     const doel = $('main'); if (!doel) return;
