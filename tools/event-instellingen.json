@@ -13,7 +13,13 @@
     "https://www.meetup.com/find/?source=EVENTS&location=nl--Amsterdam&keywords=networking%20drinks",
     "https://www.meetup.com/find/?source=EVENTS&location=nl--Almere&keywords=borrel",
     "https://www.meetup.com/find/?source=EVENTS&location=nl--Hilversum",
-    "https://www.meetup.com/find/?source=EVENTS&location=nl--Zeewolde"
+    "https://www.meetup.com/find/?source=EVENTS&location=nl--Zeewolde",
+    "https://www.meetup.com/find/?source=EVENTS&location=nl--Almere&keywords=ondernemers",
+    "https://www.meetup.com/find/?source=EVENTS&location=nl--Almere&keywords=netwerk",
+    "https://www.meetup.com/find/?source=EVENTS&location=nl--Amsterdam&keywords=business%20drinks",
+    "https://www.meetup.com/find/?source=EVENTS&location=nl--Amsterdam&keywords=afterwork",
+    "https://www.meetup.com/find/?source=EVENTS&location=nl--Lelystad&keywords=borrel",
+    "https://www.meetup.com/find/?source=EVENTS&location=nl--Hilversum&keywords=borrel"
   ],
   "zoeken_met_claude": false,
   "claude_zoekopdrachten": 12,
@@ -22,10 +28,15 @@
     "bedrijfsfeest": 20, "personeelsfeest": 20, "kerstborrel": 20, "nieuwjaarsborrel": 20, "borrel": 12,
     "bruiloft": 20, "trouw": 15, "jubileum": 15, "verjaardag": 10, "privéfeest": 15, "tuinfeest": 12,
     "netwerk": 10, "opening": 12, "pop-up": 12, "gala": 15, "diner": 8, "proeverij": 10, "cocktail": 15,
-    "beurs": 8, "markt": 6, "sportclub": 8, "vereniging": 8, "huwelijksbeurs": 15
+    "beurs": 8, "markt": 6, "sportclub": 8, "vereniging": 8, "huwelijksbeurs": 15,
+    "ondernemers": 12, "afterwork": 12, "vrijmibo": 15,
+    "drinks": 12, "networking": 10, "business": 6, "party": 10, "wedding": 20, "christmas": 15,
+    "anniversary": 12, "launch": 10, "celebration": 12, "rooftop": 8, "mixology": 15
   },
   "min": {
     "online": -40, "webinar": -40, "kinder": -20, "theater": -10, "concert": -10,
-    "festival": -5, "museum": -10, "lezing": -15, "cursus": -15
+    "festival": -5, "museum": -10, "lezing": -15, "cursus": -15,
+    "hike": -25, "wandel": -25, "yoga": -25, "meditat": -25, "language exchange": -20, "taalcafé": -20,
+    "coding": -20, "workshop": -10, "book club": -20, "boardgame": -15, "bordspel": -15, "running": -25, "hardloop": -25
   }
 }
