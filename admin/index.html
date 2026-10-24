@@ -4,34 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
+  <!-- Alleen eigen scripts en GitHub; blokkeert ingevoegde scripts van buitenaf -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>Admin · Beck on the Rocks</title>
   <meta name="theme-color" content="#f1ebe1">
   <link rel="stylesheet" href="/assets/css/fonts.css">
   <link rel="stylesheet" href="/assets/css/site.css?v=20261024">
   <link rel="stylesheet" href="/admin/marketing.css">
   <link rel="icon" type="image/png" href="/assets/icons/favicon-48.png">
-  <style>
-    .admin { max-width: 960px; margin: 0 auto; padding: 48px 16px 80px; }
-    .admin h1 { font-family: var(--serif); font-weight: 300; font-size: clamp(2.4rem, 5vw, 3.2rem); margin: 0 0 .2em; }
-    .admin__sub { color: var(--muted); margin: 0 0 2rem; }
-    .slot { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    .slot input[type=password] { flex: 1 1 220px; }
-    .slot label { color: var(--muted); font-size: .9rem; width: 100%; }
-    .melding { color: var(--fout); margin-top: 1rem; }
-    .balk { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 1.2rem; color: var(--muted); font-size: .9rem; }
-    .event { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px;
-      display: grid; grid-template-columns: 56px 1fr; gap: 6px 16px; }
-    .event--weg { opacity: .45; }
-    .punten { grid-row: span 3; width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center;
-      border: 1px solid var(--accent); color: var(--accent); font: 400 1.4rem/1 var(--display); }
-    .event h2 { font-family: var(--serif); font-weight: 400; font-size: 1.55rem; margin: 0; line-height: 1.2; }
-    .event__meta { color: var(--muted); font-size: .9rem; }
-    .event__waarom { margin: .2em 0 .4em; }
-    .event__knoppen { grid-column: 2; display: flex; gap: 8px; flex-wrap: wrap; }
-    .label { display: inline-block; font-size: .75rem; letter-spacing: .04em; text-transform: uppercase; color: var(--papier);
-      background: var(--spoed); border-radius: var(--radius); padding: .15em .7em; margin: 0 0 0 .4em; font-weight: 500; vertical-align: middle; }
-    @media (max-width: 520px) { .event { grid-template-columns: 1fr; } .punten { grid-row: auto; width: auto; height: auto; padding: .3em .9em; border-radius: 999px; justify-self: start; } .event__knoppen { grid-column: 1; } }
-  </style>
+  <link rel="stylesheet" href="/admin/admin.css">
 </head>
 <body>
 <!-- Adminpagina: niet in Google en niet in de sitemap. Alles is versleuteld; zie tools/events.py en tools/marketing/. -->
@@ -67,125 +48,6 @@
 
 <script src="/assets/js/config.js"></script>
 <script src="/admin/marketing.js"></script>
-<script>
-(() => {
-  const OPSLAG = 'beck-admin-ww', WEG = 'beck-admin-weg', TAB = 'beck-admin-tab';
-  const $ = id => document.getElementById(id);
-  const lees = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
-  const schrijf = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} };
-  const weg = new Set(JSON.parse(lees(WEG) || '[]'));
-  let gegevens = null, eventsStaat = 'geen';
-
-  const bytes = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
-  async function ontsleutel(bestand, ww) {
-    const basis = await crypto.subtle.importKey('raw', new TextEncoder().encode(ww), 'PBKDF2', false, ['deriveKey']);
-    const sleutel = await crypto.subtle.deriveKey({ name: 'PBKDF2', hash: 'SHA-256', salt: bytes(bestand.zout), iterations: bestand.iteraties },
-      basis, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
-    const platte = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes(bestand.iv) }, sleutel, bytes(bestand.data));
-    return JSON.parse(new TextDecoder().decode(platte));
-  }
-
-  function meld(t) { $('melding').textContent = t; $('melding').hidden = !t; }
-
-  // Opent beide onderdelen; het wachtwoord klopt als minstens één ervan open gaat.
-  async function open(ww) {
-    meld('');
-    let bestand = null, events = 'geen';
-    try {
-      const r = await fetch('/assets/data/events.enc.json?' + Date.now(), { cache: 'no-store' });
-      if (r.ok) bestand = await r.json();
-    } catch (e) {}
-    if (bestand) {
-      try { gegevens = await ontsleutel(bestand, ww); events = 'ok'; }
-      catch (e) { events = 'fout'; }
-    }
-    eventsStaat = events;
-    const marketing = await window.BeckMarketing.open(ww, gegevens ? gegevens.events : []);
-    if (events !== 'ok' && marketing !== 'ok') {
-      if (events === 'geen' && marketing === 'geen') return meld('Er is nog niets. Draai op GitHub eerst "Events zoeken" of "Marketing bijwerken".');
-      schrijf(OPSLAG, null); return meld('Wachtwoord klopt niet.');
-    }
-    if ($('onthoud').checked) schrijf(OPSLAG, ww);
-    $('slot').hidden = true; $('tabs').hidden = false;
-    kiesTab(location.hash === '#marketing' ? 'marketing' : location.hash === '#klussen' ? 'klussen' : lees(TAB) || 'klussen');
-  }
-
-  function kiesTab(tab) {
-    schrijf(TAB, tab);
-    document.querySelectorAll('.a-tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === tab));
-    $('lijst').hidden = tab !== 'klussen'; $('marketing').hidden = tab !== 'marketing';
-    $('titel').textContent = tab === 'marketing' ? 'Marketing' : 'Mogelijke klussen';
-    $('sub').textContent = tab === 'marketing' ? 'Je beste marketingkansen voor de komende 30 dagen. Niets wordt gepubliceerd zonder jouw akkoord.'
-      : 'De beste events en oproepen voor de komende maand.';
-    if (tab === 'klussen') toon();
-  }
-
-  const veiligeLink = u => /^https?:\/\//i.test(u || '') ? u : '';
-  const dag = s => {
-    const d = new Date(s.length <= 10 ? s + 'T12:00' : s);
-    if (isNaN(d)) return s;
-    const tekst = d.toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'long' });
-    return s.length > 10 ? tekst + ', ' + d.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) : tekst;
-  };
-  function knop(tekst, href, ghost) {
-    const a = document.createElement('a');
-    a.className = 'btn btn--small' + (ghost ? ' btn--ghost' : '');
-    a.textContent = tekst; a.href = href;
-    if (/^https?:/.test(href)) { a.target = '_blank'; a.rel = 'noopener noreferrer'; }
-    return a;
-  }
-  function offerte(e) {
-    const tekst = `Hallo${e.organisator ? ' ' + e.organisator : ''},\n\nIk zag "${e.naam}" op ${dag(e.start)}. ` +
-      `Ik ben Rutger van Beck on the Rocks, freelance cocktailbartender. Ik kom met mijn eigen cocktailgereedschap ` +
-      `en zorg voor een mooie bar en blije gasten. Zal ik een vrijblijvende offerte sturen?\n\n` +
-      `Groet,\nRutger\nhttps://beckontherocks.nl`;
-    if (e.mail && /^[^\s@]+@[^\s@]+$/.test(e.mail))
-      return 'mailto:' + e.mail + '?subject=' + encodeURIComponent('Bartender voor ' + e.naam) + '&body=' + encodeURIComponent(tekst);
-    return '';
-  }
-
-  function toon() {
-    const doos = $('events'); doos.textContent = '';
-    if (!gegevens) {
-      $('info').textContent = '';
-      doos.textContent = eventsStaat === 'fout' ? 'Deze lijst is met een ander wachtwoord versleuteld. Draai "Events zoeken" op GitHub opnieuw.'
-        : 'Er is nog geen lijst. Die verschijnt na de eerste run van "Events zoeken" op GitHub.';
-      return;
-    }
-    const alle = gegevens.events || [];
-    const zicht = alle.filter(e => $('toonweg').checked || !weg.has(e.id));
-    $('info').textContent = `${zicht.length} van ${alle.length} · bijgewerkt ${new Date(gegevens.bijgewerkt).toLocaleString('nl-NL', { dateStyle: 'medium', timeStyle: 'short' })}`;
-    if (!zicht.length) { doos.textContent = 'Geen events om te tonen.'; return; }
-    for (const e of zicht) {
-      const kaart = document.createElement('article');
-      kaart.className = 'event' + (weg.has(e.id) ? ' event--weg' : '');
-      const s = document.createElement('div'); s.className = 'punten'; s.textContent = e.score; s.title = 'Score van 0 tot 100';
-      const h = document.createElement('h2'); h.textContent = e.naam;
-      if (e.soort === 'oproep') { const l = document.createElement('span'); l.className = 'label'; l.textContent = 'Oproep'; h.append(l); }
-      const meta = document.createElement('div'); meta.className = 'event__meta';
-      meta.textContent = [dag(e.start), e.plaats, e.organisator].filter(Boolean).join(' · ');
-      const waarom = document.createElement('p'); waarom.className = 'event__waarom'; waarom.textContent = e.waarom || '';
-      const knoppen = document.createElement('div'); knoppen.className = 'event__knoppen';
-      const mail = offerte(e);
-      if (mail) knoppen.append(knop('Offerte sturen', mail));
-      if (veiligeLink(e.url)) knoppen.append(knop(mail ? 'Bekijk' : 'Bekijk en reageer', veiligeLink(e.url), !!mail));
-      if (e.telefoon) knoppen.append(knop('Bellen', 'tel:' + e.telefoon.replace(/[^\d+]/g, ''), true));
-      const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn--small btn--ghost';
-      b.textContent = weg.has(e.id) ? 'Toch interessant' : 'Niet interessant';
-      b.onclick = () => { weg.has(e.id) ? weg.delete(e.id) : weg.add(e.id); schrijf(WEG, JSON.stringify([...weg])); toon(); };
-      knoppen.append(b);
-      kaart.append(s, h, meta, waarom, knoppen);
-      doos.append(kaart);
-    }
-  }
-
-  $('slot').addEventListener('submit', ev => { ev.preventDefault(); open($('ww').value); });
-  $('toonweg').addEventListener('change', toon);
-  document.querySelectorAll('.a-tab').forEach(b => b.addEventListener('click', () => kiesTab(b.dataset.tab)));
-  $('uit').addEventListener('click', ev => { ev.preventDefault(); schrijf(OPSLAG, null); location.reload(); });
-  const bewaard = lees(OPSLAG);
-  if (bewaard) { $('onthoud').checked = true; open(bewaard); }
-})();
-</script>
+<script src="/admin/admin.js"></script>
 </body>
 </html>

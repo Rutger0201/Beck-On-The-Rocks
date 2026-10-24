@@ -2,8 +2,10 @@
 """Mogelijke klussen zoeken voor de adminpagina (/admin/).
 
 Zoekt events en oproepen voor de komende maand, geeft elk een score en zet de beste in
-assets/data/events.enc.json. Dat bestand is versleuteld met jouw wachtwoord: de site is openbaar,
-dus zonder wachtwoord kan niemand de lijst lezen. De adminpagina ontsleutelt hem in je browser.
+assets/data/events.enc.json. Dat bestand is versleuteld met de publieke sleutel uit
+assets/data/marketing-sleutel.json (zie tools/marketing/sleutels.py), waarvan het geheime deel alleen met
+jouw wachtwoord opengaat: de site is openbaar, dus zonder wachtwoord kan niemand de lijst lezen.
+De adminpagina ontsleutelt hem in je browser. Is er nog geen sleutelpaar, dan direct met het wachtwoord.
 
 Bronnen:
   1. Agenda's in tools/event-instellingen.json ("bronnen"): webpagina's met evenementen in
@@ -32,7 +34,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 INSTELLINGEN = ROOT / 'tools/event-instellingen.json'
 UIT = ROOT / 'assets/data/events.enc.json'
-ITERATIES = 310_000  # PBKDF2; moet gelijk zijn aan admin/index.html
+SLEUTEL = ROOT / 'assets/data/marketing-sleutel.json'
+ITERATIES = 600_000  # PBKDF2 als er geen sleutelpaar is; admin/index.html leest het aantal uit het bestand
 MODEL = 'claude-opus-5-5'
 AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36'
 
@@ -242,6 +245,15 @@ def sleutel_van(e):
 # ---------- versleutelen ----------
 
 def versleutel(gegevens, wachtwoord):
+    # Voorkeur: het sleutelpaar van het marketingcentrum, dan opent de adminpagina alles met één sleutel
+    # (en kan "Onthouden" werken zonder het wachtwoord op te slaan)
+    if SLEUTEL.exists():
+        sys.path.insert(0, str(ROOT / 'tools/marketing'))
+        import sleutels
+        bestand = json.loads(SLEUTEL.read_text())
+        if sleutels.open_geheim(bestand, wachtwoord):
+            return sleutels.versleutel(gegevens, bestand['publiek'])
+        print('LET OP: wachtwoord past niet bij marketing-sleutel.json; lijst met het wachtwoord zelf versleuteld.')
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
     zout, iv = os.urandom(16), os.urandom(12)
     sleutel = hashlib.pbkdf2_hmac('sha256', wachtwoord.encode(), zout, ITERATIES, 32)
