@@ -255,6 +255,11 @@ def laad_sleutels(wachtwoord, nieuw_mag=True):
         bestand = sleutels.maak_sleutelpaar(wachtwoord)
         SLEUTEL.write_text(json.dumps(bestand, indent=1) + '\n')
         geheim = sleutels.open_geheim(bestand, wachtwoord)
+    elif bestand['geheim'].get('iteraties', 0) < sleutels.ITERATIES:
+        # Zelfde sleutelpaar, zwaarder verpakt: alle versleutelde bestanden blijven leesbaar
+        print(f'Geheime sleutel opnieuw verpakt met {sleutels.ITERATIES} PBKDF2-iteraties.')
+        bestand = sleutels.maak_sleutelpaar(wachtwoord, geheim)
+        SLEUTEL.write_text(json.dumps(bestand, indent=1) + '\n')
     return bestand['publiek'], geheim
 
 

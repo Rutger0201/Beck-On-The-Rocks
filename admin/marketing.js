@@ -5,7 +5,7 @@
   const STATUSPAD = 'assets/data/marketing-status.enc.json';
   const LOKAAL = 'beck-marketing-status', TOKEN = 'beck-marketing-token', WEERGAVE = 'beck-marketing-weergave';
   const INFO = new TextEncoder().encode('beck-marketing-v1');
-  const ITERATIES = 310000;
+  const OUD_ITERATIES = 310000; // oud tokenformaat (met het wachtwoord versleuteld)
   const FOTO = {
     'beck-portret': ['/assets/img/w/beck-portret-480.webp', '/assets/img/beck-portret.jpg'],
     'galerij-gin-tonic': ['/assets/img/w/galerij-gin-tonic-480.webp', '/assets/img/galerij-gin-tonic.jpg'],
@@ -70,21 +70,40 @@
     const data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, sleutel, new TextEncoder().encode(JSON.stringify(gegevens)));
     return { versie: 1, epk: b64(epk), iv: b64(iv), data: b64(data) };
   }
-  // Het GitHub-token staat versleuteld met je wachtwoord in deze browser.
+  // Het GitHub-token staat in deze browser, versleuteld met de publieke sleutel (alleen de geheime sleutel opent het).
   async function bewaarToken(token) {
-    if (!token) return schrijf(TOKEN, null);
-    const zout = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
-    const data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await wachtwoordsleutel(m.ww, zout, ITERATIES), new TextEncoder().encode(token));
-    schrijf(TOKEN, JSON.stringify({ zout: b64(zout), iv: b64(iv), data: b64(data) }));
+    schrijf(TOKEN, token ? JSON.stringify(await versleutel({ token })) : null);
   }
   async function leesToken() {
     try {
       const t = JSON.parse(lees(TOKEN) || 'null');
       if (!t) return '';
-      return new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes(t.iv) },
-        await wachtwoordsleutel(m.ww, bytes(t.zout), ITERATIES), bytes(t.data)));
+      if (t.epk) return (await ontsleutel(t)).token || '';
+      // Oud formaat (met het wachtwoord versleuteld): één keer omzetten
+      if (!m.ww) return '';
+      const token = new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes(t.iv) },
+        await wachtwoordsleutel(m.ww, bytes(t.zout), OUD_ITERATIES), bytes(t.data)));
+      await bewaarToken(token);
+      return token;
     } catch (e) { return ''; }
   }
+
+  // "Onthouden op dit apparaat": de geheime sleutel gaat als niet-exporteerbare CryptoKey in IndexedDB.
+  // Het wachtwoord zelf wordt nergens bewaard, en de sleutel kan niet uit de browser worden gekopieerd.
+  function kluis(modus, actie) {
+    return new Promise((ok, fout) => {
+      const v = indexedDB.open('beck-admin', 1);
+      v.onupgradeneeded = () => v.result.createObjectStore('sleutels');
+      v.onerror = () => fout(v.error);
+      v.onsuccess = () => {
+        const t = v.result.transaction('sleutels', modus), r = actie(t.objectStore('sleutels'));
+        t.oncomplete = () => { v.result.close(); ok(r.result); };
+        t.onerror = t.onabort = () => { v.result.close(); fout(t.error); };
+      };
+    });
+  }
+  const onthouden = () => kluis('readonly', k => k.get('geheim')).catch(() => null);
+  const vergeet = () => kluis('readwrite', k => k.delete('geheim')).catch(() => {});
 
   // ---------- toestand ----------
   const m = {
@@ -1171,13 +1190,28 @@
     const r = await fetch(pad + '?' + Date.now(), { cache: 'no-store' });
     return r.ok ? r.json() : null;
   }
-  // Geeft 'ok', 'geen' (nog geen sleutel) of 'fout' (wachtwoord past niet).
-  async function open(ww, events) {
-    m.ww = ww; m.events = events || [];
+  // Opent de geheime sleutel met het wachtwoord, of (zonder wachtwoord) met de onthouden sleutel.
+  // Geeft 'ok', 'geen' (nog geen sleutel) of 'fout' (wachtwoord past niet of niets onthouden).
+  async function ontgrendel(ww, onthoud) {
+    m.ww = ww || ''; m.geheim = null;
     const sleutel = await haal('/assets/data/marketing-sleutel.json').catch(() => null);
-    if (!sleutel) { toon(); return 'geen'; }
-    try { m.geheim = await openGeheim(sleutel, ww); } catch (e) { return 'fout'; }
+    if (!sleutel) return 'geen';
+    if (ww) {
+      try { m.geheim = await openGeheim(sleutel, ww); } catch (e) { return 'fout'; }
+      if (onthoud) await kluis('readwrite', k => k.put({ geheim: m.geheim, publiek: sleutel.publiek }, 'geheim')).catch(() => {});
+      else await vergeet();
+    } else {
+      const bewaard = await onthouden();
+      // Nieuw sleutelpaar (wachtwoord gewijzigd): de onthouden sleutel past niet meer
+      if (!bewaard || bewaard.publiek !== sleutel.publiek) { await vergeet(); return 'fout'; }
+      m.geheim = bewaard.geheim;
+    }
     m.publiek = sleutel.publiek;
+    return 'ok';
+  }
+  async function open(events) {
+    m.events = events || [];
+    if (!m.geheim) { toon(); return; }
     const [data, regels, log, groei] = await Promise.all(['/assets/data/marketing.enc.json', '/assets/data/marketing-regels.json',
       '/assets/data/marketing-publicaties.enc.json', '/assets/data/marketing-groei.json'].map(pad => haal(pad).catch(() => null)));
     m.regels = regels; m.groei = groei;
@@ -1186,7 +1220,7 @@
     m.token = await leesToken();
     await laadStatus();
     toon();
-    return 'ok';
   }
-  window.BeckMarketing = { open, zetEvents: ev => { m.events = ev || []; } };
+  window.BeckMarketing = { ontgrendel, open, ontsleutel, vergeet, onthouden: async () => !!(await onthouden()),
+    zetEvents: ev => { m.events = ev || []; } };
 })();
