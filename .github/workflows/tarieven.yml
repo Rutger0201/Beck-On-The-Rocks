@@ -8,17 +8,24 @@ on:
     paths: ['**.html', 'tarieven.json', 'tools/tarieven.py']
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 jobs:
-  bijwerken:
+  controleren:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Controleren (pull request)
-        if: github.event_name == 'pull_request'
         run: python3 tools/tarieven.py --controleer
+  bijwerken:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    # Alleen deze job mag commits terugzetten op main
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
       - name: Bijwerken en opslaan (main)
-        if: github.event_name != 'pull_request'
         run: |
           python3 tools/tarieven.py
           if git diff --quiet; then echo "Alle tarieven klopten al."; exit 0; fi

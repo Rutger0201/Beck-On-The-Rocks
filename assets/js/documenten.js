@@ -3,7 +3,7 @@
 (() => {
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
-  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const opslag = {
     lees: (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
     schrijf: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* privémodus */ } }
@@ -550,7 +550,7 @@
     $('#bl-totaal').placeholder = x.auto ? `automatisch: ${x.auto}` : 'automatisch';
     $('#bl-som').innerHTML = !bl.cocktails.length ? 'Kies hierboven één of meer cocktails.'
       : !x.totaal ? 'Vul bij <em>Feest</em> het aantal gasten en de tijden in.'
-      : `${d['f-gasten'] || 0} gasten × ${bl.aandeel}% × ${getal(b.u)} uur × ${getal(bl.perUur)} = <strong>${x.auto} cocktails</strong>${x.totaal !== x.auto ? ` (aangepast naar ${x.totaal})` : ''}, ${x.perCocktail.map(c => `${c.aantal} ${c.naam}`).join(', ')}.`;
+      : `${d['f-gasten'] || 0} gasten × ${bl.aandeel}% × ${getal(b.u)} uur × ${getal(bl.perUur)} = <strong>${x.auto} cocktails</strong>${x.totaal !== x.auto ? ` (aangepast naar ${x.totaal})` : ''}, ${x.perCocktail.map(c => `${c.aantal} ${esc(c.naam)}`).join(', ')}.`;
     // A4
     $('#l-me').innerHTML = $('#d-me').innerHTML;
     const klant = d['k-bedrijf'] || d['k-naam'];
