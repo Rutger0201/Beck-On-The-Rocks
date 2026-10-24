@@ -1,0 +1,7 @@
+# Dependabot: maakt vanzelf een pull request als een gebruikte GitHub Action een (beveiligings)update heeft.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

@@ -1,1 +1,9 @@
 __pycache__/
+
+# Geheimen nooit committen
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*service-account*.json
