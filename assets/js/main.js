@@ -120,7 +120,7 @@
   const GOOGLE_REVIEW_SCHRIJVEN = (CONFIG.google || {}).review || '';  // in config.js
   const GOOGLE_REVIEWS_BEKIJKEN = (CONFIG.google || {}).profiel || '';
 
-  const MAIL = CONFIG.mail || 'rutger@beck.nl';
+  const MAIL = CONFIG.mail || 'info@beckontherocks.nl';
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const vandaagIso = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   const euro = n => '€ ' + n.toLocaleString(LOCALE, { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });

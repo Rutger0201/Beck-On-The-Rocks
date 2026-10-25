@@ -11,7 +11,7 @@
 
   /* ================= Instellingen ================= */
   const STANDAARD = {
-    naam: 'Beck on the Rocks', contact: 'Rutger', adres: '', plaats: '', tel: '', email: 'rutger@beck.nl', web: 'beckontherocks.nl',
+    naam: 'Beck on the Rocks', contact: 'Rutger', adres: '', plaats: '', tel: '', email: 'info@beckontherocks.nl', web: 'beckontherocks.nl',
     kvk: '', iban: '', btw: 'kor', btwnr: '', review: 'https://g.page/r/CdSRBk_6B5glECE/review',
     uur: 45, prep: 1, menu: 75, fruitpers: 20, menuFp: 99, km: 0.25, glas: 0.5, spoed: 25, annul: 20, betaal: 14
   };
@@ -31,7 +31,7 @@
   }
   if (SITE && ins.tarievenBron !== siteBron) { ins.tarievenBron = siteBron; opslag.schrijf('beck-instellingen', ins); }
   // Oude standaardwaarden uit een eerdere versie bijwerken
-  if (ins.email === 'info@beckontherocks.nl') ins.email = STANDAARD.email;
+  if (ins.email === 'rutger@beck.nl') ins.email = STANDAARD.email;
   if (!ins.web) ins.web = STANDAARD.web;
   if (ins.tel === '06 39 65 86 62') ins.tel = '';  // telefoonnummer staat niet meer op documenten
   if (!ins.review) ins.review = STANDAARD.review;

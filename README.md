@@ -58,7 +58,7 @@ ingrediënten, een werkplek en een gootsteen met stromend water.
 
 ## Boekingsformulier (Web3Forms)
 Aanvragen gaan via [Web3Forms](https://web3forms.com) direct naar je mail, zonder dat de klant
-zijn mailprogramma opent. Vraag op web3forms.com gratis een *Access Key* aan met rutger@beck.nl
+zijn mailprogramma opent. Vraag op web3forms.com gratis een *Access Key* aan met info@beckontherocks.nl
 en zet die bij `web3forms` in `assets/js/config.js`.
 Zonder sleutel opent het formulier het mailprogramma van de klant (zoals voorheen).
 Kopieer een binnengekomen aanvraag in **Slim invullen** van de generator voor een offerte.
