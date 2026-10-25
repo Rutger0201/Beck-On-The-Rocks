@@ -107,7 +107,7 @@
       }
       const klaar = $('#akk-klaar'); klaar.hidden = false; klaar.focus();
     } catch {
-      const mail = CONFIG.mail || 'rutger@beck.nl';
+      const mail = CONFIG.mail || 'info@beckontherocks.nl';
       note.innerHTML = `Versturen is niet gelukt. Probeer het nog eens, of <a href="mailto:${esc(mail)}?subject=${encodeURIComponent(onderwerp)}&body=${encodeURIComponent(Object.entries(velden).map(([k, v]) => k + ': ' + v).join('\n'))}">stuur je antwoord per mail</a>.`;
       note.classList.add('is-fout');
     } finally {
