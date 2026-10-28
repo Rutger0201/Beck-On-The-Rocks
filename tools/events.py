@@ -18,7 +18,7 @@ Nodig (GitHub → Settings → Secrets and variables → Actions):
   ANTHROPIC_API_KEY   sleutel van console.anthropic.com                 (secret, optioneel)
 
 Gebruik: ADMIN_WACHTWOORD=... python3 tools/events.py   (--toon: lijst ook in de terminal tonen)
-Pakketten: pip install cryptography anthropic
+Pakketten: pip install -r tools/requirements.txt
 """
 import base64
 import hashlib

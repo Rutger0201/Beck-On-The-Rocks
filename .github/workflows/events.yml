@@ -16,7 +16,7 @@ jobs:
           ADMIN_WACHTWOORD: ${{ secrets.ADMIN_WACHTWOORD }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          pip install --quiet cryptography anthropic
+          pip install --quiet -r tools/requirements.txt
           python3 tools/events.py
           git add assets/data/events.enc.json
           if git diff --cached --quiet; then echo "Niets nieuws."; exit 0; fi
