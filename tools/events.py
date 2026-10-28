@@ -285,7 +285,7 @@ def main():
     goed = [e for e in uniek.values() if e['score'] >= int(inst.get('min_score', 20))]
     beste = sorted(goed, key=lambda e: (-e['score'], e['_datum']))[:int(inst.get('top', 15))]
     for e in beste:
-        e['id'] = hashlib.sha1(sleutel_van(e).encode()).hexdigest()[:10]
+        e['id'] = hashlib.sha1(sleutel_van(e).encode(), usedforsecurity=False).hexdigest()[:10]
         del e['_datum']
     print(f'{len(ruw)} gevonden, {len(uniek)} in de komende {inst.get("dagen_vooruit", 31)} dagen, top {len(beste)} bewaard.')
     if '--toon' in sys.argv:

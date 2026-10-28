@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Alleen eigen scripts, GoatCounter en de formulier-/reviewdiensten; blokkeert ingevoegde scripts van buitenaf.
+       De hash hoort bij het themascript hieronder: verander je dat script, draai dan python3 tools/csp_controle.py -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-WT1bYKm/NWWkQjbaYsOQJqDMYGrq1PYwWSH8eT/0v0w=' https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' https://*.goatcounter.com; font-src 'self'; connect-src 'self' https://*.goatcounter.com https://api.web3forms.com https://api.emailjs.com https://api.github.com https://raw.githubusercontent.com; object-src 'none'; base-uri 'none'; form-action 'self'">
   <title>Hire a cocktail bartender for your party or event · Beck on the Rocks</title>
   <meta name="description" content="Beck on the Rocks: freelance bartender for hire in the Netherlands for weddings, corporate events and private parties. €45 per hour, bespoke cocktail menu.">
   <meta name="theme-color" content="#f1ebe1">
@@ -380,7 +383,7 @@
           <h3>What does your party cost?</h3>
           <p>Fill in your party for an estimate. If you book within a month of the party, the calculator automatically adds the short-notice surcharge.</p>
         </div>
-        <form class="calc__form" onsubmit="return false">
+        <form class="calc__form">
           <label>Hours behind the bar <output id="c-uren-out">4</output>
             <input type="range" id="c-uren" min="1" max="12" step="1" value="4">
           </label>
@@ -703,6 +706,6 @@
 
 <script src="../assets/js/config.js" defer></script>
 <script src="../assets/js/tarieven.js" defer></script>
-<script src="../assets/js/main.js?v=20261025" defer></script>
+<script src="../assets/js/main.js?v=20261028" defer></script>
 </body>
 </html>

@@ -65,7 +65,7 @@ def slug(s, n=40):
 
 
 def maak_id(*delen):
-    return hashlib.sha1('|'.join(map(str, delen)).encode()).hexdigest()[:10]
+    return hashlib.sha1('|'.join(map(str, delen)).encode(), usedforsecurity=False).hexdigest()[:10]
 
 
 def dag(s):

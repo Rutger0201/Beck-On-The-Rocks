@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Alleen eigen scripts, GoatCounter en de formulier-/reviewdiensten; blokkeert ingevoegde scripts van buitenaf.
+       De hash hoort bij het themascript hieronder: verander je dat script, draai dan python3 tools/csp_controle.py -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-WT1bYKm/NWWkQjbaYsOQJqDMYGrq1PYwWSH8eT/0v0w=' https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' https://*.goatcounter.com; font-src 'self'; connect-src 'self' https://*.goatcounter.com https://api.web3forms.com https://api.emailjs.com https://api.github.com https://raw.githubusercontent.com; object-src 'none'; base-uri 'none'; form-action 'self'">
   <title>Privacyverklaring · Beck on the Rocks</title>
   <meta name="description" content="Welke gegevens Beck on the Rocks verzamelt via de website, waarvoor en hoe lang, en wat je rechten zijn.">
   <meta name="theme-color" content="#f1ebe1">
@@ -101,6 +104,6 @@
 
 <script src="/assets/js/config.js" defer></script>
 <script src="/assets/js/tarieven.js" defer></script>
-<script src="/assets/js/main.js?v=20261025" defer></script>
+<script src="/assets/js/main.js?v=20261028" defer></script>
 </body>
 </html>

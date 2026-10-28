@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths: ['tarieven.json', 'tools/tarieven.py']
   pull_request:
-    paths: ['**.html', 'tarieven.json', 'tools/tarieven.py']
+    paths: ['**.html', 'tarieven.json', 'tools/**']
   workflow_dispatch:
 permissions:
   contents: read
@@ -16,7 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Controleren (pull request)
-        run: python3 tools/tarieven.py --controleer
+        run: |
+          python3 tools/tarieven.py --controleer
+          python3 tools/csp_controle.py
+          python3 -m py_compile tools/*.py tools/marketing/*.py
   bijwerken:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest

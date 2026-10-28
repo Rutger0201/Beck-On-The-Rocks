@@ -239,7 +239,9 @@
     // Tarieven en FAQ hebben in het Nederlands eigen pagina's; oude links (/#prijzen, /#faq) sturen door
     const VERHUISD = { prijzen: 'tarieven/', calculator: 'tarieven/#calculator', faq: 'faq/' };
     const route = () => {
-      const id = decodeURIComponent(location.hash.slice(1)) || 'home';
+      // Een kapotte link (bijv. /#%E0%A) mag de rest van het script niet stoppen: dan gewoon home tonen
+      let id = 'home';
+      try { id = decodeURIComponent(location.hash.slice(1)) || 'home'; } catch { /* ongeldige tekens */ }
       if (!EN && VERHUISD[id]) { location.replace(VERHUISD[id]); return; }
       const doel = document.getElementById(id);
       const page = (doel && doel.closest('.page')) || $('#home');
@@ -394,6 +396,8 @@
   if (cU) {
     const cD = $('#c-datum'), cC = $('#c-cocktails'), cF = $('#c-fruitpers');
     cD.min = vandaagIso();
+    // Enter in een veld mag de pagina niet herladen (stond eerst als onsubmit in de HTML; dat laat de CSP niet toe)
+    cU.form.addEventListener('submit', e => e.preventDefault());
     const bereken = () => {
       const uren = +cU.value, spoed = isSpoed(cD.value), fp = cF.checked;
       const uurprijs = TARIEF.uur * (fp ? 1 + TARIEF.fruitpers : 1);
@@ -690,7 +694,8 @@
         'Gasten': d.gasten || '-', 'Soort feest': d.soort, 'Locatie': d.locatie || '-',
         'Cocktails op de kaart': d.cocktails, 'Fruitpers': d.fruitpers ? 'ja' : 'nee', 'Glazen via Rutger': d.glazen ? 'ja' : 'nee',
         'Spoedboeking': isSpoed(d.datum) ? 'ja (binnen 1 maand)' : 'nee', 'Bericht': d.bericht || '-',
-        ...(params.get('via') ? { 'Via pagina': params.get('via') } : {}),
+        // Alleen een gewone paginacode (privefeest, bedrijfsfeest, calculator), geen vrije tekst uit de link in je mail
+        ...(/^[a-z0-9-]{1,40}$/i.test(params.get('via') || '') ? { 'Via pagina': params.get('via') } : {}),
         ...(campagne ? { 'Via campagne': campagne } : {}),
         ...(EN ? { 'Taal': 'Engels (antwoord in het Engels)' } : {})
       };
