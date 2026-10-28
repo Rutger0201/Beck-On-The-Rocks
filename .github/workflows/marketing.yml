@@ -37,7 +37,7 @@ jobs:
           LINKEDIN_TOKEN: ${{ secrets.LINKEDIN_TOKEN }}
           LINKEDIN_AUTHOR: ${{ secrets.LINKEDIN_AUTHOR }}
         run: |
-          pip install --quiet cryptography
+          pip install --quiet -r tools/requirements.txt
           python3 tools/marketing --toon
           git add -A -- 'assets/data/marketing*.json'
           if git diff --cached --quiet; then echo "Niets nieuws."; exit 0; fi

@@ -132,8 +132,8 @@ class _Pagina(HTMLParser):
                 self.jsonld = True
         if tag == 'title':
             self._in = 'titel'
-        elif tag == 'h1':
-            self.h1 += 1
+        elif tag == 'h1' and 'sr-only' not in (a.get('class') or '').split():
+            self.h1 += 1   # verborgen h1's horen bij de #-subpagina's (Over mij, Cocktails, ...), niet bij de homepage
         elif tag == 'meta' and (a.get('name') or '').lower() == 'description':
             self.omschrijving = a.get('content') or ''
         elif tag == 'link' and a.get('rel') == 'canonical':

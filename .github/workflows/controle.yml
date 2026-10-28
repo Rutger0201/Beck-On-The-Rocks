@@ -1,0 +1,18 @@
+# Dezelfde controles als in een pull request (zie tarieven.yml), ook na een directe wijziging op main,
+# bijvoorbeeld via de editor op GitHub. Wordt deze rood, dan werkt het thema of een script niet meer.
+name: Controle op main
+on:
+  push:
+    branches: [main]
+    paths: ['**.html', 'tools/**']
+permissions:
+  contents: read
+jobs:
+  controleren:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: CSP-hashes en Python controleren
+        run: |
+          python3 tools/csp_controle.py
+          python3 -m py_compile tools/*.py tools/marketing/*.py

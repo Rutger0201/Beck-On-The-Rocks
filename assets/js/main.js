@@ -154,7 +154,7 @@
   if (gcCode && location.hostname !== 'localhost') {
     window.goatcounter = { no_onload: true };
     const sc = document.createElement('script');
-    sc.async = true; sc.src = 'https://gc.zgo.at/count.js';
+    sc.async = true; sc.src = '/assets/vendor/goatcounter/count.js';  // zelf gehost: geen script van derden op de site
     sc.dataset.goatcounter = `https://${encodeURIComponent(gcCode)}.goatcounter.com/count`;
     sc.onload = () => gcWacht.splice(0).forEach(f => f());
     document.head.append(sc);
@@ -345,8 +345,10 @@
   // houd je alleen tegen via de instellingen van Web3Forms zelf.
   const paginaGeladen = Date.now();
   const LOG = 'beck-verzonden';
+  // Binnen 3 seconden na het laden verstuurd (een bot, maar ook iemand met autofill vanuit de calculator):
+  // dan wachten we de rest van die 3 seconden en versturen daarna gewoon, zodat er geen echte aanvraag verloren gaat.
+  const wachtMinimaal = () => new Promise(r => setTimeout(r, Math.max(0, 3000 - (Date.now() - paginaGeladen))));
   function spamCheck(tekst) {
-    if (Date.now() - paginaGeladen < 3000) return 'bot'; // binnen 3 seconden ingevuld en verstuurd: geen mens
     if ((String(tekst || '').match(/https?:\/\/|www\./gi) || []).length > 2)
       return t('Je bericht bevat te veel links. Haal ze weg, of mail me je bericht.', 'Your message contains too many links. Please remove them, or email me instead.');
     try {
@@ -455,8 +457,14 @@
     const sterren = n => '★'.repeat(n) + '☆'.repeat(5 - n);
     const maandJaar = d => { const x = new Date(d + 'T00:00'); return isNaN(x) ? '' : x.toLocaleDateString(LOCALE, { month: 'long', year: 'numeric' }); };
 
-    // Lijst met goedgekeurde reviews ophalen: 1 verzoek voor de map, daarna de bestanden zelf
+    // Goedgekeurde reviews: eerst het ene bestand dat de Action "Reviews bijwerken" maakt (tools/reviews_index.py);
+    // ontbreekt dat, dan via de GitHub API: 1 verzoek voor de map, daarna de bestanden zelf
     const laadEigen = async () => {
+      try {
+        const res = await fetch('/assets/data/reviews.json');
+        const lijst = res.ok ? await res.json() : null;
+        if (Array.isArray(lijst)) return lijst.filter(r => r && r.tekst && r.naam);
+      } catch { /* bestand ontbreekt of is kapot: terugvallen op de API */ }
       try { const c = JSON.parse(localStorage.getItem('beck-reviews')); if (c && Date.now() - c.t < 6 * 3600e3) return c.r; } catch { /* geen cache */ }
       const res = await fetch(`https://api.github.com/repos/${REVIEWS_REPO}/contents/${REVIEWS_MAP}?ref=main`, { headers: { Accept: 'application/vnd.github+json' } });
       if (!res.ok) return [];
@@ -497,8 +505,8 @@
       const gemTekst = gem.toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
       // Vertrouwenszegel onder de offerteknop bovenaan de homepage
       if (zegel) {
-        zegel.innerHTML = `<span class="stars" aria-hidden="true">${sterren(Math.round(gem))}</span><strong>${gemTekst}</strong><span>${aantal} ${aantal === 1 ? 'review' : 'reviews'}</span>`;
-        zegel.setAttribute('aria-label', t(`Beoordeling ${gemTekst} van 5 uit ${aantal} reviews`, `Rated ${gemTekst} out of 5 from ${aantal} reviews`));
+        // Voorgelezen naam = zichtbare tekst plus "van 5 sterren" (WCAG 2.5.3: spraakbediening zegt wat ze ziet)
+        zegel.innerHTML = `<span class="stars" aria-hidden="true">${sterren(Math.round(gem))}</span><strong>${gemTekst}</strong><span class="sr-only">${t(' van 5 sterren,', ' out of 5 stars,')}</span><span>${aantal} ${aantal === 1 ? 'review' : 'reviews'}</span>`;
         zegel.hidden = false;
       }
       if (!reviewLijst) return;
@@ -618,7 +626,6 @@
       };
       const onderwerp = `Nieuwe review van ${review.naam} (${review.sterren}/5)`;
       const spam = spamCheck(review.tekst);
-      if (spam === 'bot') { reviewForm.hidden = true; $('#review-klaar').hidden = false; return; } // doen alsof, niets versturen
       if (spam) { note.textContent = spam; note.classList.add('is-fout'); return; }
       if (!WEB3FORMS_SLEUTEL) {
         location.href = `mailto:${MAIL}?subject=${encodeURIComponent(onderwerp)}&body=${encodeURIComponent(Object.entries(velden).map(([k, v]) => `${k}: ${v}`).join('\n'))}`;
@@ -626,6 +633,7 @@
       }
       const knop = $('#review-knop');
       knop.disabled = true; knop.textContent = t('Versturen…', 'Sending…');
+      await wachtMinimaal();
       try {
         await verstuur({ subject: onderwerp, from_name: 'Beck on the Rocks · reviews', ...(d.email ? { replyto: d.email } : {}), ...velden });
         reviewForm.hidden = true; reviewForm.reset();
@@ -718,12 +726,12 @@
         location.href = `mailto:${MAIL}?subject=${encodeURIComponent(onderwerp)}&body=${encodeURIComponent(body)}`;
       };
       const spam = spamCheck(d.bericht);
-      if (spam === 'bot') { toonBedankt(velden); return; } // doen alsof, niets versturen
       if (spam) { note.textContent = spam; note.classList.add('is-fout'); return; }
       if (!WEB3FORMS_SLEUTEL) { naarMail(); note.textContent = t('Dank je! Je mailprogramma opent nu met je aanvraag.', 'Thank you! Your email app will now open with your request.'); return; }
 
       const knop = $('#form-knop'), knopTekst = knop.textContent;
       knop.disabled = true; knop.textContent = t('Versturen…', 'Sending…');
+      await wachtMinimaal();
       try {
         await verstuur({ subject: onderwerp, from_name: 'Beck on the Rocks · website', replyto: d.email, ...velden });
         toonBedankt(velden);

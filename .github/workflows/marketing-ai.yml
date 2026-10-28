@@ -25,7 +25,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           VERZOEK: ${{ inputs.verzoek }}
         run: |
-          pip install --quiet cryptography
+          pip install --quiet -r tools/requirements.txt
           python3 tools/marketing ai-verzoek
           git add assets/data/marketing-ai.enc.json
           git config user.name "github-actions[bot]"

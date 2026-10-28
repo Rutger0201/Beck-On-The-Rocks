@@ -51,7 +51,7 @@
     'Je zorgt voor een werkplek: een stevige tafel of bar, met een gootsteen met stromend water in de buurt.',
     `Geen aanbetaling. Na het feest ontvang je een factuur met een betaaltermijn van ${o.bt || 14} dagen.`,
     `Boeken binnen 1 maand voor het feest geldt als spoedboeking: +${o.sp ?? 25}% over alle kosten.`,
-    `Annuleren kan kosteloos tot 14 dagen voor het feest. Daarna reken ik ${o.an ?? 20}% van het afgesproken bedrag.`
+    `Annuleren kan kosteloos tot ${o.ad ?? 14} dagen voor het feest. Daarna reken ik ${o.an ?? 20}% van het afgesproken bedrag.`
   ].map(t => `<li>${esc(t)}</li>`).join('');
   $('#offerte').hidden = false;
   $('#antwoord').hidden = false;
@@ -73,7 +73,6 @@
     const d = Object.fromEntries(new FormData(form));
     if (d.botcheck) return;
     const fout = t => { note.textContent = t; note.classList.add('is-fout'); };
-    if (Date.now() - geladen < 3000) return; // binnen 3 seconden verstuurd: spambot, niets versturen
     if ((d.opmerking.match(/https?:\/\/|www\./gi) || []).length > 2) return fout('Je bericht bevat te veel links. Haal ze weg, of mail me je bericht.');
     if (!d.naam.trim()) return fout('Vul je naam in.');
     if (keuze === 'akkoord' && !d.akkoord) return fout('Vink aan dat je akkoord gaat met de offerte en de afspraken.');
@@ -90,6 +89,8 @@
     const onderwerp = `${keuze === 'akkoord' ? '✅ Akkoord' : '❓ Vraag'} op offerte ${o.n} van ${d.naam.trim()}`;
     const knoppen = form.querySelectorAll('button');
     knoppen.forEach(b => { b.disabled = true; });
+    // Binnen 3 seconden na het openen verstuurd: eerst de rest van die tijd wachten (remt bots, verliest geen akkoord)
+    await new Promise(r => setTimeout(r, Math.max(0, 3000 - (Date.now() - geladen))));
     try {
       if (!CONFIG.web3forms) throw new Error('geen sleutel');
       const res = await fetch('https://api.web3forms.com/submit', {

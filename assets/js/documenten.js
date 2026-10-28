@@ -22,6 +22,8 @@
     km: SITE.km, glas: SITE.glas, spoed: SITE.spoedProcent, annul: SITE.annulerenProcent, betaal: SITE.betaalDagen
   } : {};
   Object.assign(STANDAARD, SITE_TARIEF);
+  // Annuleringstermijn staat (nog) niet bij Instellingen: altijd die van de website
+  const ANNUL_DAGEN = (SITE && SITE.annulerenDagen) ?? 14;
   let ins = { ...STANDAARD, ...opslag.lees('beck-instellingen', {}) };
   // Zijn de tarieven op de website veranderd sinds je laatste bezoek? Dan neemt de generator ze over.
   const siteBron = JSON.stringify(SITE_TARIEF);
@@ -183,7 +185,7 @@
       const a = sub * ins.annul / 100;
       return {
         u, spoed, afgesproken: sub,
-        regels: [{ oms: `Annuleringskosten ${ins.annul}%`, sub: `Annulering binnen 14 dagen voor het feest van ${lang(d['f-datum']) || '…'}. Afgesproken bedrag: ${euro(sub)}`, aantal: 1, eenheid: '', prijs: a, bedrag: a }],
+        regels: [{ oms: `Annuleringskosten ${ins.annul}%`, sub: `Annulering binnen ${ANNUL_DAGEN} dagen voor het feest van ${lang(d['f-datum']) || '…'}. Afgesproken bedrag: ${euro(sub)}`, aantal: 1, eenheid: '', prijs: a, bedrag: a }],
         sub: a
       };
     }
@@ -192,6 +194,7 @@
 
   /* ================= Tekenen ================= */
   function teken() {
+    $('#fp-uitleg').textContent = `uurtarief +${getal(ins.fruitpers)}%, menu vanaf €${getal(ins.menuFp)}`;
     const d = leesForm();
     const b = bereken(d);
     const btw = ins.btw === '21';
@@ -260,7 +263,7 @@
           <li>Je zorgt voor een werkplek: een stevige tafel of bar, met een gootsteen met stromend water in de buurt.</li>
           <li>Geen aanbetaling. Na het feest ontvang je een factuur met een betaaltermijn van ${ins.betaal} dagen.</li>
           <li>Boeken binnen 1 maand voor het feest geldt als spoedboeking: +${ins.spoed}% over alle kosten.</li>
-          <li>Annuleren kan kosteloos tot 14 dagen voor het feest. Daarna reken ik ${ins.annul}% van het afgesproken bedrag.</li>
+          <li>Annuleren kan kosteloos tot ${ANNUL_DAGEN} dagen voor het feest. Daarna reken ik ${ins.annul}% van het afgesproken bedrag.</li>
           <li>Deze offerte is geldig tot ${lang(tot) || '…'}. Akkoord? Stuur hem getekend terug of laat het me weten per mail, dan staat je datum vast.</li>
         </ul>
         <div class="akkoord">
@@ -410,7 +413,7 @@
       t: d['f-van'] && d['f-tot'] ? `${d['f-van']} – ${d['f-tot']}` : '', u: c.b.u, g: d['f-gasten'], l: d['f-locatie'],
       r: c.b.regels.map(r => [r.oms, r.sub || '', `${getal(r.aantal)}${r.eenheid ? ' ' + r.eenheid : ''}`, Math.round(r.bedrag * 100) / 100]),
       sub: Math.round(c.b.sub * 100) / 100, btw: Math.round(c.btw * 100) / 100, tot: Math.round(c.totaal * 100) / 100,
-      kor: ins.btw !== '21', sp: ins.spoed, an: ins.annul, bt: ins.betaal, o: d.opmerking || ''
+      kor: ins.btw !== '21', sp: ins.spoed, an: ins.annul, ad: ANNUL_DAGEN, bt: ins.betaal, o: d.opmerking || ''
     };
     const basis = location.href.replace(/[?#].*$/, '').replace(/documenten\.html$/, '');
     const o = b64(JSON.stringify(data));

@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
+  <!-- Alleen eigen bestanden en GoatCounter. De hash hoort bij het inline script onderaan (service worker): verander je dat, draai dan python3 tools/csp_controle.py -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Dx1Z7I3ITCZRcSFPdL7JTcNN5V1nyXy08LdaAH0yCJk='; style-src 'self' 'unsafe-inline'; img-src 'self' https://*.goatcounter.com; font-src 'self'; connect-src 'self' https://*.goatcounter.com; object-src 'none'; base-uri 'none'; form-action 'self'">
   <title>Rutger · Beck on the Rocks</title>
   <meta name="description" content="Digitaal visitekaartje van Rutger, cocktail bartender bij Beck on the Rocks.">
   <meta name="theme-color" content="#0f0d0b">
@@ -44,7 +46,7 @@
 </main>
 <script src="/assets/js/config.js" defer></script>
 <script src="/assets/js/tarieven.js" defer></script>
-<script src="/assets/js/main.js?v=20261028" defer></script>
+<script src="/assets/js/main.js?v=20261029" defer></script>
 <script>
   // Installeerbaar en offline beschikbaar (alleen het visitekaartje)
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/kaart/sw.js', { scope: '/kaart/' }).catch(() => {});

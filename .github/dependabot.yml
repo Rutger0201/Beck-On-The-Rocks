@@ -5,3 +5,8 @@ updates:
     directory: /
     schedule:
       interval: monthly
+  # Python-pakketten van de Actions (tools/requirements.txt)
+  - package-ecosystem: pip
+    directory: /tools
+    schedule:
+      interval: monthly

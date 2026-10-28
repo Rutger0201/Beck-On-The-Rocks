@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Alleen eigen scripts, GoatCounter en de formulier-/reviewdiensten; blokkeert ingevoegde scripts van buitenaf.
        De hash hoort bij het themascript hieronder: verander je dat script, draai dan python3 tools/csp_controle.py -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-WT1bYKm/NWWkQjbaYsOQJqDMYGrq1PYwWSH8eT/0v0w=' https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' https://*.goatcounter.com; font-src 'self'; connect-src 'self' https://*.goatcounter.com https://api.web3forms.com https://api.emailjs.com https://api.github.com https://raw.githubusercontent.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-WT1bYKm/NWWkQjbaYsOQJqDMYGrq1PYwWSH8eT/0v0w='; style-src 'self' 'unsafe-inline'; img-src 'self' https://*.goatcounter.com; font-src 'self'; connect-src 'self' https://*.goatcounter.com https://api.web3forms.com https://api.emailjs.com https://api.github.com https://raw.githubusercontent.com; object-src 'none'; base-uri 'none'; form-action 'self'">
   <title>Cocktail bartender inhuren voor je feest of evenement · Beck on the Rocks</title>
   <meta name="description" content="Cocktail bartender inhuren voor je verjaardag, tuinfeest, bruiloft of bedrijfsfeest? Beck on the Rocks maakt verse cocktails op locatie, in heel Nederland. Vanaf €45 per uur, geen aanbetaling.">
   <meta name="theme-color" content="#f1ebe1">
@@ -226,6 +226,7 @@
      ===================================================== -->
 <div class="page" id="over" data-titel="Over mij" hidden>
   <section class="section">
+    <h1 class="sr-only">Over mij</h1>
     <div class="container split">
       <div class="portrait reveal">
         <div class="portrait__frame">
@@ -285,6 +286,7 @@
      ===================================================== -->
 <div class="page" id="cocktails" data-titel="Cocktails" hidden>
   <section class="section">
+    <h1 class="sr-only">Cocktails</h1>
     <div class="container">
       <div class="section__head reveal">
         <h2>Cocktails om bij stil te staan.</h2>
@@ -339,6 +341,7 @@
      ===================================================== -->
 <div class="page" id="reviews" data-titel="Reviews" hidden>
   <section class="section">
+    <h1 class="sr-only">Reviews</h1>
     <div class="container">
       <div class="section__head reveal">
         <h2>Wat gasten zeggen.</h2>
@@ -402,6 +405,7 @@
      ===================================================== -->
 <div class="page" id="boeken" data-titel="Offerte aanvragen" hidden>
   <section class="section">
+    <h1 class="sr-only">Offerte aanvragen</h1>
     <div class="container split split--contact">
       <div class="reveal">
         <h2>Zullen we proosten?</h2>
@@ -484,6 +488,7 @@
   </section>
 </div>
 
+<a href="#boeken" class="fab">Offerte aanvragen</a>
 </main>
 
 <!-- ============ Footer ============ -->
@@ -511,10 +516,8 @@
   </div>
 </footer>
 
-<a href="#boeken" class="fab">Offerte aanvragen</a>
-
 <script src="assets/js/config.js" defer></script>
 <script src="assets/js/tarieven.js" defer></script>
-<script src="assets/js/main.js?v=20261028" defer></script>
+<script src="assets/js/main.js?v=20261029" defer></script>
 </body>
 </html>
