@@ -23,18 +23,23 @@ jobs:
   bijwerken:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    # Alleen deze job mag commits terugzetten op main
+    # Alleen deze job mag commits terugzetten op main; één tegelijk
+    concurrency: tarieven
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v7
       - name: Bijwerken en opslaan (main)
         run: |
-          python3 tools/tarieven.py
-          if git diff --quiet; then echo "Alle tarieven klopten al."; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "Tarieven bijgewerkt vanuit tarieven.json"
-          # Tegelijk een andere bot-commit op main? Dan eerst bijwerken en opnieuw proberen.
-          for i in 1 2 3 4 5; do git pull --rebase origin main && git push origin HEAD:main && exit 0; sleep 10; done
+          # Steeds opnieuw opbouwen vanaf de nieuwste main: zo wint nooit een oudere versie van tarieven.json
+          for i in 1 2 3 4 5; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            python3 tools/tarieven.py
+            if git diff --quiet; then echo "Alle tarieven klopten al."; exit 0; fi
+            git commit -qam "Tarieven bijgewerkt vanuit tarieven.json"
+            git push origin HEAD:main && exit 0
+            sleep 10
+          done
           exit 1

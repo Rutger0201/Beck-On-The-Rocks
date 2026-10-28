@@ -3,7 +3,8 @@
 Elke goedgekeurde review is een los `.json`-bestand in deze map. De reviewpagina van de
 website toont de reviews, nieuwste eerst, met de gemiddelde score. Na elke wijziging in deze map zet de
 Action *Reviews bijwerken* alle reviews in `assets/data/reviews.json`; dat ene bestand leest de site
-(lukt dat niet, dan leest hij deze map via de GitHub API).
+(ontbreekt dat bestand, dan leest hij deze map via de GitHub API). Staat een nieuwe review er na een paar
+minuten nog niet op, kijk dan bij *Actions* of *Reviews bijwerken* rood is en start hem opnieuw.
 
 ## Goedkeuren
 1. Een klant vult het reviewformulier op de site in.

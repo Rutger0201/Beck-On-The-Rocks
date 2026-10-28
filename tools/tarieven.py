@@ -150,6 +150,8 @@ def bijwerken(tekst, w, taal):
     # "€45 per uur" in <title>, meta-teksten en JSON-LD altijd gelijk aan het uurtarief, ook als de labels al klopten
     uur = opmaak(*w['uur'], taal)
     def per_uur(m):
+        if '"FAQPage"' in m.group(0):
+            return m.group(0)   # de FAQ volgt de zichtbare tekst (faq_ld), die heeft eigen labels
         return re.sub(r'€\s?\d+(?:[.,]\d+)?(?= per (?:uur|hour))', uur, m.group(0))
     tekst = re.sub(r'<title>[^<]*</title>|<meta [^>]*content="[^"]*"[^>]*>|<script type="application/ld\+json">.*?</script>',
                    per_uur, tekst, flags=re.S)
