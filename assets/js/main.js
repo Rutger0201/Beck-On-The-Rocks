@@ -505,8 +505,8 @@
       const gemTekst = gem.toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
       // Vertrouwenszegel onder de offerteknop bovenaan de homepage
       if (zegel) {
-        zegel.innerHTML = `<span class="stars" aria-hidden="true">${sterren(Math.round(gem))}</span><strong>${gemTekst}</strong><span>${aantal} ${aantal === 1 ? 'review' : 'reviews'}</span>`;
-        zegel.setAttribute('aria-label', t(`Beoordeling ${gemTekst} van 5 uit ${aantal} reviews`, `Rated ${gemTekst} out of 5 from ${aantal} reviews`));
+        // Voorgelezen naam = zichtbare tekst plus "van 5 sterren" (WCAG 2.5.3: spraakbediening zegt wat ze ziet)
+        zegel.innerHTML = `<span class="stars" aria-hidden="true">${sterren(Math.round(gem))}</span><strong>${gemTekst}</strong><span class="sr-only">${t(' van 5 sterren,', ' out of 5 stars,')}</span><span>${aantal} ${aantal === 1 ? 'review' : 'reviews'}</span>`;
         zegel.hidden = false;
       }
       if (!reviewLijst) return;
