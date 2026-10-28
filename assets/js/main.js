@@ -154,7 +154,7 @@
   if (gcCode && location.hostname !== 'localhost') {
     window.goatcounter = { no_onload: true };
     const sc = document.createElement('script');
-    sc.async = true; sc.src = 'https://gc.zgo.at/count.js';
+    sc.async = true; sc.src = '/assets/vendor/goatcounter/count.js';  // zelf gehost: geen script van derden op de site
     sc.dataset.goatcounter = `https://${encodeURIComponent(gcCode)}.goatcounter.com/count`;
     sc.onload = () => gcWacht.splice(0).forEach(f => f());
     document.head.append(sc);
