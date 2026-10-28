@@ -12,7 +12,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 INLINE = re.compile(r'<script(?![^>]*\bsrc=)(?![^>]*ld\+json)[^>]*>(.*?)</script>', re.S)
-CSP = re.compile(r'<meta http-equiv="Content-Security-Policy" content="([^"]*)"')
+META = re.compile(r'<meta\b[^>]*http-equiv=["\']content-security-policy["\'][^>]*>', re.I)
+CONTENT = re.compile(r'\bcontent=(["\'])(.*?)\1', re.I)
 
 
 def main():
@@ -21,10 +22,11 @@ def main():
         if '/assets/' in str(pad) or '/node_modules/' in str(pad):
             continue
         html = pad.read_text()
-        csp = CSP.search(html)
+        meta = META.search(html)
+        csp = meta and CONTENT.search(meta.group(0))
         if not csp:
             continue
-        toegestaan = set(re.findall(r"'(sha256-[A-Za-z0-9+/=]+)'", csp.group(1)))
+        toegestaan = set(re.findall(r"'(sha256-[A-Za-z0-9+/=]+)'", csp.group(2)))
         for script in INLINE.findall(html):
             h = 'sha256-' + base64.b64encode(hashlib.sha256(script.encode()).digest()).decode()
             if h not in toegestaan:
