@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Alleen eigen scripts, GoatCounter en de formulier-/reviewdiensten; blokkeert ingevoegde scripts van buitenaf.
+       De hash hoort bij het themascript hieronder: verander je dat script, draai dan python3 tools/csp_controle.py -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-WT1bYKm/NWWkQjbaYsOQJqDMYGrq1PYwWSH8eT/0v0w=' https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' https://*.goatcounter.com; font-src 'self'; connect-src 'self' https://*.goatcounter.com https://api.web3forms.com https://api.emailjs.com https://api.github.com https://raw.githubusercontent.com; object-src 'none'; base-uri 'none'; form-action 'self'">
   <title>Tarieven cocktail bartender: vanaf €45 per uur · Beck on the Rocks</title>
   <meta name="description" content="Wat kost een cocktail bartender inhuren? Vanaf €45 per uur, plus voorbereiding en cocktailmenu. Bereken direct de prijs van je feest. Geen aanbetaling, heel Nederland.">
   <meta name="theme-color" content="#f1ebe1">
@@ -70,7 +73,7 @@
   <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/jost-latin-300-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/cormorant-garamond-latin-300-normal.woff2" crossorigin>
   <link rel="stylesheet" href="/assets/css/fonts.css">
-  <link rel="stylesheet" href="/assets/css/site.css?v=20261024">
+  <link rel="stylesheet" href="/assets/css/site.css?v=20261028">
   <link rel="icon" type="image/png" href="/assets/icons/favicon-48.png">
   <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
 </head>
@@ -132,33 +135,33 @@
       <div class="opties">
         <article class="optie optie--gold reveal">
           <span class="optie__label">Optie</span>
-          <h3>Met fruitpers</h3>
+          <h2>Met fruitpers</h2>
           <p>Vers geperste sappen maken het verschil in smaak. Ik neem mijn eigen fruitpers mee en pers alles ter plekke. Hiervoor geldt een uurtarief van <strong><span data-t="uurFp">€54</span></strong> en een cocktailmenu <strong>vanaf <span data-t="menuFp">€99</span></strong>.</p>
           <p class="optie__ex">Voorbeeld 4 uur: 4 × <span data-t="uurFp">€54</span> + <span data-t="prepFp">€54</span> + <span data-t="menuFp">€99</span> = <strong><span data-t="vbFp">€369</span></strong></p>
         </article>
         <article class="optie reveal">
           <span class="optie__label">Reiskosten</span>
-          <h3><span data-t="km">€0,25</span> per km</h3>
+          <h2><span data-t="km">€0,25</span> per km</h2>
           <p>Ik werk in heel Nederland. Reiskosten reken ik per kilometer.</p>
         </article>
         <article class="optie reveal">
           <span class="optie__label">Glazen</span>
-          <h3>In overleg</h3>
+          <h2>In overleg</h2>
           <p>Je regelt zelf glazen, of ik regel ze voor je tegen een meerprijs: vanaf <span data-t="glas">€0,50</span> per glas.</p>
         </article>
         <article class="optie reveal">
           <span class="optie__label">Cocktail op maat</span>
-          <h3>Op aanvraag</h3>
+          <h2>Op aanvraag</h2>
           <p>Een eigen cocktail voor jullie feest, ontwikkeld en getest. Prijs in overleg.</p>
         </article>
       </div>
 
       <div class="calc reveal" id="calculator">
         <div class="calc__intro">
-          <h3>Wat kost jouw feest?</h3>
+          <h2>Wat kost jouw feest?</h2>
           <p>Vul je feest in voor een indicatie. Boek je binnen een maand voor het feest, dan rekent de calculator automatisch de spoedtoeslag mee.</p>
         </div>
-        <form class="calc__form" onsubmit="return false">
+        <form class="calc__form">
           <label>Aantal uur achter de bar <output id="c-uren-out">4</output>
             <input type="range" id="c-uren" min="1" max="12" step="1" value="4">
           </label>
@@ -254,6 +257,6 @@
 
 <script src="/assets/js/config.js" defer></script>
 <script src="/assets/js/tarieven.js" defer></script>
-<script src="/assets/js/main.js?v=20261025" defer></script>
+<script src="/assets/js/main.js?v=20261028" defer></script>
 </body>
 </html>

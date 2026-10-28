@@ -164,6 +164,9 @@ de betekenistokens (`--bg`, `--text`, `--muted`, `--line`, `--accent`, `--btn-bg
 - Pas je `site.css` of `main.js` aan, verhoog dan het `?v=`-nummer achter de link in alle HTML-pagina's
   (`grep -rl 'site.css?v=' --include=*.html .`). Anders houden telefoons tot 10 minuten de oude versie vast
   en kan nieuwe HTML er met oude opmaak uitzien (zoals een uitgerekte banner).
+- De publieke pagina's hebben een Content-Security-Policy (meta-tag in de `<head>`) met de sha256-hash van het kleine
+  themascript daaronder. Pas je dat script aan, zet dan de nieuwe hash in alle pagina's; `python3 tools/csp_controle.py`
+  (draait ook in de PR-check) zegt welke pagina's niet kloppen. Een nieuwe externe dienst (script, API) moet in die policy staan.
 - Admin, `documenten.html` en `akkoord.html` gebruiken ook `site.css`, met daarnaast hun eigen bestand voor wat alleen zij hebben
   (`admin/marketing.css`, `assets/css/documenten.css`, `assets/css/akkoord.css`). De print/PDF van offertes blijft wit papier.
 

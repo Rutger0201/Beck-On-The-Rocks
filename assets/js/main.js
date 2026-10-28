@@ -239,7 +239,9 @@
     // Tarieven en FAQ hebben in het Nederlands eigen pagina's; oude links (/#prijzen, /#faq) sturen door
     const VERHUISD = { prijzen: 'tarieven/', calculator: 'tarieven/#calculator', faq: 'faq/' };
     const route = () => {
-      const id = decodeURIComponent(location.hash.slice(1)) || 'home';
+      // Een kapotte link (bijv. /#%E0%A) mag de rest van het script niet stoppen: dan gewoon home tonen
+      let id = 'home';
+      try { id = decodeURIComponent(location.hash.slice(1)) || 'home'; } catch { /* ongeldige tekens */ }
       if (!EN && VERHUISD[id]) { location.replace(VERHUISD[id]); return; }
       const doel = document.getElementById(id);
       const page = (doel && doel.closest('.page')) || $('#home');
@@ -394,6 +396,8 @@
   if (cU) {
     const cD = $('#c-datum'), cC = $('#c-cocktails'), cF = $('#c-fruitpers');
     cD.min = vandaagIso();
+    // Enter in een veld mag de pagina niet herladen (stond eerst als onsubmit in de HTML; dat laat de CSP niet toe)
+    cU.form.addEventListener('submit', e => e.preventDefault());
     const bereken = () => {
       const uren = +cU.value, spoed = isSpoed(cD.value), fp = cF.checked;
       const uurprijs = TARIEF.uur * (fp ? 1 + TARIEF.fruitpers : 1);
@@ -513,6 +517,7 @@
       }).join('')}</div>${reviews.length > 1 ? `<div class="reviews-lijst__nav">
         <button type="button" data-stap="-1" aria-label="${t('Vorige review', 'Previous review')}">←</button>
         <button type="button" data-stap="1" aria-label="${t('Volgende review', 'Next review')}">→</button>
+        <button type="button" data-pauze aria-pressed="false" aria-label="${t('Automatisch doorschuiven pauzeren', 'Pause auto-advance')}">❚❚</button>
         <span class="reviews-lijst__teller">01 / ${String(reviews.length).padStart(2, '0')}</span>
         <span class="reviews-lijst__balk" aria-hidden="true"><i></i></span>
       </div>` : ''}`;
@@ -521,7 +526,8 @@
       reviewLijst.setAttribute('aria-label', t('Reviews van gasten', 'Guest reviews'));
       reviewLijst.hidden = !reviews.length;
       const slides = [...reviewLijst.querySelectorAll('.review')];
-      let huidig = 0, timer = null;
+      let huidig = 0, timer = null, gepauzeerd = false;
+      const baan = reviewLijst.querySelector('.reviews-lijst__baan'), pauzeKnop = reviewLijst.querySelector('[data-pauze]');
       const toon = i => {
         huidig = (i + slides.length) % slides.length;
         slides.forEach((el, j) => { el.classList.toggle('is-actief', j === huidig); el.toggleAttribute('aria-hidden', j !== huidig); });
@@ -530,9 +536,20 @@
         const balk = reviewLijst.querySelector('.reviews-lijst__balk i');
         if (balk) balk.style.width = `${(huidig + 1) / slides.length * 100}%`;
       };
-      const stop = () => { clearInterval(timer); timer = null; };
-      const auto = () => { stop(); if (slides.length > 1 && !matchMedia('(prefers-reduced-motion: reduce)').matches) timer = setInterval(() => toon(huidig + 1), 8000); };
-      reviewLijst.querySelectorAll('[data-stap]').forEach(k => k.addEventListener('click', () => { toon(huidig + +k.dataset.stap); auto(); }));
+      // Schuift vanzelf door; voorlezen (aria-live) alleen als de bezoeker zelf bladert, niet bij elke automatische wissel
+      const stop = () => { clearInterval(timer); timer = null; baan.setAttribute('aria-live', 'polite'); };
+      const auto = () => {
+        stop();
+        if (gepauzeerd || slides.length < 2 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        timer = setInterval(() => { baan.setAttribute('aria-live', 'off'); toon(huidig + 1); }, 8000);
+      };
+      reviewLijst.querySelectorAll('[data-stap]').forEach(k => k.addEventListener('click', () => { stop(); toon(huidig + +k.dataset.stap); auto(); }));
+      if (pauzeKnop) pauzeKnop.addEventListener('click', () => {
+        gepauzeerd = !gepauzeerd;
+        pauzeKnop.setAttribute('aria-pressed', gepauzeerd);
+        pauzeKnop.textContent = gepauzeerd ? '▶' : '❚❚';
+        auto();
+      });
       reviewLijst.addEventListener('mouseenter', stop);
       reviewLijst.addEventListener('mouseleave', auto);
       reviewLijst.addEventListener('focusin', stop);
@@ -690,7 +707,8 @@
         'Gasten': d.gasten || '-', 'Soort feest': d.soort, 'Locatie': d.locatie || '-',
         'Cocktails op de kaart': d.cocktails, 'Fruitpers': d.fruitpers ? 'ja' : 'nee', 'Glazen via Rutger': d.glazen ? 'ja' : 'nee',
         'Spoedboeking': isSpoed(d.datum) ? 'ja (binnen 1 maand)' : 'nee', 'Bericht': d.bericht || '-',
-        ...(params.get('via') ? { 'Via pagina': params.get('via') } : {}),
+        // Alleen een gewone paginacode (privefeest, bedrijfsfeest, calculator), geen vrije tekst uit de link in je mail
+        ...(/^[a-z0-9-]{1,40}$/i.test(params.get('via') || '') ? { 'Via pagina': params.get('via') } : {}),
         ...(campagne ? { 'Via campagne': campagne } : {}),
         ...(EN ? { 'Taal': 'Engels (antwoord in het Engels)' } : {})
       };
