@@ -71,8 +71,8 @@ voor Engelse aanvragen). De template bij EmailJS gebruikt de velden `{{to_email}
 teksten kan versturen. Stel in EmailJS (Account → Security) zo mogelijk in dat alleen beckontherocks.nl mag versturen.
 
 ### Spambescherming
-Naast het verborgen honeypot-veld: een formulier dat binnen 3 seconden na het laden wordt verstuurd, gaat niet weg
-(de bot ziet wel een bedankscherm); berichten met meer dan 2 links worden geweigerd; per browser kunnen er maximaal
+Naast het verborgen honeypot-veld: een formulier dat binnen 3 seconden na het laden wordt verstuurd, gaat pas na die
+3 seconden weg (zo gaat een snelle echte aanvraag, bijvoorbeeld met autofill vanuit de calculator, niet verloren); berichten met meer dan 2 links worden geweigerd; per browser kunnen er maximaal
 3 berichten per 10 minuten worden verstuurd. Misbruik van de Web3Forms-sleutel buiten de site om stop je alleen in
 het dashboard van Web3Forms (spamfilter, eventueel hCaptcha).
 

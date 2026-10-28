@@ -345,8 +345,10 @@
   // houd je alleen tegen via de instellingen van Web3Forms zelf.
   const paginaGeladen = Date.now();
   const LOG = 'beck-verzonden';
+  // Binnen 3 seconden na het laden verstuurd (een bot, maar ook iemand met autofill vanuit de calculator):
+  // dan wachten we de rest van die 3 seconden en versturen daarna gewoon, zodat er geen echte aanvraag verloren gaat.
+  const wachtMinimaal = () => new Promise(r => setTimeout(r, Math.max(0, 3000 - (Date.now() - paginaGeladen))));
   function spamCheck(tekst) {
-    if (Date.now() - paginaGeladen < 3000) return 'bot'; // binnen 3 seconden ingevuld en verstuurd: geen mens
     if ((String(tekst || '').match(/https?:\/\/|www\./gi) || []).length > 2)
       return t('Je bericht bevat te veel links. Haal ze weg, of mail me je bericht.', 'Your message contains too many links. Please remove them, or email me instead.');
     try {
@@ -618,7 +620,6 @@
       };
       const onderwerp = `Nieuwe review van ${review.naam} (${review.sterren}/5)`;
       const spam = spamCheck(review.tekst);
-      if (spam === 'bot') { reviewForm.hidden = true; $('#review-klaar').hidden = false; return; } // doen alsof, niets versturen
       if (spam) { note.textContent = spam; note.classList.add('is-fout'); return; }
       if (!WEB3FORMS_SLEUTEL) {
         location.href = `mailto:${MAIL}?subject=${encodeURIComponent(onderwerp)}&body=${encodeURIComponent(Object.entries(velden).map(([k, v]) => `${k}: ${v}`).join('\n'))}`;
@@ -626,6 +627,7 @@
       }
       const knop = $('#review-knop');
       knop.disabled = true; knop.textContent = t('Versturen…', 'Sending…');
+      await wachtMinimaal();
       try {
         await verstuur({ subject: onderwerp, from_name: 'Beck on the Rocks · reviews', ...(d.email ? { replyto: d.email } : {}), ...velden });
         reviewForm.hidden = true; reviewForm.reset();
@@ -718,12 +720,12 @@
         location.href = `mailto:${MAIL}?subject=${encodeURIComponent(onderwerp)}&body=${encodeURIComponent(body)}`;
       };
       const spam = spamCheck(d.bericht);
-      if (spam === 'bot') { toonBedankt(velden); return; } // doen alsof, niets versturen
       if (spam) { note.textContent = spam; note.classList.add('is-fout'); return; }
       if (!WEB3FORMS_SLEUTEL) { naarMail(); note.textContent = t('Dank je! Je mailprogramma opent nu met je aanvraag.', 'Thank you! Your email app will now open with your request.'); return; }
 
       const knop = $('#form-knop'), knopTekst = knop.textContent;
       knop.disabled = true; knop.textContent = t('Versturen…', 'Sending…');
+      await wachtMinimaal();
       try {
         await verstuur({ subject: onderwerp, from_name: 'Beck on the Rocks · website', replyto: d.email, ...velden });
         toonBedankt(velden);
