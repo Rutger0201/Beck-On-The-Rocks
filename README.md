@@ -165,8 +165,8 @@ de betekenistokens (`--bg`, `--text`, `--muted`, `--line`, `--accent`, `--btn-bg
   (`grep -rl 'site.css?v=' --include=*.html .`). Anders houden telefoons tot 10 minuten de oude versie vast
   en kan nieuwe HTML er met oude opmaak uitzien (zoals een uitgerekte banner).
 - De publieke pagina's hebben een Content-Security-Policy (meta-tag in de `<head>`) met de sha256-hash van het kleine
-  themascript daaronder. Pas je dat script aan, zet dan de nieuwe hash in alle pagina's; `python3 tools/csp_controle.py`
-  (draait ook in de PR-check) zegt welke pagina's niet kloppen. Een nieuwe externe dienst (script, API) moet in die policy staan.
+  themascript daaronder (het visitekaartje: zijn eigen inline script onderaan). Pas je dat script aan, zet dan de nieuwe hash in alle pagina's; `python3 tools/csp_controle.py`
+  (draait in de PR-check en na elke wijziging op main) zegt welke pagina's niet kloppen. Een nieuwe externe dienst (script, API) moet in die policy staan.
 - Admin, `documenten.html` en `akkoord.html` gebruiken ook `site.css`, met daarnaast hun eigen bestand voor wat alleen zij hebben
   (`admin/marketing.css`, `assets/css/documenten.css`, `assets/css/akkoord.css`). De print/PDF van offertes blijft wit papier.
 
