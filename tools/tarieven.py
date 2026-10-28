@@ -3,7 +3,7 @@
 
 Bron: tarieven.json (in de hoofdmap). Dit script zet die bedragen overal goed:
 - elk bedrag in de HTML met data-t="sleutel" (bijv. <span data-t="uur">€45</span>);
-- meta-omschrijvingen en gestructureerde gegevens (JSON-LD), inclusief de FAQ voor Google;
+- paginatitels, meta-omschrijvingen en gestructureerde gegevens (JSON-LD), inclusief de FAQ voor Google;
 - assets/js/tarieven.js, dat de calculator en de offerte-generator gebruiken.
 
 Gebruik:
@@ -147,6 +147,12 @@ def bijwerken(tekst, w, taal):
             return s[:s.index('>') + 1] + '\n  ' + inhoud + '\n  ' + s[s.rindex('<'):]
         return s
     tekst = re.sub(r'<script type="application/ld\+json">.*?</script>', in_ld, tekst, flags=re.S)
+    # "€45 per uur" in <title>, meta-teksten en JSON-LD altijd gelijk aan het uurtarief, ook als de labels al klopten
+    uur = opmaak(*w['uur'], taal)
+    def per_uur(m):
+        return re.sub(r'€\s?\d+(?:[.,]\d+)?(?= per (?:uur|hour))', uur, m.group(0))
+    tekst = re.sub(r'<title>[^<]*</title>|<meta [^>]*content="[^"]*"[^>]*>|<script type="application/ld\+json">.*?</script>',
+                   per_uur, tekst, flags=re.S)
     return tekst
 
 

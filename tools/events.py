@@ -139,6 +139,15 @@ def uit_bronnen(inst):
     return alles
 
 
+def uurtarief():
+    """Uurtarief uit tarieven.json (zelfde bron als de site), bijv. '45' of '47,50'."""
+    try:
+        uur = json.loads((ROOT / 'tarieven.json').read_text())['uur']
+    except (OSError, ValueError, KeyError):
+        return '45'
+    return f'{uur:g}' if float(uur).is_integer() else f'{uur:.2f}'.replace('.', ',')
+
+
 def met_claude(inst, van, tot):
     sleutel = os.environ.get('ANTHROPIC_API_KEY', '').strip()
     if not sleutel or not inst.get('zoeken_met_claude', True):
@@ -149,7 +158,7 @@ def met_claude(inst, van, tot):
     regio = (f'binnen {inst.get("max_km", 50)} km van {inst["woonplaats"]}' if inst.get('woonplaats')
              else 'in heel Nederland')
     vraag = f"""Je zoekt klussen voor Rutger van Beck on the Rocks, een freelance cocktailbartender {regio}.
-Hij komt alleen als barman (geen drank of ijs, wel eigen cocktailgereedschap), €45 per uur.
+Hij komt alleen als barman (geen drank of ijs, wel eigen cocktailgereedschap), €{uurtarief()} per uur.
 
 Zoek op het web naar events tussen {van.isoformat()} en {tot.isoformat()} waar een losse bartender goed past:
 - openbare oproepen waarin iemand een barman, bartender of cocktailbar zoekt (vacaturesites, Marktplaats,
