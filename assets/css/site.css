@@ -411,7 +411,7 @@ div.signature { display: block; margin: .2rem 0 1.6rem; }
 .optie { background: var(--surface); padding: 1.8rem 1.5rem; }
 .optie--gold { background: var(--papier); box-shadow: inset 0 2px 0 var(--accent); }
 .optie__label { font: 500 var(--fs-xs)/1.5 var(--sans); letter-spacing: var(--label-spacing); text-transform: uppercase; color: var(--accent); }
-.optie h2 { margin: .6rem 0 .6rem; font-size: 1.6rem; font-weight: 400; line-height: 1.12; }
+.optie h2, .optie h3 { margin: .6rem 0 .6rem; font-size: 1.6rem; font-weight: 400; line-height: 1.12; }
 .calc__intro h2 { font-size: var(--fs-h3); font-weight: 400; line-height: 1.12; }
 .optie p { font-size: var(--fs-sm); margin: 0 0 .6rem; }
 .optie strong { color: var(--text); }
@@ -718,7 +718,7 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
   .btn { padding-inline: 20px; letter-spacing: .12em; }
   .hero__cta .btn, .cta-band__knoppen .btn { width: 100%; }
   /* Zo past 'Vraag vrijblijvend een offerte aan' op één regel */
-  .hero__cta .btn { letter-spacing: .08em; padding-inline: 14px; gap: 12px; }
+  .hero__cta .btn:not(.btn--ghost) { letter-spacing: .08em; padding-inline: 14px; gap: 12px; }
 }
 @media (max-width: 380px) {
   .hero__cta .btn { width: 100%; }

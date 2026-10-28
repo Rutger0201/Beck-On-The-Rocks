@@ -541,15 +541,13 @@
       const auto = () => {
         stop();
         if (gepauzeerd || slides.length < 2 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        baan.setAttribute('aria-live', 'off');
-        timer = setInterval(() => toon(huidig + 1), 8000);
+        timer = setInterval(() => { baan.setAttribute('aria-live', 'off'); toon(huidig + 1); }, 8000);
       };
-      reviewLijst.querySelectorAll('[data-stap]').forEach(k => k.addEventListener('click', () => { toon(huidig + +k.dataset.stap); auto(); }));
+      reviewLijst.querySelectorAll('[data-stap]').forEach(k => k.addEventListener('click', () => { stop(); toon(huidig + +k.dataset.stap); auto(); }));
       if (pauzeKnop) pauzeKnop.addEventListener('click', () => {
         gepauzeerd = !gepauzeerd;
         pauzeKnop.setAttribute('aria-pressed', gepauzeerd);
         pauzeKnop.textContent = gepauzeerd ? '▶' : '❚❚';
-        pauzeKnop.setAttribute('aria-label', gepauzeerd ? t('Automatisch doorschuiven hervatten', 'Resume auto-advance') : t('Automatisch doorschuiven pauzeren', 'Pause auto-advance'));
         auto();
       });
       reviewLijst.addEventListener('mouseenter', stop);
