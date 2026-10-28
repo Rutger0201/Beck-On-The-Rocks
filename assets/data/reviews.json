@@ -1,0 +1,23 @@
+[
+ {
+  "naam": "Wouter",
+  "sterren": 5,
+  "soort": "Bedrijfsfeest",
+  "tekst": "Top cocktails! Op ons bedrijfsfeest stond er een mega rij bij de cocktailbar omdat ze zo lekker waren! Leuke barman die gezellig met iedereen kan levelen!",
+  "datum": "2026-10-19"
+ },
+ {
+  "naam": "Lucas",
+  "sterren": 5,
+  "soort": "Privéfeest",
+  "tekst": "Rutger kan niet alleen consistent goede cocktails maken, maar is ook onderhoudend met de gasten en heeft stijl en humor.",
+  "datum": "2026-10-21"
+ },
+ {
+  "naam": "Foek",
+  "sterren": 5,
+  "soort": "Verjaardag",
+  "tekst": "Rutger heeft op mijn verjaardag de cocktails verzorgd en dat was echt een succes! De cocktails waren heerlijk en iedereen was er super enthousiast over.\n\nDaarnaast is Rutger gewoon een leuke, vlotte gast die makkelijk contact maakt en meteen voor een gezellige sfeer zorgt. Voor je het weet staat iedereen gezellig bij hem voor een volgende cocktail. Hij maakt het feestje echt compleet!\n\nZeker een aanrader als je iets extra’s aan je feestje wilt toevoegen.",
+  "datum": "2026-10-22"
+ }
+]

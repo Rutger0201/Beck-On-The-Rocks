@@ -1,0 +1,27 @@
+# Zet de goedgekeurde reviews uit reviews/ in één bestand voor de site (tools/reviews_index.py).
+# Draait vanzelf als je een review goedkeurt of verwijdert.
+name: Reviews bijwerken
+on:
+  push:
+    branches: [main]
+    paths: ['reviews/**', 'tools/reviews_index.py']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: reviews
+jobs:
+  bijwerken:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Bijwerken en opslaan
+        run: |
+          python3 tools/reviews_index.py
+          git add assets/data/reviews.json
+          if git diff --cached --quiet; then echo "Niets nieuws."; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Reviews bijgewerkt"
+          # Tegelijk een andere bot-commit op main? Dan eerst bijwerken en opnieuw proberen.
+          for i in 1 2 3 4 5; do git pull --rebase origin main && git push origin HEAD:main && exit 0; sleep 10; done
+          exit 1

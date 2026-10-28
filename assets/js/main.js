@@ -457,8 +457,14 @@
     const sterren = n => '★'.repeat(n) + '☆'.repeat(5 - n);
     const maandJaar = d => { const x = new Date(d + 'T00:00'); return isNaN(x) ? '' : x.toLocaleDateString(LOCALE, { month: 'long', year: 'numeric' }); };
 
-    // Lijst met goedgekeurde reviews ophalen: 1 verzoek voor de map, daarna de bestanden zelf
+    // Goedgekeurde reviews: eerst het ene bestand dat de Action "Reviews bijwerken" maakt (tools/reviews_index.py);
+    // ontbreekt dat, dan via de GitHub API: 1 verzoek voor de map, daarna de bestanden zelf
     const laadEigen = async () => {
+      try {
+        const res = await fetch('/assets/data/reviews.json');
+        const lijst = res.ok ? await res.json() : null;
+        if (Array.isArray(lijst)) return lijst.filter(r => r && r.tekst && r.naam);
+      } catch { /* bestand ontbreekt of is kapot: terugvallen op de API */ }
       try { const c = JSON.parse(localStorage.getItem('beck-reviews')); if (c && Date.now() - c.t < 6 * 3600e3) return c.r; } catch { /* geen cache */ }
       const res = await fetch(`https://api.github.com/repos/${REVIEWS_REPO}/contents/${REVIEWS_MAP}?ref=main`, { headers: { Accept: 'application/vnd.github+json' } });
       if (!res.ok) return [];
