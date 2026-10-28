@@ -517,6 +517,7 @@
       }).join('')}</div>${reviews.length > 1 ? `<div class="reviews-lijst__nav">
         <button type="button" data-stap="-1" aria-label="${t('Vorige review', 'Previous review')}">←</button>
         <button type="button" data-stap="1" aria-label="${t('Volgende review', 'Next review')}">→</button>
+        <button type="button" data-pauze aria-pressed="false" aria-label="${t('Automatisch doorschuiven pauzeren', 'Pause auto-advance')}">❚❚</button>
         <span class="reviews-lijst__teller">01 / ${String(reviews.length).padStart(2, '0')}</span>
         <span class="reviews-lijst__balk" aria-hidden="true"><i></i></span>
       </div>` : ''}`;
@@ -525,7 +526,8 @@
       reviewLijst.setAttribute('aria-label', t('Reviews van gasten', 'Guest reviews'));
       reviewLijst.hidden = !reviews.length;
       const slides = [...reviewLijst.querySelectorAll('.review')];
-      let huidig = 0, timer = null;
+      let huidig = 0, timer = null, gepauzeerd = false;
+      const baan = reviewLijst.querySelector('.reviews-lijst__baan'), pauzeKnop = reviewLijst.querySelector('[data-pauze]');
       const toon = i => {
         huidig = (i + slides.length) % slides.length;
         slides.forEach((el, j) => { el.classList.toggle('is-actief', j === huidig); el.toggleAttribute('aria-hidden', j !== huidig); });
@@ -534,9 +536,22 @@
         const balk = reviewLijst.querySelector('.reviews-lijst__balk i');
         if (balk) balk.style.width = `${(huidig + 1) / slides.length * 100}%`;
       };
-      const stop = () => { clearInterval(timer); timer = null; };
-      const auto = () => { stop(); if (slides.length > 1 && !matchMedia('(prefers-reduced-motion: reduce)').matches) timer = setInterval(() => toon(huidig + 1), 8000); };
+      // Schuift vanzelf door; voorlezen (aria-live) alleen als de bezoeker zelf bladert, niet bij elke automatische wissel
+      const stop = () => { clearInterval(timer); timer = null; baan.setAttribute('aria-live', 'polite'); };
+      const auto = () => {
+        stop();
+        if (gepauzeerd || slides.length < 2 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        baan.setAttribute('aria-live', 'off');
+        timer = setInterval(() => toon(huidig + 1), 8000);
+      };
       reviewLijst.querySelectorAll('[data-stap]').forEach(k => k.addEventListener('click', () => { toon(huidig + +k.dataset.stap); auto(); }));
+      if (pauzeKnop) pauzeKnop.addEventListener('click', () => {
+        gepauzeerd = !gepauzeerd;
+        pauzeKnop.setAttribute('aria-pressed', gepauzeerd);
+        pauzeKnop.textContent = gepauzeerd ? '▶' : '❚❚';
+        pauzeKnop.setAttribute('aria-label', gepauzeerd ? t('Automatisch doorschuiven hervatten', 'Resume auto-advance') : t('Automatisch doorschuiven pauzeren', 'Pause auto-advance'));
+        auto();
+      });
       reviewLijst.addEventListener('mouseenter', stop);
       reviewLijst.addEventListener('mouseleave', auto);
       reviewLijst.addEventListener('focusin', stop);
