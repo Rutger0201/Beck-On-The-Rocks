@@ -1,0 +1,27 @@
+# Meet bij elke pull request de snelheid van de belangrijkste pagina's met Lighthouse (mobiel).
+# Rood = een pagina scoort onder de 80 op snelheid, bijvoorbeeld door een te zware foto of een nieuw script.
+# Het volledige rapport staat bij de run onder Artifacts (lighthouse); het wordt nergens openbaar gezet.
+name: Snelheid meten
+on:
+  pull_request:
+    paths: ['**.html', 'assets/**', 'lighthouserc.json']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  meten:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Lighthouse
+        run: |
+          python3 -m http.server 8080 >/dev/null 2>&1 &
+          sleep 2
+          npx --yes @lhci/cli@0.15.1 autorun --config=lighthouserc.json
+      - name: Rapport bewaren
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse
+          path: .lighthouseci/
+          retention-days: 14
