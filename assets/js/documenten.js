@@ -801,12 +801,16 @@
     // Geopend via "Offerte klaarzetten" in een aanvraagmail: offerte meteen invullen, jij controleert en verstuurt
     history.replaceState(null, '', location.pathname + location.search);
     nieuw('offerte');
+    let tekst = '';
     analyseerBron(async () => {
       let b;
       try { b = atob(aanvraag[1].replace(/-/g, '+').replace(/_/g, '/')); } catch { throw new Error('Deze offertelink is onvolledig. Plak de aanvraagmail hieronder.'); }
-      return new TextDecoder().decode(Uint8Array.from(b, c => c.charCodeAt(0)));
+      return tekst = new TextDecoder().decode(Uint8Array.from(b, c => c.charCodeAt(0)));
     }).then(() => {
       if ($('#slim-result').hidden) return;
+      // Spoed volgt de aanvraag: alleen aangevinkt als de klant binnen een maand voor het feest boekte
+      $('#spoed-auto').checked = false;
+      $('#spoed-hand').checked = /^ja/i.test((/^Spoedboeking:\s*(.*)$/im.exec(tekst) || [])[1] || ''); // eerste regel = het formulierveld, niet het bericht
       $('#slim-ok').click();
       status('Ingevuld uit de aanvraag ✓ Controleer de offerte en verstuur hem.');
     });
