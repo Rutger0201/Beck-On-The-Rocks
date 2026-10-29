@@ -733,7 +733,7 @@
       knop.disabled = true; knop.textContent = t('Versturen…', 'Sending…');
       await wachtMinimaal();
       try {
-        await verstuur({ subject: onderwerp, from_name: 'Beck on the Rocks · website', replyto: d.email, ...velden });
+        await verstuur({ subject: onderwerp, from_name: 'Beck on the Rocks · website', replyto: d.email, ...velden, 'Offerte klaarzetten': offerteLink(velden) });
         toonBedankt(velden);
         // Bevestiging naar de klant; mislukt dat, dan merkt de klant niets (jouw mail is al binnen)
         if (bevestigingAan) {
@@ -755,6 +755,17 @@
         knop.disabled = false; knop.textContent = knopTekst;
       }
     });
+
+    // Link in jouw aanvraagmail: opent de generator met deze aanvraag al ingevuld. De gegevens staan na het #,
+    // dus ze gaan niet naar de server; de generator leest ze in zoals een geplakte aanvraagmail.
+    // Mislukt de link, dan gaat de aanvraag gewoon zonder link door.
+    const offerteLink = velden => {
+      try {
+        const tekst = Object.entries(velden).map(([k, v]) => `${k}: ${v}`).join('\n');
+        const bytes = Array.from(new TextEncoder().encode(tekst), b => String.fromCharCode(b)).join('');
+        return `${location.origin}/documenten.html#aanvraag=${btoa(bytes).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')}`;
+      } catch { return '-'; }
+    };
 
     const toonBedankt = velden => {
       const toon = ['Datum', 'Soort feest', 'Gasten', 'Locatie', 'Aantal uur', 'Cocktails op de kaart'];

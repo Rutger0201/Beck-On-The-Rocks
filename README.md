@@ -61,7 +61,8 @@ Aanvragen gaan via [Web3Forms](https://web3forms.com) direct naar je mail, zonde
 zijn mailprogramma opent. Vraag op web3forms.com gratis een *Access Key* aan met info@beckontherocks.nl
 en zet die bij `web3forms` in `assets/js/config.js`.
 Zonder sleutel opent het formulier het mailprogramma van de klant (zoals voorheen).
-Kopieer een binnengekomen aanvraag in **Slim invullen** van de generator voor een offerte.
+Kopieer een binnengekomen aanvraag in **Slim invullen** van de generator voor een offerte, of klik in de aanvraagmail op
+de link bij *Offerte klaarzetten*: die opent de generator met de offerte al ingevuld (open hem in de browser waar je generator staat).
 
 ### Bevestigingsmail aan de klant (EmailJS)
 Na een geslaagde aanvraag krijgt de klant een bevestiging via [EmailJS](https://www.emailjs.com) (gratis tot ca. 200 mails/maand).
