@@ -169,6 +169,11 @@ de betekenistokens (`--bg`, `--text`, `--muted`, `--line`, `--accent`, `--btn-bg
   (draait in de PR-check en na elke wijziging op main) zegt welke pagina's niet kloppen of geen CSP hebben (een nieuwe pagina krijgt er dus ook een). Een nieuwe externe dienst (script, API) moet in die policy staan.
 - Admin, `documenten.html` en `akkoord.html` gebruiken ook `site.css`, met daarnaast hun eigen bestand voor wat alleen zij hebben
   (`admin/marketing.css`, `assets/css/documenten.css`, `assets/css/akkoord.css`). De print/PDF van offertes blijft wit papier.
+- Elke pull request meet de snelheid van de home (NL/EN), de feestpagina's en tarieven met Lighthouse
+  (`.github/workflows/snelheid.yml`, grenzen in `lighthouserc.json`). Rood = snelheid onder 80, bijvoorbeeld door een te zware foto.
+  Het rapport staat bij de run onder *Artifacts*.
+- Regels bij de offerteknop: `beschikbaar` in `assets/js/config.js` (leeg = geen regel). Een tijdelijke regel zoals de
+  kerstborrel krijgt `data-tot="JJJJ-MM-DD"` en verdwijnt na die dag vanzelf.
 
 ## Logo
 - `assets/img/logo-mark.png`: alleen het beeldmerk (B met cocktailglas), transparant. Gebruikt in menu en footer.

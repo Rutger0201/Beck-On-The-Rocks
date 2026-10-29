@@ -792,4 +792,11 @@
     incl: t('Alle prijzen zijn inclusief btw.', 'All prices include VAT.')
   };
   if (BTW[CONFIG.btw]) $$('[data-btw]').forEach(el => { el.textContent = BTW[CONFIG.btw]; el.hidden = false; });
+
+  // Beschikbaarheid bij de offerteknop: tekst in assets/js/config.js, leeg = geen regel
+  const vrij = (CONFIG.beschikbaar || {})[EN ? 'en' : 'nl'];
+  if (vrij) $$('[data-beschikbaar]').forEach(el => { el.textContent = vrij; el.hidden = false; });
+  // Seizoensregels (data-tot="JJJJ-MM-DD") zijn zichtbaar tot en met die dag
+  const vandaag = new Date().toLocaleDateString('sv');
+  $$('[data-tot]').forEach(el => { el.hidden = vandaag > el.dataset.tot; });
 })();

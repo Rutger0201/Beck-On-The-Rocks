@@ -238,6 +238,8 @@ code { font-size: .9em; }
 .hero__copy { grid-column: 1 / span 7; min-width: 0; }
 .hero h1 { font-size: var(--fs-h1); margin-bottom: .4em; }
 .hero .lead { color: var(--muted); max-width: 36ch; }
+.hero__notitie { margin: 1.2rem 0 0; font-size: var(--fs-sm); color: var(--muted); }
+.hero__notitie + .hero__notitie { margin-top: .5rem; }
 .hero__zegel { display: inline-flex; align-items: center; gap: .7rem; margin-top: 1.6rem; padding-top: 1.1rem; border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--muted); text-decoration: none; transition: color .3s; }
 .hero__zegel .stars { margin: 0; font-size: .95rem; letter-spacing: .12em; }
 .hero__zegel strong { font-weight: 500; color: var(--text); }
