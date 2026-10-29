@@ -796,7 +796,21 @@
   const startParams = new URLSearchParams(location.search);
   const startType = startParams.get('type');
   const herinnerDoc = alleDocs()[startParams.get('herinner')];
-  if (startParams.get('controleer')) {
+  const aanvraag = /^#aanvraag=([\w-]+)$/.exec(location.hash);
+  if (aanvraag) {
+    // Geopend via "Offerte klaarzetten" in een aanvraagmail: offerte meteen invullen, jij controleert en verstuurt
+    history.replaceState(null, '', location.pathname + location.search);
+    nieuw('offerte');
+    analyseerBron(async () => {
+      let b;
+      try { b = atob(aanvraag[1].replace(/-/g, '+').replace(/_/g, '/')); } catch { throw new Error('Deze offertelink is onvolledig. Plak de aanvraagmail hieronder.'); }
+      return new TextDecoder().decode(Uint8Array.from(b, c => c.charCodeAt(0)));
+    }).then(() => {
+      if ($('#slim-result').hidden) return;
+      $('#slim-ok').click();
+      status('Ingevuld uit de aanvraag ✓ Controleer de offerte en verstuur hem.');
+    });
+  } else if (startParams.get('controleer')) {
     nieuw('offerte');
     controleerAkkoord(startParams.get('controleer'), startParams.get('s'));
   } else if (herinnerDoc) {
