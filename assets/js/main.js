@@ -364,21 +364,18 @@
     } catch { /* geen opslag */ }
   }
   // Bevestigingsmail aan de klant via EmailJS (alleen als config.js is ingevuld).
-  // De tekst staat vast in de template bij EmailJS; we sturen alleen deze velden mee, nooit het vrije bericht.
+  // De tekst staat volledig vast in de template bij EmailJS; we sturen alleen het adres mee. Zo kan niemand
+  // met de openbare sleutel eigen tekst laten versturen.
   const EJS = CONFIG.emailjs || {};
   const bevestigingAan = !!(EJS.service && EJS.template && EJS.publicKey);
   function stuurBevestiging(d) {
     if (!bevestigingAan) return Promise.resolve(false);
-    const datum = new Date(d.datum + 'T00:00').toLocaleDateString(LOCALE, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     return fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         service_id: EJS.service, template_id: (EN && EJS.templateEn) || EJS.template, user_id: EJS.publicKey,
-        template_params: {
-          to_email: d.email.trim(), naam: d.naam.trim().split(/\s+/)[0], datum,
-          soort: soortTekst(d.soort), locatie: d.locatie || '-', gasten: d.gasten || '-'
-        }
+        template_params: { to_email: d.email.trim() }
       })
     }).then(r => r.ok).catch(() => false);
   }

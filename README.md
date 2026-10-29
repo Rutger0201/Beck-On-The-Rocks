@@ -67,9 +67,8 @@ de link bij *Offerte klaarzetten*: die opent de generator met de offerte al inge
 ### Bevestigingsmail aan de klant (EmailJS)
 Na een geslaagde aanvraag krijgt de klant een bevestiging via [EmailJS](https://www.emailjs.com) (gratis tot ca. 200 mails/maand).
 Aanzetten: vul in `assets/js/config.js` bij `emailjs` de `service`, `template` en `publicKey` in (en eventueel `templateEn`
-voor Engelse aanvragen). De template bij EmailJS gebruikt de velden `{{to_email}}`, `{{naam}}`, `{{datum}}`, `{{soort}}`,
-`{{locatie}}` en `{{gasten}}`. Het vrije bericht van de klant gaat bewust niet mee, zodat niemand via je account eigen
-teksten kan versturen. Stel in EmailJS (Account → Security) zo mogelijk in dat alleen beckontherocks.nl mag versturen.
+voor Engelse aanvragen). De template bij EmailJS gebruikt alleen `{{to_email}}`; de tekst staat er volledig vast in,
+zonder andere invulvelden, zodat niemand via de openbare sleutel eigen teksten kan versturen. Stel in EmailJS (Account → Security) zo mogelijk in dat alleen beckontherocks.nl mag versturen.
 
 ### Spambescherming
 Naast het verborgen honeypot-veld: een formulier dat binnen 3 seconden na het laden wordt verstuurd, gaat pas na die
