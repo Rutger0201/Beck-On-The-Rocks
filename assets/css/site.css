@@ -318,6 +318,21 @@ div.signature { display: block; margin: .2rem 0 1.6rem; }
 .ikben__review p { font: italic 300 clamp(1.4rem, 2vw, 1.8rem)/1.3 var(--display); color: var(--text); margin: 0 0 1rem; text-wrap: balance; }
 .ikben__review footer { font: 400 var(--fs-xs)/1.6 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 .ikben__review footer .tekstlink { letter-spacing: .14em; }
+/* Wisselende reviews: één tegelijk, glijden opzij; volgt de vinger tijdens het vegen */
+.ikben__review { touch-action: pan-y; overflow: hidden; }
+.teaser__baan { display: grid; align-items: start; transition: height .75s cubic-bezier(.16, 1, .3, 1); }
+.teaser__item { grid-area: 1 / 1; transition: transform .75s cubic-bezier(.16, 1, .3, 1), opacity .75s var(--ease); }
+.teaser__item:not(.is-actief) { opacity: 0; pointer-events: none; }
+.teaser__item.is-weg { transform: translateX(calc(var(--richting, 1) * -60%)); }
+.teaser__item.is-wacht { transform: translateX(calc(var(--richting, 1) * 40%)); transition: none; }
+.teaser__item.is-sleep { transition: none; }
+.teaser__tijd { position: relative; height: 1px; margin-top: 1.4rem; background: var(--line); overflow: hidden; }
+.teaser__tijd i { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--accent); }
+.teaser__tijd i.is-bezig { animation: teaser-tijd 10s linear forwards; }
+@keyframes teaser-tijd { to { width: 100%; } }
+.teaser__stippen { display: flex; gap: 8px; margin-top: 1rem; }
+.teaser__stippen b { width: 18px; height: 1px; background: var(--line-sterk); opacity: .45; transition: width .4s var(--ease), opacity .4s; }
+.teaser__stippen b.is-aan { width: 34px; opacity: 1; }
 
 .portrait { position: relative; }
 .portrait__frame { aspect-ratio: 4 / 5; overflow: hidden; }

@@ -493,27 +493,67 @@
       reviews.sort((a, b) => String(b.datum).localeCompare(String(a.datum)));
       const bronTekst = r => r.bron === 'google' ? 'Google' : soortTekst(r.soort || '');
       if (teaser && reviews.length) {
-        // Best beoordeelde eerst; wisselt elke 10 seconden, vegen naar links/rechts bladert
+        // Best beoordeelde eerst; wisselt elke 10 seconden. Vegen bladert: de review volgt de vinger en glijdt bij loslaten weg;
+        // een tijdlijntje laat zien wanneer de volgende komt, streepjes hoeveel reviews er zijn
         const lijst = reviews.slice().sort((a, b) => (+b.sterren || 0) - (+a.sterren || 0));
-        let nr = 0, tTimer = null, tx0 = null;
-        const toonTeaser = i => {
-          nr = (i + lijst.length) % lijst.length;
-          const r = lijst[nr], bron = bronTekst(r);
-          teaser.innerHTML = `<p>“${esc(r.tekst)}”</p><footer>${esc(r.naam)}${bron ? ' · ' + esc(bron) : ''} · <a href="${location.pathname.startsWith('/cocktail-') ? '/' : ''}#reviews" class="tekstlink">${t('Alle reviews', 'All reviews')}</a></footer>`;
-        };
-        const tAuto = () => {
-          clearInterval(tTimer);
-          if (lijst.length > 1 && !matchMedia('(prefers-reduced-motion: reduce)').matches) tTimer = setInterval(() => toonTeaser(nr + 1), 10000);
-        };
-        toonTeaser(0);
+        const link = `<a href="${location.pathname.startsWith('/cocktail-') ? '/' : ''}#reviews" class="tekstlink">${t('Alle reviews', 'All reviews')}</a>`;
+        teaser.innerHTML = `<div class="teaser__baan">${lijst.map((r, i) => {
+          const bron = bronTekst(r);
+          return `<div class="teaser__item${i ? '' : ' is-actief'}"${i ? ' inert' : ''}><p>“${esc(r.tekst)}”</p><footer>${esc(r.naam)}${bron ? ' · ' + esc(bron) : ''} · ${link}</footer></div>`;
+        }).join('')}</div>${lijst.length > 1 ? `<div class="teaser__tijd" aria-hidden="true"><i></i></div><div class="teaser__stippen" aria-hidden="true">${lijst.map(() => '<b></b>').join('')}</div>` : ''}`;
         teaser.hidden = false;
         if (lijst.length > 1) {
-          teaser.addEventListener('touchstart', e => { tx0 = e.touches[0].clientX; clearInterval(tTimer); }, { passive: true });
-          teaser.addEventListener('touchend', e => {
-            const dx = e.changedTouches[0].clientX - (tx0 ?? 0);
-            if (tx0 !== null && Math.abs(dx) > 40) toonTeaser(nr + (dx < 0 ? 1 : -1));
-            tx0 = null; tAuto();
+          const items = [...teaser.querySelectorAll('.teaser__item')], stippen = [...teaser.querySelectorAll('.teaser__stippen b')];
+          const tijd = teaser.querySelector('.teaser__tijd i'), baan = teaser.querySelector('.teaser__baan');
+          // Hoogte volgt de getoonde review (soepel), zodat er onder een korte review geen lege ruimte staat
+          const zetHoogte = () => { baan.style.height = `${items[nr].offsetHeight}px`; };
+          const rustig = matchMedia('(prefers-reduced-motion: reduce)').matches;
+          let nr = 0, tTimer = null, tx0 = null, tdx = 0;
+          const herstel = el => { el.classList.remove('is-sleep'); el.style.removeProperty('transform'); el.style.removeProperty('opacity'); };
+          const toonTeaser = (i, richting = 1) => {
+            const oud = items[nr];
+            nr = (i + items.length) % items.length;
+            const nieuw = items[nr];
+            teaser.style.setProperty('--richting', richting);
+            herstel(oud);
+            oud.classList.remove('is-actief', 'is-wacht'); oud.classList.add('is-weg'); oud.inert = true;
+            // Nieuwe review eerst zonder overgang aan de kant waar hij vandaan komt, daarna inglijden
+            nieuw.classList.remove('is-weg'); nieuw.classList.add('is-wacht');
+            void nieuw.offsetWidth;
+            nieuw.classList.remove('is-wacht'); nieuw.classList.add('is-actief'); nieuw.inert = false;
+            stippen.forEach((s, j) => s.classList.toggle('is-aan', j === nr));
+            zetHoogte();
+          };
+          const startTijd = () => { tijd.classList.remove('is-bezig'); void tijd.offsetWidth; if (!rustig) tijd.classList.add('is-bezig'); };
+          const tAuto = () => {
+            clearInterval(tTimer);
+            if (rustig) return;
+            tTimer = setInterval(() => { toonTeaser(nr + 1); startTijd(); }, 10000);
+            startTijd();
+          };
+          // Alleen vinger en pen; met de muis blijft tekst selecteerbaar. Verticaal scrollen geeft pointercancel.
+          teaser.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') return; tx0 = e.clientX; tdx = 0; clearInterval(tTimer); tijd.classList.remove('is-bezig'); });
+          teaser.addEventListener('pointermove', e => {
+            if (tx0 === null) return;
+            tdx = e.clientX - tx0;
+            if (rustig) return;
+            const el = items[nr];
+            el.classList.add('is-sleep');
+            el.style.transform = `translateX(${tdx * .45}px)`;
+            el.style.opacity = String(Math.max(.25, 1 - Math.abs(tdx) / 400));
           });
+          const los = () => {
+            if (tx0 === null) return;
+            if (Math.abs(tdx) > 40) toonTeaser(nr + (tdx < 0 ? 1 : -1), tdx < 0 ? 1 : -1);
+            else herstel(items[nr]);
+            tx0 = null; tdx = 0; tAuto();
+          };
+          teaser.addEventListener('pointerup', los);
+          teaser.addEventListener('pointercancel', los);
+          stippen[0].classList.add('is-aan');
+          zetHoogte();
+          addEventListener('resize', zetHoogte);
+          if (document.fonts) document.fonts.ready.then(zetHoogte);
           tAuto();
         }
       }
