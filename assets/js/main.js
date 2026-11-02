@@ -493,10 +493,29 @@
       reviews.sort((a, b) => String(b.datum).localeCompare(String(a.datum)));
       const bronTekst = r => r.bron === 'google' ? 'Google' : soortTekst(r.soort || '');
       if (teaser && reviews.length) {
-        const r = reviews.slice().sort((a, b) => (+b.sterren || 0) - (+a.sterren || 0))[0];
-        const bron = bronTekst(r);
-        teaser.innerHTML = `<p>“${esc(r.tekst)}”</p><footer>${esc(r.naam)}${bron ? ' · ' + esc(bron) : ''} · <a href="${location.pathname.startsWith('/cocktail-') ? '/' : ''}#reviews" class="tekstlink">${t('Alle reviews', 'All reviews')}</a></footer>`;
+        // Best beoordeelde eerst; wisselt elke 10 seconden, vegen naar links/rechts bladert
+        const lijst = reviews.slice().sort((a, b) => (+b.sterren || 0) - (+a.sterren || 0));
+        let nr = 0, tTimer = null, tx0 = null;
+        const toonTeaser = i => {
+          nr = (i + lijst.length) % lijst.length;
+          const r = lijst[nr], bron = bronTekst(r);
+          teaser.innerHTML = `<p>“${esc(r.tekst)}”</p><footer>${esc(r.naam)}${bron ? ' · ' + esc(bron) : ''} · <a href="${location.pathname.startsWith('/cocktail-') ? '/' : ''}#reviews" class="tekstlink">${t('Alle reviews', 'All reviews')}</a></footer>`;
+        };
+        const tAuto = () => {
+          clearInterval(tTimer);
+          if (lijst.length > 1 && !matchMedia('(prefers-reduced-motion: reduce)').matches) tTimer = setInterval(() => toonTeaser(nr + 1), 10000);
+        };
+        toonTeaser(0);
         teaser.hidden = false;
+        if (lijst.length > 1) {
+          teaser.addEventListener('touchstart', e => { tx0 = e.touches[0].clientX; clearInterval(tTimer); }, { passive: true });
+          teaser.addEventListener('touchend', e => {
+            const dx = e.changedTouches[0].clientX - (tx0 ?? 0);
+            if (tx0 !== null && Math.abs(dx) > 40) toonTeaser(nr + (dx < 0 ? 1 : -1));
+            tx0 = null; tAuto();
+          });
+          tAuto();
+        }
       }
       const gem = (eigen.reduce((s, r) => s + (Math.min(5, Math.max(1, +r.sterren || 5))), 0) + gSom) / aantal;
       const gemTekst = gem.toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
