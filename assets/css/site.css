@@ -316,8 +316,8 @@ code { font-size: .9em; }
 div.signature { display: block; margin: .2rem 0 1.6rem; }
 .ikben__review { margin: 3rem 0 0; padding: 2rem 0 0; border-top: 1px solid var(--line); }
 .ikben__review p { font: italic 300 clamp(1.4rem, 2vw, 1.8rem)/1.3 var(--display); color: var(--text); margin: 0 0 1rem; text-wrap: balance; }
-.ikben__review footer { font: 400 var(--fs-xs)/1.6 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
-.ikben__review footer .tekstlink { letter-spacing: .14em; }
+.ikben__review footer { font: 400 var(--fs-xs)/1.6 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.ikben__review footer .tekstlink { letter-spacing: .14em; color: var(--accent); }
 /* Wisselende reviews: één tegelijk, glijden opzij; volgt de vinger tijdens het vegen */
 .ikben__review { touch-action: pan-y; overflow: hidden; }
 .teaser__baan { display: grid; align-items: start; transition: height .75s cubic-bezier(.16, 1, .3, 1); }
