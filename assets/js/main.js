@@ -671,9 +671,11 @@
       const datum = vandaagIso();
       const review = { naam: d.naam.trim(), sterren: +d.sterren, soort: d.soort, tekst: d.tekst.trim(), datum };
       const pad = `${REVIEWS_MAP}/${datum}-${slug(review.naam)}-${Math.random().toString(36).slice(2, 6)}.json`;
-      const goedkeuren = `https://github.com/${REVIEWS_REPO}/new/main?filename=${encodeURIComponent(pad)}`
-        + `&value=${encodeURIComponent(JSON.stringify(review, null, 2) + '\n')}`
-        + `&message=${encodeURIComponent('Review van ' + review.naam + ' goedgekeurd')}`;
+      // Ook ! ' ( ) * coderen: mailprogramma's laten een link anders soms ophouden bij bijvoorbeeld een haakje
+      const enc = s => encodeURIComponent(s).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase());
+      const goedkeuren = `https://github.com/${REVIEWS_REPO}/new/main?filename=${enc(pad)}`
+        + `&value=${enc(JSON.stringify(review, null, 2) + '\n')}`
+        + `&message=${enc('Review van ' + review.naam + ' goedgekeurd')}`;
       const velden = {
         'Naam': review.naam, 'Sterren': `${'★'.repeat(review.sterren)} (${review.sterren}/5)`, 'Soort feest': review.soort,
         'Review': review.tekst, 'E-mail reviewer': d.email || '-', ...(EN ? { 'Taal': 'Engels' } : {}),
