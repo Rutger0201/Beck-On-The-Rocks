@@ -107,6 +107,7 @@ def markeer(tekst):
 # ---------- bijwerken ----------
 def faq_ld(tekst):
     """FAQPage-gegevens opnieuw opbouwen uit de zichtbare FAQ, zodat ze altijd gelijk zijn."""
+    # Alleen <details> zónder attributen tellen als FAQ-vraag; uitklapblokken met een class (bijv. class="praktisch") blijven buiten de JSON-LD.
     vragen = re.findall(r'<details>\s*<summary>(.*?)</summary>(.*?)</details>', tekst, flags=re.S)
     def schoon(h):
         h = re.sub(r'<li>', ' ', h)

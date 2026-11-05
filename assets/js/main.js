@@ -854,10 +854,11 @@
   };
   if (BTW[CONFIG.btw]) $$('[data-btw]').forEach(el => { el.textContent = BTW[CONFIG.btw]; el.hidden = false; });
 
-  // Beschikbaarheid bij de offerteknop: tekst in assets/js/config.js, leeg = geen regel
-  const vrij = (CONFIG.beschikbaar || {})[EN ? 'en' : 'nl'];
-  if (vrij) $$('[data-beschikbaar]').forEach(el => { el.textContent = vrij; el.hidden = false; });
   // Seizoensregels (data-tot="JJJJ-MM-DD") zijn zichtbaar tot en met die dag
   const vandaag = new Date().toLocaleDateString('sv');
   $$('[data-tot]').forEach(el => { el.hidden = vandaag > el.dataset.tot; });
+  // Beschikbaarheid bij de offerteknop: tekst in assets/js/config.js, leeg = geen regel.
+  // Alleen als er geen seizoensregel zichtbaar is, zodat er hooguit één notitie onder de knop staat.
+  const vrij = (CONFIG.beschikbaar || {})[EN ? 'en' : 'nl'];
+  if (vrij && !$$('[data-tot]').some(el => !el.hidden)) $$('[data-beschikbaar]').forEach(el => { el.textContent = vrij; el.hidden = false; });
 })();

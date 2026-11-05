@@ -173,7 +173,8 @@ de betekenistokens (`--bg`, `--text`, `--muted`, `--line`, `--accent`, `--btn-bg
   (`.github/workflows/snelheid.yml`, grenzen in `lighthouserc.json`). Rood = snelheid onder 80, bijvoorbeeld door een te zware foto.
   Het rapport staat bij de run onder *Artifacts*.
 - Regels bij de offerteknop: `beschikbaar` in `assets/js/config.js` (leeg = geen regel). Een tijdelijke regel zoals de
-  kerstborrel krijgt `data-tot="JJJJ-MM-DD"` en verdwijnt na die dag vanzelf.
+  kerstborrel krijgt `data-tot="JJJJ-MM-DD"` en verdwijnt na die dag vanzelf. Zolang zo'n tijdelijke regel zichtbaar is,
+  blijft de `beschikbaar`-regel verborgen: er staat hooguit één notitie onder de knop.
 
 ## Logo
 - `assets/img/logo-mark.png`: alleen het beeldmerk (B met cocktailglas), transparant. Gebruikt in menu en footer.
