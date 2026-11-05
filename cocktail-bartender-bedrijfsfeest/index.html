@@ -108,22 +108,6 @@
           "@type": "Answer",
           "text": "Een stevige tafel of bar als werkplek en een gootsteen met stromend water in de buurt, zodat ik mijn materialen kan spoelen. Glazen regel je zelf of via mij, vanaf €0,50 per glas."
         }
-      },
-      {
-        "@type": "Question",
-        "name": "Kun je ook alcoholvrije cocktails maken?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Ja. Volwaardige mocktails horen er op een zakelijk evenement gewoon bij, zodat iedereen mee kan proosten."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Werk je in heel Nederland?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Ja. Ik kom naar je kantoor of evenementlocatie; reiskosten zijn €0,25 per km, heen en terug."
-        }
       }
     ]
   }
@@ -131,7 +115,7 @@
   <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/jost-latin-300-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/cormorant-garamond-latin-300-normal.woff2" crossorigin>
   <link rel="stylesheet" href="/assets/css/fonts.css">
-  <link rel="stylesheet" href="/assets/css/site.css?v=20261102b">
+  <link rel="stylesheet" href="/assets/css/site.css?v=20261104a">
   <link rel="preload" as="image" type="image/webp" href="/assets/img/w/galerij-garneren-800.webp" imagesrcset="/assets/img/w/galerij-garneren-480.webp 480w, /assets/img/w/galerij-garneren-800.webp 800w, /assets/img/w/galerij-garneren-1200.webp 1200w" imagesizes="(max-width: 820px) 80vw, 520px">
   <link rel="icon" type="image/png" href="/assets/icons/favicon-48.png">
   <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
@@ -199,10 +183,8 @@
       </div>
       <ul class="gelegenheden">
         <li class="reveal"><h3>Bedrijfsborrel</h3><p>Een vaste borrel of een feestelijke afsluiting van het kwartaal, met cocktails in plaats van alleen bier en wijn.</p></li>
-        <li class="reveal"><h3>Personeelsfeest</h3><p>Bedank je team met een avond vol goede drankjes, van welkomstcocktail tot afsluiter.</p></li>
-        <li class="reveal"><h3>Bedrijfsjubileum</h3><p>Een mijlpaal verdient een glas dat erbij past. Desgewenst met een cocktail in de kleuren van je bedrijf.</p></li>
-        <li class="reveal"><h3>Netwerkevenement</h3><p>Een cocktail in de hand breekt het ijs. Snel geserveerd, zodat gasten kunnen blijven praten.</p></li>
-        <li class="reveal"><h3>Relatie-evenement</h3><p>Laat klanten en partners iets bijzonders proeven, met aandacht voor elk glas.</p></li>
+        <li class="reveal"><h3>Personeelsfeest of jubileum</h3><p>Bedank je team of vier een mijlpaal met een avond vol goede drankjes. Desgewenst met een cocktail in de kleuren van je bedrijf.</p></li>
+        <li class="reveal"><h3>Netwerk- of relatie-evenement</h3><p>Een cocktail in de hand breekt het ijs. Snel geserveerd en met aandacht voor elk glas, zodat gasten en relaties kunnen blijven praten.</p></li>
         <li class="reveal"><h3>Zakelijke receptie</h3><p>Een verzorgde welkomstcocktail of een complete bar tijdens de receptie.</p></li>
       </ul>
     </div>
@@ -235,20 +217,6 @@
   </section>
 
 
-  <section class="section section--alt" aria-labelledby="werkwijze-titel">
-    <div class="container">
-      <div class="section__head reveal">
-        <h2 id="werkwijze-titel">Duidelijke afspraken, van begin tot eind.</h2>
-      </div>
-      <ol class="steps">
-        <li class="reveal"><span>1</span><h3>Aanvraag</h3><p>Vertel kort over je evenement. Binnen 24 uur ontvang je persoonlijk bericht van mij.</p></li>
-        <li class="reveal"><span>2</span><h3>Offerte op maat</h3><p>Je ontvangt een duidelijke offerte met alle kosten per regel. Akkoord geven kan online.</p></li>
-        <li class="reveal"><span>3</span><h3>Voorbereiding</h3><p>Je krijgt een boodschappenlijst en we stemmen locatie, tijden en werkplek af.</p></li>
-        <li class="reveal"><span>4</span><h3>Het evenement</h3><p>Ik ben op tijd, richt de bar in en zorg dat je gasten snel en goed geholpen worden.</p></li>
-      </ol>
-    </div>
-  </section>
-
 
   <section class="section" aria-labelledby="prijs-titel">
     <div class="container prijsblok">
@@ -270,9 +238,20 @@
       </div>
     </div>
     <div class="container lp-terms">
-      <div class="terms">
-        <article class="term reveal">
-          <h3>Inbegrepen</h3>
+      <h3>Zo werkt het praktisch.</h3>
+      <!-- class="praktisch" houdt deze blokken buiten de FAQ-JSON-LD (tools/tarieven.py leest alleen <details> zonder attributen) -->
+      <div class="faq reveal">
+        <details class="praktisch">
+          <summary>Van aanvraag tot evenement in vier stappen</summary>
+          <ol class="steps">
+            <li><span>1</span><h4>Aanvraag</h4><p>Vertel kort over je evenement. Binnen 24 uur ontvang je persoonlijk bericht van mij.</p></li>
+            <li><span>2</span><h4>Offerte op maat</h4><p>Je ontvangt een duidelijke offerte met alle kosten per regel. Akkoord geven kan online.</p></li>
+            <li><span>3</span><h4>Voorbereiding</h4><p>Je krijgt een boodschappenlijst en we stemmen locatie, tijden en werkplek af.</p></li>
+            <li><span>4</span><h4>Het evenement</h4><p>Ik ben op tijd, richt de bar in en zorg dat je gasten snel en goed geholpen worden.</p></li>
+          </ol>
+        </details>
+        <details class="praktisch">
+          <summary>Wat is inbegrepen?</summary>
           <ul>
             <li>Ik als bartender, de hele avond achter de bar</li>
             <li>1 uur voorbereiding: siropen, garnituren en opbouwen</li>
@@ -280,15 +259,15 @@
             <li>Een boodschappenlijst met precies wat je nodig hebt</li>
             <li>Al mijn professionele bartools: shakers, jiggers, strainers en meer</li>
           </ul>
-        </article>
-        <article class="term reveal">
-          <h3>Wat de organisatie regelt</h3>
+        </details>
+        <details class="praktisch">
+          <summary>Wat regelt de organisatie?</summary>
           <ul>
             <li>Drank, ijs en verse ingrediënten, aan de hand van mijn boodschappenlijst</li>
             <li>Een werkplek: een stevige tafel of bar, met een gootsteen met stromend water in de buurt om mijn materialen te spoelen</li>
             <li>Glazen, of ik regel ze voor je (vanaf <span data-t="glas">€0,50</span> per glas)</li>
           </ul>
-        </article>
+        </details>
       </div>
     </div>
   </section>
@@ -314,14 +293,6 @@
         <details>
           <summary>Wat heb je nodig op locatie?</summary>
           <p>Een stevige tafel of bar als werkplek en een gootsteen met stromend water in de buurt, zodat ik mijn materialen kan spoelen. Glazen regel je zelf of via mij, vanaf <span data-t="glas">€0,50</span> per glas.</p>
-        </details>
-        <details>
-          <summary>Kun je ook alcoholvrije cocktails maken?</summary>
-          <p>Ja. Volwaardige mocktails horen er op een zakelijk evenement gewoon bij, zodat iedereen mee kan proosten.</p>
-        </details>
-        <details>
-          <summary>Werk je in heel Nederland?</summary>
-          <p>Ja. Ik kom naar je kantoor of evenementlocatie; reiskosten zijn <span data-t="km">€0,25</span> per km, heen en terug.</p>
         </details>
       </div>
     </div>
@@ -372,6 +343,6 @@
 
 <script src="/assets/js/config.js?v=20261029b" defer></script>
 <script src="/assets/js/tarieven.js" defer></script>
-<script src="/assets/js/main.js?v=20261103a" defer></script>
+<script src="/assets/js/main.js?v=20261104a" defer></script>
 </body>
 </html>

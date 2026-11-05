@@ -1,5 +1,5 @@
 // Service worker voor de offerte- en factuurmaker: werkt ook offline.
-const CACHE = 'beck-documenten-v19';
+const CACHE = 'beck-documenten-v20';
 const BASIS = [
   'documenten.html',
   'documenten.webmanifest',
@@ -30,12 +30,12 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   const zelfde = url.origin === location.origin;
-  if (!zelfde && url.hostname !== 'fonts.googleapis.com' && url.hostname !== 'fonts.gstatic.com') return;
+  if (!zelfde) return;
 
-  // Bibliotheken en lettertypes veranderen niet: eerst uit de cache
-  if (url.pathname.includes('/assets/vendor/') || !zelfde) {
+  // Bibliotheken veranderen niet: eerst uit de cache
+  if (url.pathname.includes('/assets/vendor/')) {
     e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(res => {
-      if (res.ok || res.type === 'opaque') caches.open(CACHE).then(c => c.put(req, res.clone()));
+      if (res.ok) caches.open(CACHE).then(c => c.put(req, res.clone()));
       return res;
     })));
     return;
