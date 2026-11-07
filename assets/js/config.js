@@ -6,7 +6,7 @@ window.BECK_CONFIG = {
   // GoatCounter (goatcounter.com): code van je account, bijv. 'beckontherocks'. Leeg = geen statistieken.
   goatcounter: 'botr',
   // KvK-nummer: verschijnt in de footer zodra je het invult, bijv. '12345678'
-  kvk: '',
+  kvk: '42212414',
   // Btw-regel bij de tarieven: 'kor' (geen btw), 'incl' (prijzen incl. btw) of leeg (geen regel)
   btw: '',
   // Regel bij de offerteknop op de home, bijv. 'Nog enkele data vrij in december'. Leeg ('') = geen regel.
