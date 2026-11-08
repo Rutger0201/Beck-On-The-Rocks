@@ -755,6 +755,9 @@
       }
       const d = Object.fromEntries(new FormData(boekForm));
       if (d.botcheck) return; // spambot
+      // Aantal cocktails alleen als echte keuze melden: 'Meer details' open of een andere waarde dan de standaard
+      const cSel = boekForm.elements.cocktails, meerOpen = ($('.form__meer', boekForm) || {}).open;
+      const cocktailsGekozen = meerOpen || !cSel.options[cSel.selectedIndex].defaultSelected;
 
       const velden = {
         'Naam': d.naam.trim(), 'E-mail': d.email.trim(), 'Telefoon klant': d.telefoon || '-',
@@ -762,7 +765,7 @@
         ...(d.bedrijf.trim() ? { 'Bedrijf': d.bedrijf.trim() } : {}),
         'Datum': d.datum, ...(d.begintijd ? { 'Begintijd': d.begintijd } : {}), 'Aantal uur': d.uren || '-',
         'Gasten': d.gasten || '-', 'Soort feest': d.soort, 'Locatie': d.locatie || '-',
-        'Cocktails op de kaart': d.cocktails, 'Fruitpers': d.fruitpers ? 'ja' : 'nee', 'Glazen via Rutger': d.glazen ? 'ja' : 'nee',
+        'Cocktails op de kaart': cocktailsGekozen ? d.cocktails : `${d.cocktails} (standaard)`, 'Fruitpers': d.fruitpers ? 'ja' : 'nee', 'Glazen via Rutger': d.glazen ? 'ja' : 'nee',
         'Spoedboeking': isSpoed(d.datum) ? 'ja (binnen 1 maand)' : 'nee', 'Bericht': d.bericht || '-',
         // Alleen een gewone paginacode (privefeest, bedrijfsfeest, calculator), geen vrije tekst uit de link in je mail
         ...(/^[a-z0-9-]{1,40}$/i.test(params.get('via') || '') ? { 'Via pagina': params.get('via') } : {}),
@@ -823,7 +826,7 @@
       const KOP_NL = { 'Soort feest': 'Type feest' };
       const waarde = k => k === 'Datum' ? new Date(velden[k] + 'T00:00').toLocaleDateString(LOCALE, { day: 'numeric', month: 'long', year: 'numeric' })
         : k === 'Soort feest' ? soortTekst(velden[k]) : velden[k];
-      $('#form-samenvatting').innerHTML = toon.filter(k => velden[k] && velden[k] !== '-')
+      $('#form-samenvatting').innerHTML = toon.filter(k => velden[k] && velden[k] !== '-' && !(k === 'Cocktails op de kaart' && /\(standaard\)$/.test(velden[k])))
         .map(k => `<li><span>${EN ? KOP_EN[k] : KOP_NL[k] || k}</span><b>${esc(waarde(k))}</b></li>`).join('');
       boekForm.hidden = true;
       const klaar = $('#form-klaar');
