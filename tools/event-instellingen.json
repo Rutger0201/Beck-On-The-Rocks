@@ -1,5 +1,5 @@
 {
-  "_uitleg": "Instellingen voor de eventzoeker (tools/events.py). Pas aan en de volgende run gebruikt ze.",
+  "_uitleg": "Instellingen voor de eventzoeker (tools/events.py). Pas aan en de volgende run gebruikt ze. zoeken_met_claude: bij true zoekt Claude bij elke run ook zelf op het web naar klussen (hoogstens claude_zoekopdrachten zoekopdrachten); dat kost per run geld op je Anthropic-account (ANTHROPIC_API_KEY). Bij false worden alleen de bronnen hieronder gelezen, zonder kosten.",
   "woonplaats": "Almere",
   "max_km": 40,
   "plaatsen": ["Almere", "Lelystad", "Zeewolde", "Amsterdam", "Diemen", "Weesp", "Muiden", "Huizen", "Blaricum", "Laren", "Bussum", "Naarden", "Hilversum", "Amstelveen", "Zaandam"],

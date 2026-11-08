@@ -10,9 +10,13 @@ permissions:
 jobs:
   controleren:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
-      - name: CSP-hashes en Python controleren
+      - name: Tarieven, CSP-hashes, Python en marketingdata controleren
         run: |
+          python3 tools/tarieven.py --controleer
           python3 tools/csp_controle.py
           python3 -m py_compile tools/*.py tools/marketing/*.py
+          pip install --quiet -r tools/requirements.txt
+          python3 tools/marketing controleer

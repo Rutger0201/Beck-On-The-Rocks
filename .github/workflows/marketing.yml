@@ -8,6 +8,11 @@ on:
     branches: [marketing-onderzoek]
     paths: ['assets/data/marketing-onderzoek.enc.json']
   workflow_dispatch:
+    inputs:
+      nieuwe_sleutel:
+        description: Nieuw sleutelpaar maken als het wachtwoord niet past (na een wachtwoordwijziging)
+        type: boolean
+        default: false
 permissions:
   contents: write
   models: read
@@ -15,6 +20,7 @@ concurrency: marketing
 jobs:
   bijwerken:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
         with:
@@ -36,12 +42,17 @@ jobs:
           META_IG_ID: ${{ secrets.META_IG_ID }}
           LINKEDIN_TOKEN: ${{ secrets.LINKEDIN_TOKEN }}
           LINKEDIN_AUTHOR: ${{ secrets.LINKEDIN_AUTHOR }}
+          # Past het wachtwoord niet bij de sleutel, dan alleen een nieuw sleutelpaar bij een handmatige run met dit vinkje
+          # ("Nu bijwerken" op de adminpagina stuurt het vinkje niet mee)
+          NIEUWE_SLEUTEL_MAG: ${{ inputs.nieuwe_sleutel == true }}
         run: |
           pip install --quiet -r tools/requirements.txt
-          python3 tools/marketing --toon
+          python3 tools/marketing
           git add -A -- 'assets/data/marketing*.json'
           if git diff --cached --quiet; then echo "Niets nieuws."; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Marketing bijgewerkt"
-          for i in 1 2 3; do git pull --rebase origin main && git push origin HEAD:main && break; sleep 5; done
+          # Tegelijk een andere bot-commit op main? Dan eerst bijwerken en opnieuw proberen.
+          for i in 1 2 3 4 5; do git pull --rebase origin main && git push origin HEAD:main && exit 0; git rebase --abort 2>/dev/null || true; sleep 10; done
+          exit 1

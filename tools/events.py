@@ -18,7 +18,7 @@ Nodig (GitHub → Settings → Secrets and variables → Actions):
   ANTHROPIC_API_KEY   sleutel van console.anthropic.com                 (secret, optioneel)
 
 Gebruik: ADMIN_WACHTWOORD=... python3 tools/events.py   (--toon: lijst ook in de terminal tonen)
-Pakketten: pip install -r tools/requirements.txt
+Pakketten: pip install -r tools/requirements-events.txt
 """
 import base64
 import hashlib
@@ -30,6 +30,7 @@ import sys
 import urllib.request
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parent.parent
 INSTELLINGEN = ROOT / 'tools/event-instellingen.json'
@@ -191,8 +192,8 @@ soort ("oproep" als iemand een bartender zoekt, anders "event"), score, waarom."
     antwoord = ''.join(b.text for b in res.content if b.type == 'text')
     m = re.search(r'<events>(.*?)</events>', antwoord, re.S)
     try:
-        lijst = json.loads(m[1]) if m else []
-    except ValueError:
+        lijst = [e for e in (json.loads(m[1]) if m else []) if isinstance(e, dict)]
+    except (ValueError, TypeError):
         print('  Claude: antwoord was geen geldige lijst')
         return []
     for e in lijst:
@@ -276,7 +277,7 @@ def main():
     if not wachtwoord:
         sys.exit('Geen ADMIN_WACHTWOORD ingesteld: niets opgeslagen (de lijst gaat nooit onversleuteld online).')
     inst = json.loads(INSTELLINGEN.read_text())
-    vandaag = datetime.now(timezone(timedelta(hours=1))).date()
+    vandaag = datetime.now(ZoneInfo('Europe/Amsterdam')).date()
     tot = vandaag + timedelta(days=int(inst.get('dagen_vooruit', 31)))
 
     print('Zoeken:')

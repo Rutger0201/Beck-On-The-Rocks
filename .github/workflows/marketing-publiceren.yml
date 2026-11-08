@@ -18,6 +18,7 @@ concurrency:
 jobs:
   publiceren:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
         with:
@@ -40,5 +41,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Marketing: gepubliceerd"
           # Het log moet erin, anders wordt een post het volgende uur opnieuw geplaatst.
-          for i in 1 2 3 4 5 6; do git pull --rebase origin main && git push origin HEAD:main && exit 0; sleep 10; done
+          for i in 1 2 3 4 5 6; do git pull --rebase origin main && git push origin HEAD:main && exit 0; git rebase --abort 2>/dev/null || true; sleep 10; done
           exit 1
