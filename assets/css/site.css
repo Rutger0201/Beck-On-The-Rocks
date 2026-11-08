@@ -720,6 +720,11 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
   .portrait { max-width: 440px; }
   .form__row { grid-template-columns: 1fr; }
   .contact-list li { padding-left: 110px; }
+  /* Offerte aanvragen: formulier direct onder de intro, contactgegevens eronder */
+  .split--contact { row-gap: 0; }
+  .split--contact > .reveal:first-child { display: contents; }
+  .split--contact .lead { margin-bottom: 2.4rem; }
+  .split--contact .contact-list { order: 1; }
   .fab { display: inline-block; }
 }
 @media (max-width: 560px) {
