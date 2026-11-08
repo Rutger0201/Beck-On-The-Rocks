@@ -191,6 +191,7 @@ h1[tabindex="-1"]:focus { outline: none; }
 .btn--ghost:hover { background: var(--accent-vlak); border-color: var(--text); color: var(--text); }
 .btn--small { min-height: 44px; padding: .5em 18px; gap: 12px; }
 .btn--small::after { width: 14px; }
+.nav__inner > .btn--small { white-space: nowrap; margin-left: auto; }
 .btn--full { width: 100%; }
 .btn--full::after { display: none; }
 .btn:disabled { opacity: .6; cursor: wait; }
@@ -734,6 +735,7 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
   .split--contact .contact-list { order: 1; }
   .fab { display: inline-block; }
   .footer { padding-bottom: 88px; } /* ruimte voor de zwevende offerteknop */
+  .nav__inner > .btn--small { display: none; } /* privacypagina: kop zonder menu, knop past niet naast logo en themaknop */
 }
 @media (max-width: 560px) {
   .timeline, .steps, .opties { grid-template-columns: 1fr; }
