@@ -75,8 +75,8 @@
   }
   function offerte(e) {
     const tekst = `Hallo${e.organisator ? ' ' + e.organisator : ''},\n\nIk zag "${e.naam}" op ${dag(e.start)}. ` +
-      `Ik ben Rutger van Beck on the Rocks, freelance cocktailbartender. Ik kom met mijn eigen cocktailgereedschap ` +
-      `en zorg voor een mooie bar en blije gasten. Zal ik een vrijblijvende offerte sturen?\n\n` +
+      `Ik ben Rutger van Beck on the Rocks, freelance cocktailbartender op locatie. Ik neem mijn eigen bartools mee, ` +
+      `stel de cocktailkaart en de boodschappenlijst samen en sta achter jullie bar. Zal ik een vrijblijvende offerte sturen?\n\n` +
       `Groet,\nRutger\nhttps://beckontherocks.nl`;
     if (e.mail && /^[^\s@]+@[^\s@]+$/.test(e.mail))
       return 'mailto:' + e.mail + '?subject=' + encodeURIComponent('Bartender voor ' + e.naam) + '&body=' + encodeURIComponent(tekst);
