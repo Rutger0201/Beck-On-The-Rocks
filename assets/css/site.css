@@ -112,7 +112,7 @@
    voordat er iets getekend wordt, zodat er geen lichte flits is. */
 :root[data-thema="donker"] {
   --bg: #1a1714;
-  --bg-alt: #1f1c18;
+  --bg-alt: #221e1a;
   --surface: #27231e;
   --text: var(--op-donker);
   --muted: var(--op-donker-zacht);
@@ -167,7 +167,7 @@ code { font-size: .9em; }
 
 .container { width: min(var(--container), 100% - 2 * var(--gutter)); margin-inline: auto; }
 .narrow { width: min(var(--container-smal), 100% - 2 * var(--gutter)); }
-.eyebrow, .label { font: 500 var(--fs-xs)/1.5 var(--sans); letter-spacing: var(--label-spacing); text-transform: uppercase; color: var(--accent); margin: 0 0 1.4rem; }
+.eyebrow, .label { font: 500 var(--fs-xs)/1.5 var(--sans); letter-spacing: var(--label-spacing); text-transform: uppercase; color: var(--accent); margin: 0 0 1.4rem; text-wrap: balance; }
 .lead { font-size: var(--fs-lg); line-height: 1.6; color: var(--text); max-width: 40ch; }
 :focus-visible { outline: 1.5px solid var(--accent); outline-offset: 4px; }
 h1[tabindex="-1"]:focus { outline: none; }
@@ -247,7 +247,7 @@ h1[tabindex="-1"]:focus { outline: none; }
 .hero .lead { color: var(--muted); max-width: 36ch; }
 .hero__notitie { margin: 1.2rem 0 0; font-size: var(--fs-sm); color: var(--muted); }
 .hero__notitie:not([hidden]) + .hero__notitie { margin-top: .5rem; }
-.hero__zegel { display: inline-flex; align-items: center; gap: .7rem; margin-top: 1.6rem; padding-top: 1.1rem; border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--muted); text-decoration: none; transition: color .3s; }
+.hero__zegel { display: flex; max-width: 25rem; align-items: center; gap: .7rem; margin-top: 1.6rem; padding-top: 1.1rem; border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--muted); text-decoration: none; transition: color .3s; }
 .hero__zegel .stars { margin: 0; font-size: .95rem; letter-spacing: .12em; }
 .hero__zegel strong { font-weight: 500; color: var(--text); }
 .hero__zegel:hover { color: var(--text); }
@@ -443,7 +443,7 @@ div.signature { display: block; margin: .2rem 0 1.6rem; }
 .term li::before, .lp-terms details > ul > li::before { content: ""; position: absolute; left: 0; top: 1.25em; width: 12px; height: 1px; background: var(--accent); }
 .term li strong { color: var(--text); }
 .lp-terms { margin-top: clamp(56px, 7vw, 96px); }
-.lp-terms > h3 { margin: 0 0 .6rem; font-size: var(--fs-tussenkop); }
+.lp-terms > h3 { margin: 0 0 1.4rem; font-size: var(--fs-tussenkop); }
 /* Uitklapblok op de landingspagina's: FAQ-afstanden niet laten doorwerken in de stappen, lijsten zoals op /tarieven/ */
 .faq .steps { margin: .4rem 0 1.8rem; }
 .faq .steps p { padding-bottom: 0; }
@@ -630,7 +630,7 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
 .verplicht { color: var(--accent); }
 
 /* ---------- 8. Footer ---------- */
-.footer { padding: clamp(72px, 8vw, 110px) 0 clamp(88px, 8vw, 48px); }
+.footer { padding: clamp(72px, 8vw, 110px) 0 48px; }
 .footer__inner { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(12px, 2vw, 32px); row-gap: 2.4rem; align-items: start; }
 .footer__inner > div:first-child { grid-column: 1 / span 5; }
 .footer__inner > nav { grid-column: 7 / span 3; display: grid; grid-template-columns: 1fr 1fr; gap: .6rem 1.6rem; }
@@ -729,6 +729,7 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
   .split--contact .lead { margin-bottom: 2.4rem; }
   .split--contact .contact-list { order: 1; }
   .fab { display: inline-block; }
+  .footer { padding-bottom: 88px; } /* ruimte voor de zwevende offerteknop */
 }
 @media (max-width: 560px) {
   .timeline, .steps, .opties { grid-template-columns: 1fr; }
