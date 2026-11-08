@@ -741,7 +741,8 @@
       meldOvername(!!f.datum.value);
     }
 
-    const note = $('#form-note'), noteTekst = note.textContent;
+    // Vaste HTML uit de pagina (met de maillink), geen invoer van de bezoeker
+    const note = $('#form-note'), noteHtml = note.innerHTML;
     boekForm.addEventListener('submit', async e => {
       e.preventDefault();
       note.classList.remove('is-fout');
@@ -789,7 +790,7 @@
         boekForm.reset();
         if (formKop) formKop.innerHTML = formKopHtml;
         $('#form-spoed').hidden = true;
-        note.textContent = noteTekst;
+        note.innerHTML = noteHtml;
       } catch {
         note.innerHTML = t('Het versturen is niet gelukt. Je gegevens staan er nog. Probeer het opnieuw, of <a href="#" id="form-mail">verstuur je aanvraag via je mail</a>.',
           'Sending failed. Your details are still there. Please try again, or <a href="#" id="form-mail">send your request by email</a>.');
