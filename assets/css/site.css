@@ -252,6 +252,8 @@ h1[tabindex="-1"]:focus { outline: none; }
 .hero__zegel strong { font-weight: 500; color: var(--text); }
 .hero__zegel:hover { color: var(--text); }
 .hero__cta { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 28px; margin: 2.2rem 0 0; }
+/* Home: tarievenlink met prijs onder de knop, zodat hij niet onder de kleine foto loopt */
+.hero .hero__cta { flex-direction: column; align-items: flex-start; }
 .hero__art { grid-column: 8 / span 5; position: relative; min-width: 0; margin: 0; }
 .hero__foto { aspect-ratio: 4 / 5; overflow: hidden; background: var(--houtskool); }
 .hero__foto img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; }
