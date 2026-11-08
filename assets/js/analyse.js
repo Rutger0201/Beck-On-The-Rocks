@@ -255,7 +255,7 @@ window.BeckAnalyse = (() => {
   };
 
   // Labels zoals ze in de aanvraagmail staan: waarde mag op dezelfde regel of op de regel eronder
-  const LABELS_MAIL = /^(naam|e-?mail|telefoon(?: klant)?|datum|aantal uur|gasten|soort feest|locatie|cocktails op de kaart|fruitpers|glazen via \w+|spoedboeking|bericht)$/i;
+  const LABELS_MAIL = /^(naam|e-?mail|telefoon(?: klant)?|bedrijf|datum|begintijd|aantal uur|gasten|soort feest|locatie|cocktails op de kaart|fruitpers|glazen via \w+|spoedboeking|bericht)$/i;
   function label(t, namen) {
     const re = new RegExp(`^[ \\t>*-]*(?:${namen})[ \\t]*(?:[:=]|\\t)[ \\t]*(\\S.*)$`, 'im'); // ook tabel-kopie (tab)
     let m = re.exec(t);

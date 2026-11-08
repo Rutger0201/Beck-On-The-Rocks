@@ -419,7 +419,11 @@
           <summary><span>Meer details <small>(optioneel)</small></span></summary>
           <div>
             <div class="form__row">
+              <label>Bedrijf of organisatie<input name="bedrijf" autocomplete="organization" placeholder="Bij een zakelijk evenement"></label>
               <label>Telefoon<input name="telefoon" type="tel" autocomplete="tel" placeholder="Handig voor snel overleg"></label>
+            </div>
+            <div class="form__row">
+              <label>Begintijd<input name="begintijd" type="time"></label>
               <label>Aantal uur achter de bar<input name="uren" type="number" min="1" max="24" inputmode="numeric" placeholder="bijv. 4" data-fout="Vul 1 tot 24 uur in."></label>
             </div>
             <label>Cocktails op de kaart

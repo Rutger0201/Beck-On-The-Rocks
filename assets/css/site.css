@@ -587,6 +587,8 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
 input::placeholder, textarea::placeholder { color: var(--muted); opacity: .7; }
 input[type=date] { color-scheme: light; }
 input[type=checkbox], input[type=radio] { accent-color: var(--inkt); width: 18px; height: 18px; }
+/* Begintijd even hoog als het urenveld ernaast */
+input[type=time]::-webkit-datetime-edit-fields-wrapper { padding-block: 0; }
 input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 1px; background: var(--line-sterk); margin: 12px 0; }
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--inkt); cursor: pointer; border: 5px solid var(--surface); box-shadow: 0 0 0 1px var(--inkt); }
 input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--inkt); border: 5px solid var(--surface); cursor: pointer; }

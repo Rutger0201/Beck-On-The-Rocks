@@ -757,7 +757,10 @@
       if (d.botcheck) return; // spambot
 
       const velden = {
-        'Naam': d.naam.trim(), 'E-mail': d.email.trim(), 'Telefoon klant': d.telefoon || '-', 'Datum': d.datum, 'Aantal uur': d.uren || '-',
+        'Naam': d.naam.trim(), 'E-mail': d.email.trim(), 'Telefoon klant': d.telefoon || '-',
+        // Bedrijf en begintijd alleen als ze zijn ingevuld: een '-' zou de generator als bedrijfsnaam overnemen
+        ...(d.bedrijf.trim() ? { 'Bedrijf': d.bedrijf.trim() } : {}),
+        'Datum': d.datum, ...(d.begintijd ? { 'Begintijd': d.begintijd } : {}), 'Aantal uur': d.uren || '-',
         'Gasten': d.gasten || '-', 'Soort feest': d.soort, 'Locatie': d.locatie || '-',
         'Cocktails op de kaart': d.cocktails, 'Fruitpers': d.fruitpers ? 'ja' : 'nee', 'Glazen via Rutger': d.glazen ? 'ja' : 'nee',
         'Spoedboeking': isSpoed(d.datum) ? 'ja (binnen 1 maand)' : 'nee', 'Bericht': d.bericht || '-',

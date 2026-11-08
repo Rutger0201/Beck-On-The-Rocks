@@ -616,7 +616,11 @@
           <summary><span>More details <small>(optional)</small></span></summary>
           <div>
             <div class="form__row">
+              <label>Company or organisation<input name="bedrijf" autocomplete="organization" placeholder="For a corporate event"></label>
               <label>Phone<input name="telefoon" type="tel" autocomplete="tel" placeholder="Handy for a quick chat"></label>
+            </div>
+            <div class="form__row">
+              <label>Start time<input name="begintijd" type="time"></label>
               <label>Hours behind the bar<input name="uren" type="number" min="1" max="24" inputmode="numeric" placeholder="e.g. 4" data-fout="Enter 1 to 24 hours."></label>
             </div>
             <label>Cocktails on the menu
