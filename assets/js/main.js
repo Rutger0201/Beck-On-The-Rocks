@@ -713,8 +713,10 @@
       spoed.hidden = !toon;
       if (toon) { spoed.innerHTML = ''; requestAnimationFrame(() => { spoed.innerHTML = spoedHtml; }); }
     });
-    // Vanaf een landingspagina: /?soort=Bedrijfsborrel#boeken vult het type feest alvast in
-    const soort = params.get('soort');
+    // Vanaf een landingspagina: /?soort=Bedrijfsborrel#boeken vult het type feest alvast in,
+    // net als de vaste paginacodes (?via=privefeest, bedrijfsfeest, kerst en de Engelse varianten)
+    const VIA_SOORT = { privefeest: 'Privéfeest', private: 'Privéfeest', bedrijfsfeest: 'Bedrijfsfeest', corporate: 'Bedrijfsfeest', kerst: 'Bedrijfsborrel', christmas: 'Bedrijfsborrel' };
+    const soort = params.get('soort') || VIA_SOORT[params.get('via')] || '';
     if (soort && [...boekForm.elements.soort.options].some(o => o.value === soort)) boekForm.elements.soort.value = soort;
     // Vanuit de calculator op /tarieven/: uren, cocktails, fruitpers en datum alvast invullen
     if (params.get('via') === 'calculator') {
