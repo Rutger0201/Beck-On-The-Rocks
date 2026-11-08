@@ -463,7 +463,7 @@ div.signature { display: block; margin: .2rem 0 1.6rem; }
 .calc__lines b { color: var(--text); font-weight: 500; white-space: nowrap; }
 .calc__lines .is-spoed, .calc__lines .is-spoed b { color: var(--spoed); }
 .calc__noot { margin: 0; font-size: var(--fs-sm); }
-.calc__result { padding: 2.2rem 1.6rem; text-align: center; display: grid; gap: .6rem; }
+.calc__result { padding: 2.2rem 1.6rem; text-align: center; display: grid; gap: .6rem; align-self: stretch; align-content: center; }
 .calc__result span { font: 500 var(--fs-xs)/1.5 var(--sans); letter-spacing: var(--label-spacing); text-transform: uppercase; color: var(--accent); }
 .calc__result strong { font: 300 3.4rem/1 var(--display); color: var(--text); }
 .calc__result small { color: var(--muted); font-size: var(--fs-sm); margin-bottom: 1rem; }
@@ -583,9 +583,10 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]), select, textarea
   color: var(--text); font: 300 var(--fs-base) var(--sans); padding: .75em .9em; transition: border-color var(--kort), box-shadow var(--kort);
 }
 textarea { min-height: 96px; resize: vertical; }
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-vlak), 0 1px 0 var(--accent); }
+input:not([type=range]):not([type=checkbox]):not([type=radio]):focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-vlak), 0 1px 0 var(--accent); }
 input::placeholder, textarea::placeholder { color: var(--muted); opacity: .7; }
 input[type=date] { color-scheme: light; }
+[data-thema="donker"] input[type=date] { color-scheme: dark; }
 input[type=checkbox], input[type=radio] { accent-color: var(--inkt); width: 18px; height: 18px; }
 /* Begintijd even hoog als het urenveld ernaast */
 input[type=time]::-webkit-datetime-edit-fields-wrapper { padding-block: 0; }
