@@ -695,6 +695,10 @@
       res.innerHTML = `<p class="eyebrow">${t('Jouw match', 'Your match')}</p><h3>${c.titel || c.naam}</h3><p>${SFEER[f.get('q2')]} ${c.tekst.charAt(0).toLowerCase() + c.tekst.slice(1)}</p>`
         + `<a class="btn btn--small" href="#boeken">${t('Zet hem op jouw kaart', 'Put it on your menu')}</a>`;
       res.hidden = false; res.focus();
+      // De uitslag gaat mee naar het aanvraagformulier, als daar nog geen bericht staat
+      $('a', res).addEventListener('click', () => {
+        if (boekForm && !boekForm.elements.bericht.value) boekForm.elements.bericht.value = t(`Graag de ${c.titel || c.naam} op de kaart.`, `I'd like the ${c.titel || c.naam} on the menu.`);
+      });
     });
   }
 
