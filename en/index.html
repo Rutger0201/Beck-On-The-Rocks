@@ -472,42 +472,7 @@
         <p id="review-intro">Every review helps enormously. I'd really appreciate it if you shared your experience.</p>
         <div class="review-cta__knoppen" id="review-knoppen">
           <a class="btn" id="google-review" href="#" target="_blank" rel="noopener" hidden>Review on Google</a>
-          <button type="button" class="btn btn--ghost" id="review-schrijf">Write a review</button>
           <a class="btn btn--ghost" id="google-profiel" href="#" target="_blank" rel="noopener" hidden>See reviews on Google</a>
-        </div>
-
-        <form class="form review-form" id="review-form" novalidate hidden>
-          <fieldset class="sterren-kies">
-            <legend>How many stars would you give?</legend>
-            <div class="sterren-kies__rij">
-              <input type="radio" name="sterren" id="st5" value="5" checked><label for="st5" title="5 stars">★</label>
-              <input type="radio" name="sterren" id="st4" value="4"><label for="st4" title="4 stars">★</label>
-              <input type="radio" name="sterren" id="st3" value="3"><label for="st3" title="3 stars">★</label>
-              <input type="radio" name="sterren" id="st2" value="2"><label for="st2" title="2 stars">★</label>
-              <input type="radio" name="sterren" id="st1" value="1"><label for="st1" title="1 star">★</label>
-            </div>
-          </fieldset>
-          <div class="form__row">
-            <label>Your name as shown<input name="naam" required maxlength="40" placeholder="e.g. Sarah or Sarah &amp; Tom" autocomplete="given-name"></label>
-            <label>Type of event
-              <select name="soort">
-                <option value="Bruiloft">Wedding</option><option value="Bedrijfsfeest">Corporate event</option><option value="Privéfeest">Private party</option>
-                <option value="Verjaardag">Birthday</option><option value="Diner">Dinner</option><option value="Anders">Other</option>
-              </select>
-            </label>
-          </div>
-          <label>Your review<textarea name="tekst" rows="5" required minlength="10" maxlength="800" placeholder="How was your party? What did your guests think of the cocktails?"></textarea></label>
-          <label>Email (optional, not shown)<input name="email" type="email" autocomplete="email"></label>
-          <label class="tick toestemming"><input type="checkbox" name="toestemming" required> I give permission to publish my review with my name on this website (see the <a href="/privacy/">privacy statement</a>, in Dutch).</label>
-          <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
-          <button class="btn btn--full" type="submit" id="review-knop">Send review</button>
-          <p class="form__note" id="review-note">Your review appears on the site after I've checked it.</p>
-        </form>
-
-        <div class="review-klaar" id="review-klaar" hidden tabindex="-1">
-          <div class="form__vink" aria-hidden="true">✓</div>
-          <h3>Thank you!</h3>
-          <p>Your review has been sent and will appear here as soon as I've checked it.</p>
         </div>
       </div>
     </div>
