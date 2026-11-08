@@ -1,14 +1,14 @@
 # Beck on the Rocks · website
 
-Eerste versie van de website voor Beck on the Rocks, freelance bartender.
+Website van Beck on the Rocks, cocktailbartender op locatie.
 Live op **https://beckontherocks.nl** (GitHub Pages, domein via `CNAME`).
 Gewone HTML, CSS en JavaScript: geen build-stap nodig. Open `index.html` in je browser
 of zet de map op een host als Netlify, Vercel of GitHub Pages.
 
 ## Opbouw
-- `index.html`: homepage met de andere onderdelen via het menu (Cocktails, Tarieven, Over mij, FAQ,
-  Offerte aanvragen; Reviews via de footer). Elk onderdeel is een `<div class="page">`
-  en opent via een #-link, bijvoorbeeld `/#prijzen`.
+- `index.html`: homepage met de onderdelen Over mij, Cocktails, Offerte aanvragen en Reviews (via de footer).
+  Elk onderdeel is een `<div class="page">` en opent via een #-link, bijvoorbeeld `/#cocktails`. Het menu linkt
+  daarnaast naar de losse pagina's hieronder (Privéfeesten, Bedrijfsfeesten, Tarieven, FAQ).
 - `cocktail-bartender-privefeest/` en `cocktail-bartender-bedrijfsfeest/`: losse landingspagina's voor
   Google, met eigen titel, beschrijving, FAQ en structured data. De knoppen gaan naar het aanvraagformulier
   met `?via=privefeest` of `?via=bedrijfsfeest`; dat zie je terug in de mail als *Via pagina*.
@@ -17,10 +17,11 @@ of zet de map op een host als Netlify, Vercel of GitHub Pages.
 - `privacy/`: privacyverklaring, gelinkt in de footer en bij elk formulier. Gebruik je een nieuwe dienst
   (ander formulier, mailprogramma, statistieken), pas deze tekst dan aan.
 - `kaart/`: digitaal visitekaartje (niet in Google) voor je NFC-tag en QR-code, met
-  "Opslaan in contacten" (`kaart/rutger-beck-on-the-rocks.vcf`).
+  "Opslaan in contacten" (`kaart/rutger-beck-on-the-rocks.vcf`). Het kaartje is installeerbaar en werkt offline
+  (`kaart/manifest.webmanifest`, `kaart/sw.js`).
 - Foto's staan in `assets/img/`; de verkleinde WebP/JPG-versies die de site laadt in `assets/img/w/`.
   Nieuwe foto? Maak er ook versies van 480, 800 en 1200 px breed van in die map.
-- Lettertypes (Cormorant Garamond en Jost voor de site, Inter voor admin en documenten) staan zelf gehost in `assets/fonts/` via `assets/css/fonts.css`:
+- Lettertypes (Cormorant Garamond en Jost, ook voor admin en documenten) staan zelf gehost in `assets/fonts/` via `assets/css/fonts.css`:
   sneller en er gaat geen IP-adres naar Google.
 - De cocktailkaart is een menukaart per categorie; de kleur van de stip is `c1` in de lijst `COCKTAILS`.
 
@@ -46,7 +47,8 @@ glazen, spoed, annuleren, betaaltermijn). Zo pas je een prijs aan:
 1. Open `tarieven.json` op GitHub, klik op het potlood, wijzig het bedrag en klik op *Commit changes*.
 2. De GitHub-actie *Tarieven bijwerken* zet daarna binnen een minuut alle bedragen op de site goed: tekst, voorbeelden,
    calculator, meta-omschrijvingen en de gegevens voor Google (ook de FAQ). Kijk bij *Actions* of hij groen is.
-3. De offerte-generator neemt de nieuwe tarieven vanzelf over en meldt dat bij het openen.
+3. De offerte-generator neemt de nieuwe tarieven vanzelf over en meldt dat bij het openen. Een opgeslagen offerte of
+   factuur houdt de tarieven van het moment van opslaan; nieuwe tarieven gelden voor nieuwe documenten.
 
 Zelf draaien kan ook: `python3 tools/tarieven.py` (bijwerken) of `python3 tools/tarieven.py --controleer`.
 Bedragen in de HTML staan in `<span data-t="…">`; nieuwe bedragen in een tekst krijgen zo'n label, anders worden ze niet bijgewerkt.
@@ -79,18 +81,18 @@ het dashboard van Web3Forms (spamfilter, eventueel hCaptcha).
 ## Statistieken (GoatCounter)
 Bezoekersstatistieken zonder cookies (dus geen cookiebanner nodig). Maak gratis een account op
 [goatcounter.com](https://www.goatcounter.com) en zet de gekozen code (bijv. `beckontherocks`) bij `goatcounter`
-in `assets/js/config.js`. Elke pagina (Home, Prijzen, Reviews, …) wordt apart geteld, plus de gebeurtenissen
-*aanvraag-verstuurd* en *review-verstuurd*. Bezoeken vanaf localhost en de generator worden niet geteld.
+in `assets/js/config.js`. Elke pagina (Home, Tarieven, Reviews, …) wordt apart geteld, plus de gebeurtenissen
+*aanvraag-verstuurd*. Bezoeken vanaf localhost en de generator worden niet geteld.
 
 ## Reviews
-Klanten schrijven een review via het formulier op de reviewpagina. Je krijgt een mail met een
-**GOEDKEUREN**-link; daarmee zet je de review met één commit in de map `reviews/`, waarna hij op de
-site verschijnt. Zie `reviews/LEESMIJ.md`.
+Eigen reviews zet je zelf als `.json`-bestand in de map `reviews/` (formaat in `reviews/LEESMIJ.md`); de actie
+*Reviews bijwerken* zet ze in `assets/data/reviews.json`. Er is geen reviewformulier op de site.
 
 Google reviews: de links staan in `assets/js/config.js` (`google.review` en `google.profiel`). Daarmee
 verschijnen de Google-knoppen op de reviewpagina (NL en EN). De review-link staat ook op het visitekaartje
-en in de generator (Mijn gegevens & tarieven), zodat hij in de factuurmail komt. De profiellink staat ook
-in de bedrijfsgegevens voor Google (`sameAs` in `index.html` en `en/index.html`).
+(vast in `kaart/index.html`) en in de generator (Mijn gegevens & tarieven, standaard uit `config.js`), zodat hij in de
+factuurmail komt. Het marketingidee om reviews te vragen vult hem via `{reviewlink}` ook uit `config.js` in.
+De profiellink staat ook in de bedrijfsgegevens voor Google (`sameAs` in `index.html` en `en/index.html`).
 
 Google-reviews op de site: de actie *Google-reviews ophalen* (`.github/workflows/google-reviews.yml`) draait
 elke ochtend `tools/google_reviews.py`. Die haalt de score, het aantal en (max. 5) reviews op via de Google
@@ -110,16 +112,20 @@ De pagina staat niet in Google (noindex, niet in de sitemap).
 
 De actie *Events zoeken* (`.github/workflows/events.yml`) draait op maandag en donderdag `tools/events.py`. Die zoekt in
 de agenda's uit `tools/event-instellingen.json` (pagina's met schema.org-events of iCal-links) en, als er een
-sleutel is, laat Claude op het web zoeken naar openbare events en oproepen als "barman gezocht". Er wordt nergens
+sleutel is en `zoeken_met_claude` aan staat, laat Claude op het web zoeken naar openbare events en oproepen als "barman gezocht". Er wordt nergens
 ingelogd. De lijst komt **versleuteld** in `assets/data/events.enc.json`: zonder wachtwoord is hij onleesbaar.
 Eenmalig instellen:
 1. GitHub → Settings → Secrets and variables → Actions → *New repository secret* `ADMIN_WACHTWOORD` (kies een lang
    wachtwoord; dit typ je op de adminpagina).
-2. Optioneel: secret `ANTHROPIC_API_KEY` (console.anthropic.com) voor het zoeken met Claude. Zonder deze sleutel
-   worden alleen de agenda's uit de instellingen gebruikt. Reken op een paar euro per maand.
+2. Optioneel: secret `ANTHROPIC_API_KEY` (console.anthropic.com) voor het zoeken met Claude. Het zoeken met Claude
+   staat alleen aan als `zoeken_met_claude` in `tools/event-instellingen.json` op `true` staat (nu `false`). Zonder
+   sleutel of met `false` worden alleen de agenda's uit de instellingen gebruikt. Reken op een paar euro per maand.
 3. Vul in `tools/event-instellingen.json` je `woonplaats`, `max_km` en `plaatsen` in de buurt in. Agenda's toevoegen
    kan onder `bronnen`; de woorden onder `plus` en `min` bepalen de score.
 4. Actions → *Events zoeken* → *Run workflow*.
+
+Deze actie installeert `tools/requirements-events.txt` (met `anthropic`); de andere acties hebben genoeg aan
+`tools/requirements.txt`.
 
 Wachtwoord veranderd? Draai de actie opnieuw, dan wordt de lijst met het nieuwe wachtwoord versleuteld.
 
@@ -132,25 +138,29 @@ jouw akkoord. Elke tekst wordt gecontroleerd op alcoholreclameregels en 18+.
 
 De actie *Marketing bijwerken* (`.github/workflows/marketing.yml`) draait elke nacht `tools/marketing/`, en elke maandag
 doet een geplande Claude-taak webonderzoek (trends, zoekwoorden, concurrenten, kansen) met bronnen en datums.
-Alles is versleuteld met hetzelfde `ADMIN_WACHTWOORD`. Uitleg, bestanden en het formaat van het onderzoek staan in
-`tools/marketing/LEESMIJ.md`. Seizoensmomenten en vaste ideeën pas je aan in `tools/marketing/kalender.json` en `ideeen.json`.
+Alles is versleuteld met hetzelfde `ADMIN_WACHTWOORD`. Wachtwoord veranderd? Start *Marketing bijwerken* dan handmatig
+(Actions, Run workflow, vink *Nieuw sleutelpaar* aan): alleen zo'n run maakt een nieuw sleutelpaar; tot die
+tijd blijven de marketingacties rood. Uitleg, bestanden en het formaat van het onderzoek staan in
+`tools/marketing/LEESMIJ.md`. Seizoensmomenten en vaste ideeën pas je aan in `tools/marketing/kalender.json` en `ideeen.json`;
+`python3 tools/marketing controleer` (ook in de PR-check en de controle op main) meldt een tikfout daarin direct.
 Met een GitHub-token (Instellingen op de adminpagina) kun je teksten laten verbeteren of nieuwe ideeën laten bedenken met AI
-(gratis via GitHub Models). Het tabblad Resultaten toont bezoekers, bronnen en aanvragen per post zodra het secret
+(gratis via Google Gemini of GitHub Models, zie `tools/marketing/LEESMIJ.md`). Het tabblad Resultaten toont bezoekers, bronnen en aanvragen per post zodra het secret
 `GOATCOUNTER_TOKEN` is ingesteld, plus wekelijks advies en een SEO-controle.
 Wil je dat posts vanzelf online gaan, koppel dan Instagram, Facebook en/of LinkedIn (stappen onder Instellingen op de
 adminpagina) en zet een ingeplande post op *Automatisch plaatsen*; de actie *Marketing publiceren* plaatst hem dan op tijd.
 Het tabblad Groei helpt met betaalde campagnes (stappen en controlelijst; je zet ze zelf aan, er wordt nooit geld
 uitgegeven) en met samenwerkingen (partnerlijst en mailvoorbeelden; je verstuurt elke mail zelf).
 
-## Nog zelf invullen vóór livegang
-- **Reviews**: de eerste staan erop; Google reviews zijn gekoppeld (zie hierboven).
-- **Foto's**: staan in `assets/img/` (portret + sfeerbeelden). Meer foto's toevoegen kan in de galerij op de pagina "Over mij".
-- **Contactgegevens**: zakelijk telefoonnummer (nu privénummer) en Instagram.
-- **KvK**: vul na je inschrijving `kvk` in `assets/js/config.js` in; het nummer verschijnt dan in elke footer.
-  Laat het daarna ook vast in de HTML zetten, zodat het er ook zonder JavaScript staat (wettelijk verplicht).
-- **Btw**: zet `btw` in `assets/js/config.js` op `'kor'` (geen btw) of `'incl'` (prijzen incl. btw); de regel verschijnt
-  dan bij de tarieven. Reken je 21%, dan moeten consumentenprijzen inclusief btw zijn: bedragen eerst aanpassen.
-- **Cocktails**: lijst `COCKTAILS` bovenaan `assets/js/main.js`.
+## Nog open
+- **Foto's**: meer foto's van echte events voor de galerij (Over mij) en de landingspagina's; maak er versies van
+  480, 800 en 1200 px breed van in `assets/img/w/`.
+- **Telefoonnummer**: in het contactblok staat nu je privénummer; eventueel een apart zakelijk nummer.
+- **Btw-keuze**: op de site staat geen btw-regel (`btw` in `assets/js/config.js` is leeg). Met `'kor'` (geen btw) of
+  `'incl'` (prijzen incl. btw) verschijnt de regel bij de tarieven. De generator zet standaard *Geen btw:
+  kleineondernemersregeling (KOR)* op offertes en facturen (Mijn gegevens & tarieven). Reken je 21%, dan moeten
+  consumentenprijzen inclusief btw zijn: bedragen eerst aanpassen.
+
+Het KvK-nummer staat vast in elke footer. Verandert het, pas dan `kvk` in `assets/js/config.js` én de footers aan.
 
 ## Vormgeving (design system)
 De publieke pagina's gebruiken `assets/css/site.css` (stijl "Editorial Luxury": ivoor, papier en houtskool met één messingtint).
@@ -161,14 +171,19 @@ de betekenistokens (`--bg`, `--text`, `--muted`, `--line`, `--accent`, `--btn-bg
   `section--alt` geeft het lichtere papier. Wissel licht en donker af, maak niet alles donker.
 - Foto's krijgen automatisch een warme, ingetogen kleurcorrectie zodat ze bij elkaar passen.
 - Beweging staat uit voor bezoekers met "minder beweging" in hun systeeminstellingen.
-- Pas je `site.css` of `main.js` aan, verhoog dan het `?v=`-nummer achter de link in alle HTML-pagina's
-  (`grep -rl 'site.css?v=' --include=*.html .`). Anders houden telefoons tot 10 minuten de oude versie vast
+- Pas je `site.css` of `main.js` aan, verhoog dan het `?v=`-nummer achter beide links in alle HTML-pagina's (ze delen
+  één nummer); `config.js` heeft een eigen nummer dat alleen omhoog gaat als `config.js` zelf verandert
+  (`git grep -n '?v=' -- '*.html'`). Anders houden telefoons tot 10 minuten de oude versie vast
   en kan nieuwe HTML er met oude opmaak uitzien (zoals een uitgerekte banner).
+- De generator (`sw.js`) en het visitekaartje (`kaart/sw.js`) bewaren hun bestanden offline. Pas je een bestand aan
+  dat in hun lijst `BASIS` staat (bijvoorbeeld `fonts.css` of `site.css`), verhoog dan daar `CACHE`
+  (`beck-documenten-v…`, `beck-kaart-v…`).
 - Alle pagina's hebben een Content-Security-Policy (meta-tag in de `<head>`) met de sha256-hash van het kleine
   themascript daaronder (het visitekaartje: zijn eigen inline script onderaan). Pas je dat script aan, zet dan de nieuwe hash in alle pagina's; `python3 tools/csp_controle.py`
   (draait in de PR-check en na elke wijziging op main) zegt welke pagina's niet kloppen of geen CSP hebben (een nieuwe pagina krijgt er dus ook een). Een nieuwe externe dienst (script, API) moet in die policy staan.
-- Admin, `documenten.html` en `akkoord.html` gebruiken ook `site.css`, met daarnaast hun eigen bestand voor wat alleen zij hebben
-  (`admin/marketing.css`, `assets/css/documenten.css`, `assets/css/akkoord.css`). De print/PDF van offertes blijft wit papier.
+- Admin en `akkoord.html` gebruiken ook `site.css`, met daarnaast hun eigen bestand voor wat alleen zij hebben
+  (`admin/marketing.css` en `admin/admin.css`, `assets/css/akkoord.css`). `documenten.html` gebruikt alleen `fonts.css`
+  en `assets/css/documenten.css`. De print/PDF van offertes blijft wit papier.
 - Elke pull request meet de snelheid van de home (NL/EN), de feestpagina's en tarieven met Lighthouse
   (`.github/workflows/snelheid.yml`, grenzen in `lighthouserc.json`). Rood = snelheid onder 80, bijvoorbeeld door een te zware foto.
   Het rapport staat bij de run onder *Artifacts*.
@@ -177,11 +192,14 @@ de betekenistokens (`--bg`, `--text`, `--muted`, `--line`, `--accent`, `--btn-bg
   blijft de `beschikbaar`-regel verborgen: er staat hooguit één notitie onder de knop.
 
 ## Logo
-- `assets/img/logo-mark.png`: alleen het beeldmerk (B met cocktailglas), transparant. Gebruikt in menu en footer.
-- `assets/img/logo-dark.png`: volledig logo voor donkere achtergronden (homepage).
-- `assets/img/logo-light.png`: volledig logo voor lichte achtergronden (offertes en facturen).
+- `assets/img/logo-mark.png`: alleen het beeldmerk (B met cocktailglas), transparant. Verkleind als
+  `assets/img/w/logo-mark-80.png` (en `logo-mark-160.png` voor scherpe schermen) in menu en footer van elke pagina;
+  het origineel in de gegevens voor Google en op de 404-pagina.
+- `assets/img/logo-dark.png`: volledig logo voor donkere achtergronden; verkleind als `w/logo-dark-300` en
+  `w/logo-dark-600` (WebP en PNG) op het visitekaartje.
+- `assets/img/logo-light.png`: volledig logo voor lichte achtergronden (offertes, facturen en de akkoordpagina).
 - `assets/icons/`: favicon en app-iconen, gemaakt van het beeldmerk.
-- `assets/img/origineel/`: de originele logobestanden.
+- `assets/img/origineel/`: de originele logobestanden (`logo-donker.png`, `logo-licht.png`).
 
 ## Offertes & facturen (`documenten.html`)
 Een eigen hulpmiddel om offertes en facturen te maken. Niet gelinkt vanaf de website;
@@ -193,7 +211,10 @@ open het via `documenten.html` (https://beckontherocks.nl/documenten.html).
 - Extra regels toevoegen voor bijvoorbeeld reiskosten of parkeren.
 - **Opslaan & printen / PDF** bewaart het document en opent het printvenster (kies "Opslaan als PDF").
 - **Maak factuur van deze offerte** neemt alle gegevens over en verwijst naar het offertenummer.
-- Nummers lopen automatisch op: `O-2026-001` voor offertes, `F-2026-001` voor facturen.
+- Nummers lopen automatisch op: `O-2026-001` voor offertes, `F-2026-001` voor facturen. Een nummer dat al verstuurd,
+  akkoord of betaald was, wordt na verwijderen niet opnieuw gebruikt.
+- Wat je invult maar nog niet opslaat, blijft als concept bewaard en komt terug als je `documenten.html` weer opent
+  (zonder `?type=`).
 
 ### Slim invullen
 Sleep een bestand in het blok **Slim invullen** (of plak tekst / een screenshot met Ctrl+V).
@@ -225,6 +246,7 @@ generator onder **Snelkoppeling / app**. Directe links: `documenten.html?type=of
 - **Controlecode in de akkoordlink**: elke akkoordlink is ondertekend met een geheime sleutel die alleen in jouw
   generator (en je back-up) staat. In de akkoordmail staat *Controleren (voor Rutger)*: open die link op het apparaat
   met je generator. Je ziet dan of de offerte ongewijzigd is, of dat iemand het bedrag in de link heeft aangepast.
+  Een link zonder controlecode geldt als ongeldig.
 - **Back-up**: download al je documenten en gegevens als bestand en zet ze terug op een andere telefoon/computer.
 
 Vul eenmalig je gegevens in onder **Mijn gegevens & tarieven** (adres, KvK, IBAN, btw).
