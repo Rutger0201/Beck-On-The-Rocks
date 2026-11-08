@@ -218,7 +218,7 @@
   // Afdrukken: dichte uitklapblokken (FAQ, formulier) gaan open en daarna weer dicht
   addEventListener('beforeprint', () => $$('details:not([open])').forEach(d => { d.open = true; d.dataset.printOpen = ''; }));
   addEventListener('afterprint', () => $$('details[data-print-open]').forEach(d => { d.open = false; delete d.dataset.printOpen; }));
-  // Zwevende offerteknop (mobiel): alleen als er geen andere offerteknop of het formulier in beeld is
+  // Zwevende offerteknop (mobiel): alleen als er geen andere offerteknop (ook die onder de calculator) of het formulier in beeld is
   const fabRedenen = new Set();
   const zetFab = () => { if (fab) fab.classList.toggle('is-hidden', fabRedenen.size > 0); };
   if (fab && 'IntersectionObserver' in window) {
@@ -226,7 +226,7 @@
       entries.forEach(e => { if (e.isIntersecting) fabRedenen.add(e.target); else fabRedenen.delete(e.target); });
       zetFab();
     });
-    $$('.hero__cta, .cta-band, #boek-form, .footer').forEach(el => fabIo.observe(el));
+    $$('.hero__cta, .cta-band, .calc__result, #boek-form, .footer').forEach(el => fabIo.observe(el));
   }
   if (nav) addEventListener('scroll', () => nav.classList.toggle('is-scrolled', scrollY > 40), { passive: true });
   // Bovenaan een pagina staat de kop: daar geen zwevende knop overheen
