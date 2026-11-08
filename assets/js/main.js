@@ -402,6 +402,13 @@
 
   /* ================= Prijscalculator ================= */
   const boekForm = $('#boek-form');
+  // Na overname uit de calculator: bovenin het formulier melden wat er al staat (die velden zitten in 'Meer details')
+  const formKop = boekForm && $('.form__note--links', boekForm), formKopHtml = formKop ? formKop.innerHTML : '';
+  const meldOvername = metDatum => {
+    if (formKop) formKop.textContent = metDatum
+      ? t('Je uren, cocktails en datum uit de calculator staan al ingevuld. Vul nog je naam, e-mail en het type feest aan.', 'Your hours, cocktails and date from the calculator are already filled in. Just add your name, email and the type of event.')
+      : t('Je uren en cocktails uit de calculator staan al ingevuld. Vul nog je naam, e-mail, de datum en het type feest aan.', 'Your hours and cocktails from the calculator are already filled in. Just add your name, email, the date and the type of event.');
+  };
   const cU = $('#c-uren');
   if (cU) {
     const cD = $('#c-datum'), cC = $('#c-cocktails'), cF = $('#c-fruitpers');
@@ -452,6 +459,7 @@
       if (cD.value) f.datum.value = cD.value;
       f.datum.dispatchEvent(new Event('input'));
       const meer = $('.form__meer', boekForm); if (meer) meer.open = true;
+      meldOvername(!!cD.value);
     });
   }
 
@@ -730,6 +738,7 @@
       f.fruitpers.checked = params.get('fruitpers') === 'ja';
       if (/^\d{4}-\d{2}-\d{2}$/.test(params.get('datum') || '')) { f.datum.value = params.get('datum'); f.datum.dispatchEvent(new Event('input')); }
       const meer = $('.form__meer', boekForm); if (meer) meer.open = true;
+      meldOvername(!!f.datum.value);
     }
 
     const note = $('#form-note'), noteTekst = note.textContent;
@@ -778,6 +787,7 @@
           if (gelukt) $('#form-klaar-mail').hidden = false;
         }
         boekForm.reset();
+        if (formKop) formKop.innerHTML = formKopHtml;
         $('#form-spoed').hidden = true;
         note.textContent = noteTekst;
       } catch {
