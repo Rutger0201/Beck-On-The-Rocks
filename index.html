@@ -412,7 +412,7 @@
         </div>
         <div class="form__row">
           <label>Locatie (plaats)<input name="locatie" autocomplete="address-level2" placeholder="bijv. Utrecht"></label>
-          <label>Aantal gasten (ongeveer)<input name="gasten" type="number" min="1" inputmode="numeric" placeholder="bijv. 60"></label>
+          <label>Aantal gasten (ongeveer)<input name="gasten" type="number" min="1" inputmode="numeric" placeholder="bijv. 60" data-fout="Vul een aantal vanaf 1 in."></label>
         </div>
         <label>Bericht (optioneel)<textarea name="bericht" rows="3" placeholder="Welke cocktails je wilt, de sfeer, vragen..."></textarea></label>
         <details class="form__meer">
@@ -420,7 +420,7 @@
           <div>
             <div class="form__row">
               <label>Telefoon<input name="telefoon" type="tel" autocomplete="tel" placeholder="Handig voor snel overleg"></label>
-              <label>Aantal uur achter de bar<input name="uren" type="number" min="1" max="24" inputmode="numeric" placeholder="bijv. 4"></label>
+              <label>Aantal uur achter de bar<input name="uren" type="number" min="1" max="24" inputmode="numeric" placeholder="bijv. 4" data-fout="Vul 1 tot 24 uur in."></label>
             </div>
             <label>Cocktails op de kaart
               <select name="cocktails"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select>

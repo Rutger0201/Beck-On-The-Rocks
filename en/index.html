@@ -609,7 +609,7 @@
         </div>
         <div class="form__row">
           <label>Location (town or city)<input name="locatie" autocomplete="address-level2" placeholder="e.g. Amsterdam"></label>
-          <label>Number of guests (approx.)<input name="gasten" type="number" min="1" inputmode="numeric" placeholder="e.g. 60"></label>
+          <label>Number of guests (approx.)<input name="gasten" type="number" min="1" inputmode="numeric" placeholder="e.g. 60" data-fout="Enter a number from 1."></label>
         </div>
         <label>Message (optional)<textarea name="bericht" rows="3" placeholder="Which cocktails you'd like, the vibe, questions..."></textarea></label>
         <details class="form__meer">
@@ -617,7 +617,7 @@
           <div>
             <div class="form__row">
               <label>Phone<input name="telefoon" type="tel" autocomplete="tel" placeholder="Handy for a quick chat"></label>
-              <label>Hours behind the bar<input name="uren" type="number" min="1" max="24" inputmode="numeric" placeholder="e.g. 4"></label>
+              <label>Hours behind the bar<input name="uren" type="number" min="1" max="24" inputmode="numeric" placeholder="e.g. 4" data-fout="Enter 1 to 24 hours."></label>
             </div>
             <label>Cocktails on the menu
               <select name="cocktails"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select>

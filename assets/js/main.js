@@ -333,13 +333,15 @@
     el.classList.toggle('is-invalid', !!tekst);
     if (tekst) el.setAttribute('aria-invalid', 'true'); else el.removeAttribute('aria-invalid');
   }
-  const isGeldig = el => el.type === 'checkbox' ? el.checked : el.checkValidity() && el.value.trim() !== '';
+  const isGeldig = el => el.type === 'checkbox' ? el.checked : el.checkValidity() && (!el.required || el.value.trim() !== '');
   const foutTekst = el => el.dataset.fout || t('Dit veld is verplicht.', 'This field is required.');
   function valideer(form) {
     let eerste = null;
-    $$('[required]', form).forEach(el => {
+    // Verplichte velden, plus optionele velden die wel zijn ingevuld (bijv. gasten 0 of 40 uur)
+    $$('input, select, textarea', form).filter(el => el.required || (el.type !== 'checkbox' && el.value.trim())).forEach(el => {
       const ok = isGeldig(el);
       zetFout(el, ok ? '' : foutTekst(el));
+      if (!ok && el.closest('details')) el.closest('details').open = true; // fout in 'Meer details': blok openklappen
       if (!ok && !eerste) eerste = el;
     });
     if (eerste) eerste.focus();
