@@ -46,6 +46,7 @@
     + (o.kor ? '<small>Geen btw: kleineondernemersregeling (KOR)</small>' : '')
     + (o.gt ? `<small>Geldig tot ${lang(o.gt)}</small>` : '');
   if (o.o) { $('#o-opm').hidden = false; $('#o-opm').textContent = o.o; }
+  // Dezelfde afspraken staan op de offerte zelf (assets/js/documenten.js): houd beide teksten gelijk
   $('#o-afspraken').innerHTML = [
     'Je huurt mij in als bartender. Drank, ijs en verse ingrediënten regel je zelf; je ontvangt van mij een boodschappenlijst.',
     'Je zorgt voor een werkplek: een stevige tafel of bar, met een gootsteen met stromend water in de buurt.',

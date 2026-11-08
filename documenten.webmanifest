@@ -4,7 +4,7 @@
   "description": "Offertes en facturen maken voor Beck on the Rocks.",
   "lang": "nl",
   "start_url": "documenten.html",
-  "scope": "./",
+  "scope": "documenten.html",
   "display": "standalone",
   "background_color": "#f1ebe1",
   "theme_color": "#faf7f2",

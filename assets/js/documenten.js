@@ -12,7 +12,7 @@
   /* ================= Instellingen ================= */
   const STANDAARD = {
     naam: 'Beck on the Rocks', contact: 'Rutger', adres: '', plaats: '', tel: '', email: 'info@beckontherocks.nl', web: 'beckontherocks.nl',
-    kvk: '', iban: '', btw: 'kor', btwnr: '', review: 'https://g.page/r/CdSRBk_6B5glECE/review',
+    kvk: '42212414', iban: '', btw: 'kor', btwnr: '', review: window.BECK_CONFIG?.google?.review || 'https://g.page/r/CdSRBk_6B5glECE/review',
     uur: 45, prep: 1, menu: 75, fruitpers: 20, menuFp: 99, km: 0.25, glas: 0.5, spoed: 25, annul: 20, betaal: 14
   };
   // Tarieven van de website (tarieven.json → assets/js/tarieven.js) gaan voor
@@ -36,6 +36,7 @@
   if (ins.email === 'rutger@beck.nl') ins.email = STANDAARD.email;
   if (!ins.web) ins.web = STANDAARD.web;
   if (ins.tel === '06 39 65 86 62') ins.tel = '';  // telefoonnummer staat niet meer op documenten
+  if (!ins.kvk) ins.kvk = STANDAARD.kvk;
   if (!ins.review) ins.review = STANDAARD.review;
   $$('[data-set]').forEach(el => {
     el.value = ins[el.dataset.set];
@@ -71,22 +72,36 @@
   const VELDEN = ['nummer', 'datum', 'termijn', 'referentie', 'k-naam', 'k-bedrijf', 'k-adres', 'k-plaats', 'k-email', 'k-tel',
     'f-datum', 'f-soort', 'f-van', 'f-tot', 'f-gasten', 'f-locatie', 'f-cocktails', 'f-km', 'f-glazen', 'opmerking', 'status'];
   let type = 'offerte', extra = [];
+  // Tarieven van het geopende document (vastgelegd bij opslaan); null = actuele instellingen
+  let tarief = null;
+  const TARIEF = ['uur', 'prep', 'menu', 'fruitpers', 'menuFp', 'km', 'glas', 'spoed', 'annul', 'btw', 'betaal'];
+  const tarievenVan = d => d.tarief ? { ...ins, ...d.tarief } : ins;
 
   const alleDocs = () => opslag.lees('beck-documenten', {});
   const prefix = t => (t === 'offerte' ? 'O' : 'F') + '-' + new Date().getFullYear() + '-';
+  // Hoogste nummer dat ooit verstuurd is: komt na verwijderen niet opnieuw terug (concepten tellen niet mee)
+  function telNummer(n, status) {
+    const m = /^(.*-)(\d+)$/.exec(n || '');
+    if (!m || !status || status === 'concept') return;
+    const tellers = opslag.lees('beck-tellers', {});
+    if ((tellers[m[1]] || 0) >= +m[2]) return;
+    tellers[m[1]] = +m[2]; opslag.schrijf('beck-tellers', tellers);
+  }
   function volgendNummer(t) {
     const p = prefix(t);
     const max = Object.keys(alleDocs()).filter(n => n.startsWith(p)).map(n => +n.slice(p.length) || 0).reduce((a, b) => Math.max(a, b), 0);
-    return p + String(max + 1).padStart(3, '0');
+    return p + String(Math.max(max, opslag.lees('beck-tellers', {})[p] || 0) + 1).padStart(3, '0');
   }
 
   function leesForm() {
     const d = { type, extra: extra.map(r => ({ ...r })), spoedAuto: $('#spoed-auto').checked, spoedHand: $('#spoed-hand').checked, fruitpers: $('#f-fruitpers').checked };
     VELDEN.forEach(id => { d[id] = $('#' + id).value; });
     d.bl = blLees();
+    if (tarief) d.tarief = { ...tarief };
     return d;
   }
   function vulForm(d) {
+    tarief = d.tarief ? { ...d.tarief } : null;
     zetType(d.type, false);
     VELDEN.forEach(id => { if (d[id] !== undefined) $('#' + id).value = d[id]; });
     $('#spoed-auto').checked = d.spoedAuto !== false;
@@ -99,6 +114,7 @@
     tekenExtra(); teken();
   }
   function nieuw(t = type) {
+    tarief = null;
     VELDEN.forEach(id => { $('#' + id).value = ''; });
     $('#f-van').value = '20:00'; $('#f-tot').value = '00:00'; $('#f-soort').selectedIndex = 0;
     $('#spoed-auto').checked = true; $('#spoed-hand').checked = false;
@@ -157,10 +173,11 @@
     if (e.target.tagName !== 'BUTTON') return;
     extra.splice(+e.target.closest('.extra-row').dataset.i, 1); tekenExtra(); teken();
   });
-  $('#extra-plus').addEventListener('click', () => { extra.push({ oms: 'Reiskosten', aantal: '1', prijs: '' }); tekenExtra(); teken(); });
+  $('#extra-plus').addEventListener('click', () => { extra.push({ oms: '', aantal: '1', prijs: '' }); tekenExtra(); teken(); });
 
   /* ================= Berekening ================= */
   function bereken(d) {
+    const ins = tarievenVan(d); // tarieven van het document zelf, anders de instellingen
     const u = uren(d['f-van'], d['f-tot']);
     const fp = d.fruitpers;
     const uurprijs = Math.round(ins.uur * (fp ? 1 + ins.fruitpers / 100 : 1) * 100) / 100;
@@ -194,18 +211,19 @@
 
   /* ================= Tekenen ================= */
   function teken() {
-    $('#fp-uitleg').textContent = `uurtarief +${getal(ins.fruitpers)}%, menu vanaf €${getal(ins.menuFp)}`;
-    const d = leesForm();
+    const d = leesForm(), t = tarievenVan(d);
+    $('#fp-uitleg').textContent = `uurtarief +${getal(t.fruitpers)}%, menu vanaf €${getal(t.menuFp)}`;
     const b = bereken(d);
-    const btw = ins.btw === '21';
+    const btw = t.btw === '21';
     const btwBedrag = btw ? b.sub * .21 : 0;
     const totaal = b.sub + btwBedrag;
+    const mt = $('#m-totaal'); if (mt) mt.textContent = 'Totaal ' + euro(totaal); // alleen zichtbaar op mobiel
     const factuur = type !== 'offerte';
-    const termijn = +d.termijn || (factuur ? ins.betaal : 14);
+    const termijn = +d.termijn || (factuur ? t.betaal : 14);
     const tot = d.datum ? plusDagen(d.datum, termijn) : '';
     $('#lbl-spoed-hand').hidden = d.spoedAuto;
     $('#naar-factuur').hidden = type !== 'offerte';
-    $('[data-show=btw21]').hidden = !btw;
+    $('[data-show=btw21]').hidden = ins.btw !== '21';
 
     // Afzender
     $('#d-me').innerHTML = [ins.naam, ins.contact, ins.adres, ins.plaats, ins.tel, ins.email, ins.web].filter(Boolean).map(esc).join('<br>');
@@ -256,14 +274,15 @@
     // Voorwaarden / betaling
     const iban = ins.iban || '…';
     if (type === 'offerte') {
+      // Deze afspraken staan ook in assets/js/akkoord.js: houd beide teksten gelijk
       $('#d-voorwaarden').innerHTML = `
         <h3>Afspraken</h3>
         <ul>
           <li>Je huurt mij in als bartender. Drank, ijs en verse ingrediënten regel je zelf; je ontvangt van mij een boodschappenlijst.</li>
           <li>Je zorgt voor een werkplek: een stevige tafel of bar, met een gootsteen met stromend water in de buurt.</li>
-          <li>Geen aanbetaling. Na het feest ontvang je een factuur met een betaaltermijn van ${ins.betaal} dagen.</li>
-          <li>Boeken binnen 1 maand voor het feest geldt als spoedboeking: +${ins.spoed}% over alle kosten.</li>
-          <li>Annuleren kan kosteloos tot ${ANNUL_DAGEN} dagen voor het feest. Daarna reken ik ${ins.annul}% van het afgesproken bedrag.</li>
+          <li>Geen aanbetaling. Na het feest ontvang je een factuur met een betaaltermijn van ${t.betaal} dagen.</li>
+          <li>Boeken binnen 1 maand voor het feest geldt als spoedboeking: +${t.spoed}% over alle kosten.</li>
+          <li>Annuleren kan kosteloos tot ${ANNUL_DAGEN} dagen voor het feest. Daarna reken ik ${t.annul}% van het afgesproken bedrag.</li>
           <li>Deze offerte is geldig tot ${lang(tot) || '…'}. Akkoord? Stuur hem getekend terug of laat het me weten per mail, dan staat je datum vast.</li>
         </ul>
         <div class="akkoord">
@@ -322,15 +341,21 @@
     const d = leesForm();
     if (!d.nummer) return;
     d.bijgewerkt = new Date().toISOString();
+    // Tarieven vastleggen: een later gewijzigd uurtarief verandert dit document niet meer
+    if (!d.tarief) d.tarief = Object.fromEntries(TARIEF.map(k => [k, ins[k]]));
+    tarief = { ...d.tarief };
     const docs = alleDocs();
     if (docs[d.nummer]?.herinnerd) d.herinnerd = docs[d.nummer].herinnerd;
     docs[d.nummer] = d; opslag.schrijf('beck-documenten', docs);
+    telNummer(d.nummer, d.status);
+    opslag.schrijf('beck-concept', null);
     tekenLijst(); $('#opgeslagen').value = d.nummer;
     toonBackupInfo();
   }
 
   $('#opgeslagen').addEventListener('change', e => {
     const d = alleDocs()[e.target.value];
+    opslag.schrijf('beck-concept', null);
     if (d) vulForm(d); else nieuw();
   });
   $$('.seg button').forEach(b => b.addEventListener('click', () => {
@@ -370,22 +395,33 @@
     document.title = pdfNaam();
     window.print(); // titel gaat terug via 'afterprint'
   });
-  $('#nieuw').addEventListener('click', () => nieuw());
+  $('#nieuw').addEventListener('click', () => { opslag.schrijf('beck-concept', null); nieuw(); });
   $('#status').addEventListener('change', () => { if (alleDocs()[$('#nummer').value]) bewaar(); });
   $('#wis').addEventListener('click', () => {
     const n = $('#nummer').value;
-    if (!confirm(`Document ${n} verwijderen?`)) return;
+    const st = alleDocs()[n]?.status;
+    if (!confirm(st && st !== 'concept'
+      ? `Document ${n} heeft status ${STATUS[type === 'offerte' ? 'offerte' : 'factuur'][st] || st}. Verwijderen? Het nummer ${n} wordt daarna niet opnieuw gebruikt.`
+      : `Document ${n} verwijderen?`)) return;
+    telNummer(n, st); // ook documenten die vóór de teller al verstuurd waren
     const docs = alleDocs(); delete docs[n]; opslag.schrijf('beck-documenten', docs);
+    opslag.schrijf('beck-concept', null);
     tekenLijst(); nieuw();
   });
-  $('.editor').addEventListener('input', e => { if (!e.target.closest('#extra') && !e.target.dataset.set) teken(); });
-  $('.editor').addEventListener('change', e => { if (e.target.type === 'checkbox') teken(); });
+  // Concept bewaren bij elke wijziging: na herladen van de pagina komt het terug (zie Start)
+  const bewaarConcept = () => opslag.schrijf('beck-concept', leesForm());
+  $('.editor').addEventListener('input', e => {
+    if (e.target.dataset.set || e.target.closest('.slim')) return;
+    if (!e.target.closest('#extra')) teken();
+    bewaarConcept();
+  });
+  $('.editor').addEventListener('change', e => { if (e.target.type === 'checkbox') { teken(); if (!e.target.closest('.slim')) bewaarConcept(); } });
 
   /* ================= Bedragen, versturen en online akkoord ================= */
   function cijfers(d) {
-    const b = bereken(d);
-    const btw = ins.btw === '21' ? b.sub * .21 : 0;
-    const termijn = +d.termijn || (d.type !== 'offerte' ? ins.betaal : 14);
+    const b = bereken(d), t = tarievenVan(d);
+    const btw = t.btw === '21' ? b.sub * .21 : 0;
+    const termijn = +d.termijn || (d.type !== 'offerte' ? t.betaal : 14);
     return { b, btw, totaal: b.sub + btw, verval: d.datum ? plusDagen(d.datum, termijn) : '' };
   }
   const voornaam = d => (d['k-naam'] || '').trim().split(/\s+/)[0] || '';
@@ -407,13 +443,13 @@
     return [...sig.slice(0, 8)].map(x => x.toString(16).padStart(2, '0')).join('');
   }
   async function akkoordLink(d) {
-    const c = cijfers(d);
+    const c = cijfers(d), t = tarievenVan(d);
     const data = {
       v: 1, n: d.nummer, dt: d.datum, gt: c.verval, k: d['k-naam'], bd: d['k-bedrijf'], s: d['f-soort'], fd: d['f-datum'],
       t: d['f-van'] && d['f-tot'] ? `${d['f-van']} – ${d['f-tot']}` : '', u: c.b.u, g: d['f-gasten'], l: d['f-locatie'],
       r: c.b.regels.map(r => [r.oms, r.sub || '', `${getal(r.aantal)}${r.eenheid ? ' ' + r.eenheid : ''}`, Math.round(r.bedrag * 100) / 100]),
       sub: Math.round(c.b.sub * 100) / 100, btw: Math.round(c.btw * 100) / 100, tot: Math.round(c.totaal * 100) / 100,
-      kor: ins.btw !== '21', sp: ins.spoed, an: ins.annul, ad: ANNUL_DAGEN, bt: ins.betaal, o: d.opmerking || ''
+      kor: t.btw !== '21', sp: t.spoed, an: t.annul, ad: ANNUL_DAGEN, bt: t.betaal, o: d.opmerking || ''
     };
     const basis = location.href.replace(/[?#].*$/, '').replace(/documenten\.html$/, '');
     const o = b64(JSON.stringify(data));
@@ -430,10 +466,8 @@
     const doc = alleDocs()[data.n];
     const nu = doc ? cijfers(doc).totaal : null;
     const verschilt = nu != null && Math.abs(nu - data.tot) > 0.01;
-    if (!s) {
-      alert(`Deze akkoordlink heeft nog geen controlecode (verstuurd vóór de update).\n\nBedrag in de link: ${euro(data.tot)}`
-        + (nu != null ? `\nJouw offerte ${data.n}: ${euro(nu)}${verschilt ? '  ← VERSCHILT' : ' (gelijk)'}` : '\nDeze offerte staat niet in deze generator.'));
-    } else if (s !== await onderteken(o)) {
+    // Zonder controlecode is een link nooit te vertrouwen: alle links zijn sinds 23 oktober 2026 ondertekend
+    if (!s || s !== await onderteken(o)) {
       alert(`✗ LET OP: deze akkoordlink is aangepast, of niet met jouw generator gemaakt.\n\nBedrag in de link: ${euro(data.tot)}`
         + (nu != null ? `\nJouw offerte ${data.n}: ${euro(nu)}` : '') + '\n\nNeem contact op met de klant voordat je de datum bevestigt.');
     } else {
@@ -441,6 +475,7 @@
         + (verschilt ? `\n\nLet op: je hebt de offerte daarna nog aangepast (nu ${euro(nu)}). De klant gaf akkoord op ${euro(data.tot)}.` : '');
       if (doc && doc.status !== 'akkoord' && confirm(tekst + '\n\nStatus van deze offerte op Akkoord zetten?')) {
         const docs = alleDocs(); docs[data.n].status = 'akkoord'; opslag.schrijf('beck-documenten', docs);
+        telNummer(data.n, 'akkoord');
       } else if (!doc || doc.status === 'akkoord') alert(tekst);
     }
     const bijgewerkt = alleDocs()[data.n];
@@ -658,6 +693,7 @@
     const n = e.target.dataset.status; if (!n) return;
     const docs = alleDocs(); if (!docs[n]) return;
     docs[n].status = e.target.value; opslag.schrijf('beck-documenten', docs);
+    telNummer(n, e.target.value);
     if ($('#nummer').value === n) $('#status').value = e.target.value;
     tekenOverzicht();
   });
@@ -666,6 +702,7 @@
     if (h) { const d = alleDocs()[h.dataset.herinner]; if (d) { stuurHerinnering(d, h.dataset.via); tekenOverzicht(); } return; }
     const b = e.target.closest('[data-open]'); if (!b) return;
     const d = alleDocs()[b.dataset.open]; if (!d) return;
+    opslag.schrijf('beck-concept', null);
     vulForm(d); $('#opgeslagen').value = d.nummer; $('#overzicht').close();
   });
 
@@ -680,7 +717,7 @@
     $('.backup').classList.toggle('is-oud', !!oud);
   }
   $('#backup-download').addEventListener('click', () => {
-    const data = { app: 'beck-documenten', versie: 1, gemaakt: new Date().toISOString(), instellingen: ins, documenten: alleDocs() };
+    const data = { app: 'beck-documenten', versie: 1, gemaakt: new Date().toISOString(), instellingen: ins, documenten: alleDocs(), tellers: opslag.lees('beck-tellers', {}) };
     const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
     const a = Object.assign(document.createElement('a'), { href: url, download: `beck-on-the-rocks-backup-${vandaag()}.json` });
     document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
@@ -699,6 +736,10 @@
         + (dubbel ? `\n${dubbel} daarvan bestaan al en worden vervangen door de versie uit de back-up.` : '')
         + '\nJe gegevens & tarieven worden ook teruggezet.')) return;
       opslag.schrijf('beck-documenten', { ...bestaand, ...data.documenten });
+      // Teller per reeks: hoogste van beide, zodat een verwijderd nummer niet terugkomt
+      const tellers = opslag.lees('beck-tellers', {});
+      Object.entries(data.tellers || {}).forEach(([p, n]) => { tellers[p] = Math.max(tellers[p] || 0, +n || 0); });
+      opslag.schrijf('beck-tellers', tellers);
       if (data.instellingen) {
         ins = { ...STANDAARD, ...data.instellingen }; opslag.schrijf('beck-instellingen', ins);
         $$('[data-set]').forEach(el => { el.value = ins[el.dataset.set] ?? ''; });
@@ -731,6 +772,13 @@
         <span>${LABELS[k]}${huidig && huidig !== waarde && !['f-van', 'f-tot', 'f-soort', 'f-fruitpers', 'f-cocktails'].includes(k) ? ' (vervangt "' + esc(huidig) + '")' : ''}</span>
         ${invoer}${bron && bron !== waarde ? `<small>uit: "${esc(bron)}"</small>` : ''}</label>`;
     }).join('');
+    if (velden.bericht) {
+      // Alleen ter info, niet op het document; textContent zodat tekst uit de mail nooit als HTML wordt gelezen
+      const p = document.createElement('p');
+      p.className = 'slim__bron';
+      p.textContent = 'Klant schreef: ' + velden.bericht.waarde;
+      $('#slim-velden').append(p);
+    }
     $('#slim-result').hidden = false;
   }
 
@@ -770,7 +818,7 @@
     });
     $('#slim-result').hidden = true; $('#plak').value = '';
     status('Overgenomen ✓');
-    teken();
+    teken(); bewaarConcept();
   });
   $('#slim-weg').addEventListener('click', () => { $('#slim-result').hidden = true; status(''); });
 
@@ -787,7 +835,14 @@
   });
   addEventListener('appinstalled', () => { $('#installeer').hidden = true; $('#app-al').hidden = false; });
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    // Alleen deze pagina (en wat ze laadt) loopt via de worker; een oudere registratie voor de hele site gaat eraf.
+    // De worker van /kaart/ blijft staan.
+    const sw = new URL('sw.js', location.href).href, root = new URL('./', location.href).href;
+    navigator.serviceWorker.getRegistrations()
+      .then(rs => Promise.all(rs.filter(r => r.scope === root && (r.active || r.waiting || r.installing)?.scriptURL === sw).map(r => r.unregister())))
+      .catch(() => {})
+      .then(() => navigator.serviceWorker.register('sw.js', { scope: 'documenten.html' }))
+      .catch(() => {});
   }
 
   /* ================= Start ================= */
@@ -824,5 +879,11 @@
       ? `Factuur ${herinnerDoc.nummer} staat al op betaald. Er hoeft geen herinnering meer uit.`
       : `Is factuur ${herinnerDoc.nummer} nog niet betaald? Stuur hieronder de herinnering. Wel betaald? Zet de status op Betaald.`;
     $('#herinner').scrollIntoView({ block: 'center' });
+  } else if (!startType && opslag.lees('beck-concept', null)) {
+    // Niet opgeslagen werk van de vorige keer (bijv. tab gesloten na WhatsApp of mail)
+    const concept = opslag.lees('beck-concept', null);
+    vulForm(concept);
+    $('#opgeslagen').value = alleDocs()[concept.nummer] ? concept.nummer : '';
+    $('#verstuur-tip').textContent = 'Concept hersteld';
   } else nieuw(['offerte', 'factuur', 'annulering'].includes(startType) ? startType : 'offerte');
 })();
