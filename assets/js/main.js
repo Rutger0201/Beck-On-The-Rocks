@@ -215,6 +215,9 @@
     const doel = $('main'); if (!doel) return;
     e.preventDefault(); doel.tabIndex = -1; doel.focus();
   }));
+  // Afdrukken: dichte uitklapblokken (FAQ, formulier) gaan open en daarna weer dicht
+  addEventListener('beforeprint', () => $$('details:not([open])').forEach(d => { d.open = true; d.dataset.printOpen = ''; }));
+  addEventListener('afterprint', () => $$('details[data-print-open]').forEach(d => { d.open = false; delete d.dataset.printOpen; }));
   // Zwevende offerteknop (mobiel): alleen als er geen andere offerteknop of het formulier in beeld is
   const fabRedenen = new Set();
   const zetFab = () => { if (fab) fab.classList.toggle('is-hidden', fabRedenen.size > 0); };
@@ -248,8 +251,12 @@
       if (page !== huidige) {
         pages.forEach(p => { p.hidden = p !== page; });
         page.classList.remove('page--in'); void page.offsetWidth; page.classList.add('page--in');
+        const eerste = huidige === null;
         huidige = page;
         document.title = page.id === 'home' ? basisTitel : `${page.dataset.titel || page.id} · Beck on the Rocks`;
+        // Na een paginawissel staat de focus op de kop, zodat toetsenbord en schermlezer op de nieuwe pagina beginnen
+        const kop = !eerste && $('h1', page);
+        if (kop) { kop.tabIndex = -1; kop.focus({ preventScroll: true }); }
         telBezoek(t('/', '/en/') + (page.id === 'home' ? '' : '#' + page.id), document.title);
       }
       // Taalknop: blijf op dezelfde pagina in de andere taal
@@ -294,13 +301,15 @@
       <section class="menu-groep menu-groep--${cat}" data-cat="${cat}" aria-labelledby="groep-${cat}">
         <h3 class="menu-groep__titel" id="groep-${cat}">${GROEP[cat]}</h3>
         <ul class="menu-lijst">${COCKTAILS.filter(c => c.cat === cat).map(c => `
-          <li class="menu-item" style="--c:${c.c1}">
+          <li class="menu-item" data-c="${c.c1}">
             <h4>${c.titel || c.naam}</h4>
             <p>${c.tekst}</p>
             <p class="menu-item__ing">${c.ing.join(' · ')}</p>
           </li>`).join('')}
         </ul>
       </section>`).join('');
+    // Kleur van de stip via CSSOM: de CSP staat geen style-attributen toe
+    $$('.menu-item', grid).forEach(li => li.style.setProperty('--c', li.dataset.c));
     $$('.filter').forEach(btn => btn.addEventListener('click', () => {
       $$('.filter').forEach(b => { b.classList.toggle('is-active', b === btn); b.setAttribute('aria-pressed', b === btn); });
       const f = btn.dataset.filter;
@@ -376,7 +385,9 @@
       body: JSON.stringify({
         service_id: EJS.service, template_id: (EN && EJS.templateEn) || EJS.template, user_id: EJS.publicKey,
         template_params: { to_email: d.email.trim() }
-      })
+      }),
+      // Na 8 seconden opgeven; oudere browsers kennen AbortSignal.timeout niet en wachten gewoon
+      ...(typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? { signal: AbortSignal.timeout(8000) } : {})
     }).then(r => r.ok).catch(() => false);
   }
   async function verstuur(json) {
@@ -554,6 +565,14 @@
           zetHoogte();
           addEventListener('resize', zetHoogte);
           if (document.fonts) document.fonts.ready.then(zetHoogte);
+          // Geladen terwijl home verborgen was (bijv. binnengekomen op /#cocktails): opnieuw meten zodra de pagina zichtbaar is
+          document.addEventListener('beck:pagina', zetHoogte);
+          // Pauze zolang de muis erboven hangt of de focus erin staat (zoals de grote carrousel); anders valt de focus weg met de oude review
+          const pauze = () => { clearInterval(tTimer); tijd.classList.remove('is-bezig'); };
+          teaser.addEventListener('mouseenter', pauze);
+          teaser.addEventListener('mouseleave', () => { if (!teaser.contains(document.activeElement)) tAuto(); });
+          teaser.addEventListener('focusin', pauze);
+          teaser.addEventListener('focusout', e => { if (!teaser.contains(e.relatedTarget) && !teaser.matches(':hover')) tAuto(); });
           tAuto();
         }
       }
@@ -651,62 +670,6 @@
     }
   }
 
-  // Review schrijven
-  const reviewForm = $('#review-form');
-  if (reviewForm) {
-    liveControle(reviewForm);
-    $('#review-schrijf').addEventListener('click', () => {
-      reviewForm.hidden = false; $('#review-knoppen').hidden = true;
-      $('[name=naam]', reviewForm).focus();
-    });
-    const slug = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'review';
-    reviewForm.addEventListener('submit', async e => {
-      e.preventDefault();
-      const note = $('#review-note');
-      note.classList.remove('is-fout');
-      if (!valideer(reviewForm)) { note.textContent = t('Controleer de gemarkeerde velden.', 'Please check the highlighted fields.'); note.classList.add('is-fout'); return; }
-      const d = Object.fromEntries(new FormData(reviewForm));
-      if (d.botcheck) return;
-
-      const datum = vandaagIso();
-      const review = { naam: d.naam.trim(), sterren: +d.sterren, soort: d.soort, tekst: d.tekst.trim(), datum };
-      const pad = `${REVIEWS_MAP}/${datum}-${slug(review.naam)}-${Math.random().toString(36).slice(2, 6)}.json`;
-      // Ook ! ' ( ) * coderen: mailprogramma's laten een link anders soms ophouden bij bijvoorbeeld een haakje
-      const enc = s => encodeURIComponent(s).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase());
-      const goedkeuren = `https://github.com/${REVIEWS_REPO}/new/main?filename=${enc(pad)}`
-        + `&value=${enc(JSON.stringify(review, null, 2) + '\n')}`
-        + `&message=${enc('Review van ' + review.naam + ' goedgekeurd')}`;
-      const velden = {
-        'Naam': review.naam, 'Sterren': `${'★'.repeat(review.sterren)} (${review.sterren}/5)`, 'Soort feest': review.soort,
-        'Review': review.tekst, 'E-mail reviewer': d.email || '-', ...(EN ? { 'Taal': 'Engels' } : {}),
-        'GOEDKEUREN (publiceren op de site)': goedkeuren,
-        'Afwijzen': 'Doe niets: de review verschijnt dan niet.'
-      };
-      const onderwerp = `Nieuwe review van ${review.naam} (${review.sterren}/5)`;
-      const spam = spamCheck(review.tekst);
-      if (spam) { note.textContent = spam; note.classList.add('is-fout'); return; }
-      if (!WEB3FORMS_SLEUTEL) {
-        location.href = `mailto:${MAIL}?subject=${encodeURIComponent(onderwerp)}&body=${encodeURIComponent(Object.entries(velden).map(([k, v]) => `${k}: ${v}`).join('\n'))}`;
-        return;
-      }
-      const knop = $('#review-knop');
-      knop.disabled = true; knop.textContent = t('Versturen…', 'Sending…');
-      await wachtMinimaal();
-      try {
-        await verstuur({ subject: onderwerp, from_name: 'Beck on the Rocks · reviews', ...(d.email ? { replyto: d.email } : {}), ...velden });
-        reviewForm.hidden = true; reviewForm.reset();
-        telVerzonden();
-        telBezoek('review-verstuurd', 'Review verstuurd', true);
-        const klaar = $('#review-klaar'); klaar.hidden = false; klaar.focus();
-      } catch {
-        note.textContent = t(`Het versturen is niet gelukt. Probeer het later nog eens, of mail je review naar ${MAIL}.`, `Sending failed. Please try again later, or email your review to ${MAIL}.`);
-        note.classList.add('is-fout');
-      } finally {
-        knop.disabled = false; knop.textContent = t('Verstuur review', 'Send review');
-      }
-    });
-  }
-
   /* ================= Quiz ================= */
   const quiz = $('#quiz-form');
   if (quiz) {
@@ -723,7 +686,7 @@
       const res = $('#quiz-result');
       if (!f.get('q1') || !f.get('q2') || !f.get('q3')) {
         res.innerHTML = `<p>${t('Beantwoord eerst alle drie de vragen.', 'Please answer all three questions first.')}</p>`;
-        res.hidden = false; return;
+        res.hidden = false; res.focus(); return;
       }
       let naam = UITSLAG[`${f.get('q1')}-${f.get('q3')}`];
       if (f.get('q2') === 'lounge' && f.get('q3') === 'ja' && f.get('q1') !== 'zuur') naam = 'Old Fashioned';
@@ -731,7 +694,7 @@
       const c = COCKTAILS.find(x => x.naam === naam);
       res.innerHTML = `<p class="eyebrow">${t('Jouw match', 'Your match')}</p><h3>${c.titel || c.naam}</h3><p>${SFEER[f.get('q2')]} ${c.tekst.charAt(0).toLowerCase() + c.tekst.slice(1)}</p>`
         + `<a class="btn btn--small" href="#boeken">${t('Zet hem op jouw kaart', 'Put it on your menu')}</a>`;
-      res.hidden = false;
+      res.hidden = false; res.focus();
     });
   }
 
@@ -742,7 +705,14 @@
     liveControle(boekForm);
     const fDatum = boekForm.elements.datum;
     fDatum.min = vandaagIso();
-    fDatum.addEventListener('input', () => { $('#form-spoed').hidden = !isSpoed(fDatum.value); });
+    // Spoedmelding: de tekst komt na het tonen opnieuw in de live-regio, anders leest een schermlezer hem niet voor
+    const spoed = $('#form-spoed'), spoedHtml = spoed.innerHTML;
+    fDatum.addEventListener('input', () => {
+      const toon = isSpoed(fDatum.value);
+      if (toon === !spoed.hidden) return;
+      spoed.hidden = !toon;
+      if (toon) { spoed.innerHTML = ''; requestAnimationFrame(() => { spoed.innerHTML = spoedHtml; }); }
+    });
     // Vanaf een landingspagina: /?soort=Bedrijfsborrel#boeken vult het type feest alvast in
     const soort = params.get('soort');
     if (soort && [...boekForm.elements.soort.options].some(o => o.value === soort)) boekForm.elements.soort.value = soort;
@@ -778,7 +748,7 @@
         ...(campagne ? { 'Via campagne': campagne } : {}),
         ...(EN ? { 'Taal': 'Engels (antwoord in het Engels)' } : {})
       };
-      const onderwerp = `Aanvraag ${d.soort} op ${d.datum}`;
+      const onderwerp = `Aanvraag ${d.soort} op ${new Date(d.datum + 'T00:00').toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}`;
       const naarMail = () => {
         const body = Object.entries(velden).map(([k, v]) => `${k}: ${v}`).join('\n');
         location.href = `mailto:${MAIL}?subject=${encodeURIComponent(onderwerp)}&body=${encodeURIComponent(body)}`;
@@ -793,14 +763,14 @@
       try {
         await verstuur({ subject: onderwerp, from_name: 'Beck on the Rocks · website', replyto: d.email, ...velden, 'Offerte klaarzetten': offerteLink(velden) });
         toonBedankt(velden);
+        telVerzonden();
+        telBezoek('aanvraag-verstuurd', 'Aanvraag verstuurd', true);
+        if (campagne) telBezoek('aanvraag-via/' + campagne, 'Aanvraag via ' + campagne, true);
         // Bevestiging naar de klant; mislukt dat, dan merkt de klant niets (jouw mail is al binnen)
         if (bevestigingAan) {
           const gelukt = await stuurBevestiging(d);
           if (gelukt) $('#form-klaar-mail').hidden = false;
         }
-        telVerzonden();
-        telBezoek('aanvraag-verstuurd', 'Aanvraag verstuurd', true);
-        if (campagne) telBezoek('aanvraag-via/' + campagne, 'Aanvraag via ' + campagne, true);
         boekForm.reset();
         $('#form-spoed').hidden = true;
         note.textContent = noteTekst;
