@@ -6,18 +6,24 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
-concurrency: google-reviews
+concurrency:
+  group: google-reviews
+  cancel-in-progress: false
 jobs:
   ophalen:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
         with:
           ref: main
+          # Meer dan het laatste commit: een rebase bij een gelijktijdige push op main heeft anders geen basis
+          fetch-depth: 50
       - name: Ophalen en opslaan
         env:
           GOOGLE_PLACES_KEY: ${{ secrets.GOOGLE_PLACES_KEY }}
           GOOGLE_PLACE_ID: ${{ vars.GOOGLE_PLACE_ID }}
+          PYTHONUNBUFFERED: '1'
         run: |
           python3 tools/google_reviews.py
           git add assets/data/google-reviews.json 2>/dev/null || true

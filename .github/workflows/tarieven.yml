@@ -20,6 +20,7 @@ jobs:
           python3 tools/tarieven.py --controleer
           python3 tools/csp_controle.py
           python3 -m py_compile tools/*.py tools/marketing/*.py
+          python3 -m unittest discover -s tools -p 'test_*.py'
   bijwerken:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
