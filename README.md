@@ -160,6 +160,12 @@ uitgegeven) en met samenwerkingen (partnerlijst en mailvoorbeelden; je verstuurt
   inbegrepen in de bedragen: op offertes en facturen staan dan het totaal excl. btw, de btw en het totaal incl. btw
   (Mijn gegevens & tarieven). Kies *Vrijgesteld van btw (KOR)* pas als de Belastingdienst je deelname schriftelijk
   heeft bevestigd. Kies je *21% btw bovenop de bedragen*, let dan op: prijzen voor particulieren moeten inclusief btw zijn.
+  Wissel je tussen btw en KOR, dan volgen nieuwe documenten, concepten, facturen uit een offerte en aangepaste offertes
+  die keuze, met dezelfde afgesproken prijzen; bij 21% btw inbegrepen blijft het totaal gelijk, bij 21% btw bovenop
+  komt de btw erbij of gaat hij eraf. Documenten met status Verstuurd, Akkoord of Betaald blijven zoals ze zijn
+  verstuurd. Verstuur facturen voor feesten van vóór de wisseldatum dus vóór je wisselt, en zet ze op Verstuurd: een
+  factuur die nog op Concept staat (ook na Opslaan & printen) gaat mee met de wissel. Versturen met de knop WhatsApp of
+  Mail zet de status vanzelf op Verstuurd.
 
 Het KvK-nummer staat vast in elke footer. Verandert het, pas dan `kvk` in `assets/js/config.js` én de footers aan.
 
@@ -174,7 +180,8 @@ de betekenistokens (`--bg`, `--text`, `--muted`, `--line`, `--accent`, `--btn-bg
 - Beweging staat uit voor bezoekers met "minder beweging" in hun systeeminstellingen.
 - Pas je `site.css` of `main.js` aan, verhoog dan het `?v=`-nummer achter beide links in alle HTML-pagina's (ze delen
   één nummer); `config.js` heeft een eigen nummer dat alleen omhoog gaat als `config.js` zelf verandert
-  (`git grep -n '?v=' -- '*.html'`). Anders houden telefoons tot 10 minuten de oude versie vast
+  (`git grep -n '?v=' -- '*.html'`). Pas je `akkoord.css` of `akkoord.js` aan, verhoog dan hun eigen
+  `?v=`-nummer in `akkoord.html`. Anders houden telefoons tot 10 minuten de oude versie vast
   en kan nieuwe HTML er met oude opmaak uitzien (zoals een uitgerekte banner).
 - De generator (`sw.js`) en het visitekaartje (`kaart/sw.js`) bewaren hun bestanden offline. Pas je een bestand aan
   dat in hun lijst `BASIS` staat (bijvoorbeeld `fonts.css` of `site.css`), verhoog dan daar `CACHE`

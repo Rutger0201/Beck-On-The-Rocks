@@ -165,6 +165,7 @@ input[type=date], input[type=time] { color-scheme: light; }
 .doc__table th { text-align: left; font: 600 7.5pt var(--sans); letter-spacing: .15em; text-transform: uppercase; color: #6f6658; border-bottom: 1.5px solid var(--ink); padding: 0 0 6px; }
 .doc__table td { padding: 7px 0; border-bottom: 1px solid #eee6d8; vertical-align: top; }
 .doc__table td small { display: block; color: #6f6658; font-size: 8pt; }
+.doc__table td.num small { display: flex; justify-content: flex-end; } /* lange "excl. btw" loopt naar links, niet over de rand */
 .doc__table .num { text-align: right; white-space: nowrap; padding-left: 12px; font-variant-numeric: tabular-nums; }
 .doc__table th.num span { margin-right: -.15em; } /* letterafstand rechts compenseren */
 .doc__totals { margin: 5mm 0 0 auto; width: 75mm; }
@@ -218,6 +219,13 @@ input[type=date], input[type=time] { color-scheme: light; }
 .paper.is-compact .doc__terms { font-size: 7.8pt; margin-top: 4mm; }
 .paper.is-compact .doc__note { margin-top: 4mm; padding: 2mm 4mm; }
 .paper.is-compact .akkoord__lijnen { margin-top: 7mm; }
+/* Bij 21% inbegrepen en de KOR-zin van nu staan er meer regels onder het totaal: die compacter, zodat de voet niet
+   eerder wegvalt. 21% bovenop en de KOR-zin van vóór 10 november houden hun opmaak (verstuurd = zoals toen). */
+.paper.is-compact .doc__totals.is-strak { margin-top: 3mm; }
+.paper.is-compact .doc__totals.is-strak div { padding: 2px 0; }
+.paper.is-compact .doc__totals.is-strak .tot { margin-top: 2px; padding-top: 5px; font-size: 1.35rem; }
+/* Even meten zoals het geprint wordt (zie teken() in documenten.js) */
+.paper.is-meten { zoom: 1; flex-shrink: 0; align-self: flex-start; }
 
 /* ---------- Mobiel ---------- */
 @media (max-width: 900px) {

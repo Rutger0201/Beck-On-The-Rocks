@@ -15,7 +15,9 @@
 .akk__totaal { margin: 1rem 0 0 auto; max-width: 300px; }
 .akk__totaal div { display: flex; justify-content: space-between; padding: .25rem 0; color: var(--muted); }
 .akk__totaal .tot { border-top: 1px solid var(--line-sterk); margin-top: .4rem; padding-top: .7rem; color: var(--text); font: 400 1.9rem var(--serif); }
-.akk__totaal .tot span:last-child { color: var(--text); }
+.akk__totaal .tot span:last-child { color: var(--text); margin-left: auto; }
+.akk__totaal .tot { flex-wrap: wrap; column-gap: .75rem; }
+.akk__totaal .tot span { white-space: nowrap; }
 .akk__totaal small { display: block; text-align: right; color: var(--muted); font-size: .75rem; }
 .akk__opm { margin: 1.4rem 0 0; padding: .9rem 1.1rem; border-left: 2px solid var(--gold); background: var(--accent-vlak); white-space: pre-line; color: var(--text); }
 .akk__afspraken { margin-top: 1.4rem; border-top: 1px solid var(--line); padding-top: 1rem; }
