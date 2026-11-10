@@ -12,7 +12,7 @@
   /* ================= Instellingen ================= */
   const STANDAARD = {
     naam: 'Beck on the Rocks', contact: 'Rutger', adres: '', plaats: '', tel: '', email: 'info@beckontherocks.nl', web: 'beckontherocks.nl',
-    kvk: '42212414', iban: '', btw: 'kor', btwnr: '', review: window.BECK_CONFIG?.google?.review || 'https://g.page/r/CdSRBk_6B5glECE/review',
+    kvk: '42212414', iban: '', btw: 'kor', btwnr: '', review: window.BECK_CONFIG?.google?.review || 'https://g.page/r/CdSRBk_6B5glEBI/review',
     uur: 45, prep: 1, menu: 75, fruitpers: 20, menuFp: 99, km: 0.25, glas: 0.5, spoed: 25, annul: 20, betaal: 14
   };
   // Tarieven van de website (tarieven.json → assets/js/tarieven.js) gaan voor
@@ -24,6 +24,7 @@
   Object.assign(STANDAARD, SITE_TARIEF);
   // Annuleringstermijn staat (nog) niet bij Instellingen: altijd die van de website
   const ANNUL_DAGEN = (SITE && SITE.annulerenDagen) ?? 14;
+  const OUDE_REVIEW = 'https://g.page/r/CdSRBk_6B5glECE/review';  // standaardlink tot 10 november 2026
   let ins = { ...STANDAARD, ...opslag.lees('beck-instellingen', {}) };
   // Zijn de tarieven op de website veranderd sinds je laatste bezoek? Dan neemt de generator ze over.
   const siteBron = JSON.stringify(SITE_TARIEF);
@@ -37,7 +38,7 @@
   if (!ins.web) ins.web = STANDAARD.web;
   if (ins.tel === '06 39 65 86 62') ins.tel = '';  // telefoonnummer staat niet meer op documenten
   if (!ins.kvk) ins.kvk = STANDAARD.kvk;
-  if (!ins.review) ins.review = STANDAARD.review;
+  if (!ins.review || ins.review === OUDE_REVIEW) ins.review = STANDAARD.review;
   $$('[data-set]').forEach(el => {
     el.value = ins[el.dataset.set];
     el.addEventListener('input', () => {
@@ -741,7 +742,9 @@
       Object.entries(data.tellers || {}).forEach(([p, n]) => { tellers[p] = Math.max(tellers[p] || 0, +n || 0); });
       opslag.schrijf('beck-tellers', tellers);
       if (data.instellingen) {
-        ins = { ...STANDAARD, ...data.instellingen }; opslag.schrijf('beck-instellingen', ins);
+        ins = { ...STANDAARD, ...data.instellingen };
+        if (ins.review === OUDE_REVIEW) ins.review = STANDAARD.review;
+        opslag.schrijf('beck-instellingen', ins);
         $$('[data-set]').forEach(el => { el.value = ins[el.dataset.set] ?? ''; });
       }
       tekenLijst(); toonBackupInfo(); teken();

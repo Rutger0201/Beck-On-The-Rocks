@@ -13,6 +13,6 @@ window.BECK_CONFIG = {
   beschikbaar: { nl: 'Nog enkele data vrij in december.', en: 'A few dates still available in December.' },
   // EmailJS (emailjs.com): automatische bevestigingsmail aan de klant na een aanvraag.
   // Vul alle drie in om hem aan te zetten; templateEn is optioneel (anders krijgen Engelse aanvragen de Nederlandse mail).
-  google: { review: 'https://g.page/r/CdSRBk_6B5glECE/review', profiel: 'https://share.google/5NtGs8DnNmRXnJkvh' },  // reviewknoppen op de site en het visitekaartje
+  google: { review: 'https://g.page/r/CdSRBk_6B5glEBI/review', profiel: 'https://share.google/5NtGs8DnNmRXnJkvh' },  // reviewknoppen op de site en het visitekaartje
   emailjs: { service: 'service_17pkq19', template: 'template_74jn0s4', templateEn: '', publicKey: '0Leq7Ntn7rS5GobvV' }
 };
