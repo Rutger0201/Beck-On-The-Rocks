@@ -327,7 +327,7 @@
       melding = document.createElement('span');
       melding.className = 'veldfout'; melding.id = el.id + '-fout';
       (el.type === 'checkbox' ? el.closest('label') : el).insertAdjacentElement(el.type === 'checkbox' ? 'beforeend' : 'afterend', melding);
-      el.setAttribute('aria-describedby', melding.id);
+      el.setAttribute('aria-describedby', [el.getAttribute('aria-describedby'), melding.id].filter(Boolean).join(' '));
     }
     if (melding) melding.textContent = tekst;
     el.classList.toggle('is-invalid', !!tekst);

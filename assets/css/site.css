@@ -595,6 +595,7 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
 .form__row > * { min-width: 0; }
 .form__note { font-size: var(--fs-sm); text-align: center; margin: 0; }
 .form__note--links { text-align: left; }
+.form__hint { display: block; margin-top: .35rem; }
 .form__note.is-fout { color: var(--fout); }
 .form__privacy { font-size: var(--fs-xs); text-align: center; margin: -.6rem 0 0; color: var(--muted); }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }

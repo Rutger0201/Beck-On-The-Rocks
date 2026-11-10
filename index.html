@@ -388,7 +388,7 @@
           <label>E-mailadres <span class="verplicht" aria-hidden="true">*</span><input name="email" type="email" required autocomplete="email" inputmode="email" data-fout="Vul een geldig e-mailadres in, bijvoorbeeld naam@voorbeeld.nl."></label>
         </div>
         <div class="form__row">
-          <label>Datum van je feest <span class="verplicht" aria-hidden="true">*</span><input name="datum" type="date" required data-fout="Kies een datum vanaf vandaag."></label>
+          <label>Datum van je feest <span class="verplicht" aria-hidden="true">*</span><input name="datum" type="date" required aria-describedby="datum-hint" data-fout="Kies een datum vanaf vandaag."><small class="form__hint" id="datum-hint" aria-hidden="true">Nog geen datum? Kies een richtdatum.</small></label>
           <label>Type feest <span class="verplicht" aria-hidden="true">*</span>
             <select name="soort" required data-fout="Kies het type feest.">
               <option value="">Kies…</option>

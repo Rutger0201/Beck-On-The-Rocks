@@ -585,7 +585,7 @@
           <label>Email address <span class="verplicht" aria-hidden="true">*</span><input name="email" type="email" required autocomplete="email" inputmode="email" data-fout="Please enter a valid email address, e.g. name@example.com."></label>
         </div>
         <div class="form__row">
-          <label>Date of your party <span class="verplicht" aria-hidden="true">*</span><input name="datum" type="date" required data-fout="Please choose a date from today onwards."></label>
+          <label>Date of your party <span class="verplicht" aria-hidden="true">*</span><input name="datum" type="date" required aria-describedby="datum-hint" data-fout="Please choose a date from today onwards."><small class="form__hint" id="datum-hint" aria-hidden="true">No date yet? Pick a target date.</small></label>
           <label>Type of event <span class="verplicht" aria-hidden="true">*</span>
             <select name="soort" required data-fout="Please choose the type of event.">
               <option value="">Choose…</option>
