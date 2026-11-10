@@ -103,7 +103,7 @@
       form.hidden = true; $('#verlopen').hidden = true;
       if (keuze === 'vraag') {
         $('#klaar-titel').textContent = 'Bedankt voor je bericht!';
-        $('#klaar-tekst').textContent = 'Ik kom zo snel mogelijk bij je terug, meestal binnen een dag.';
+        $('#klaar-tekst').textContent = 'Ik kom zo snel mogelijk bij je terug, binnen 1 werkdag.';
       } else if (opm) {
         $('#klaar-tekst').textContent = 'Bedankt voor je akkoord. Ik neem je opmerking mee en kom snel bij je terug met de boodschappenlijst en de laatste details.';
       }

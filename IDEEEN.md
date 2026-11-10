@@ -73,7 +73,7 @@ Pas je een tekst aan, doe dat ook in `en/index.html`.
 - [ ] **Beurzen en openingen** – Cocktails als blikvanger op een stand of bij een winkelopening.
 - [ ] **Representatieve kleding** – Een foto van hoe je eruitziet op een zakelijk event.
 - [ ] **Verzekering** – Noem dat je bedrijfsaansprakelijk verzekerd bent, zodra dat zo is.
-- [x] **Reactie binnen 24 uur** – Staat op de bedrijfsfeestpagina (stappen en afsluiter); de FAQ daar noemt online akkoord.
+- [x] **Reactie binnen 1 werkdag** – Staat op de bedrijfsfeestpagina (stappen en afsluiter); de FAQ daar noemt online akkoord.
 - [x] **Inkoop via de klant** – Uitleggen hoe de boodschappenlijst werkt voor een inkoper of facilitair team.
 - [ ] **Locaties en zalen** – Samenwerken met zalen in de buurt die geen eigen cocktailbar hebben.
 - [ ] **LinkedIn-pagina** – Een bedrijfspagina en link vanaf deze pagina; daar zitten de zakelijke klanten.
@@ -192,7 +192,7 @@ Pas je een tekst aan, doe dat ook in `en/index.html`.
 - [ ] **Bijlage meesturen** – Ruimte voor een uitnodiging of plattegrond van de locatie.
 - [ ] **Stappen in het formulier** – Het formulier opdelen in 2–3 stappen, prettiger op mobiel.
 - [ ] **Bedankscherm met volgende stap** – Na verzenden: "Bekijk alvast de cocktails" of "Volg me op Instagram".
-- [ ] **Reactietijd bewaken** – Zelf bijhouden of je echt binnen 24 uur reageert, zoals de site belooft.
+- [ ] **Reactietijd bewaken** – Zelf bijhouden of je echt binnen 1 werkdag reageert, zoals de site belooft.
 - [ ] **Vaste antwoordtekst** – Een sjabloon voor je eerste reactie met offerte.
 - [ ] **Aanvragen bijhouden** – In het overzicht van de generator ook aanvragen zonder offerte zien.
 - [ ] **Opvolgen** – Een herinnering als een klant na een week niet reageert op je offerte.
