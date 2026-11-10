@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Alleen eigen scripts, GoatCounter en de formulier-/reviewdiensten; blokkeert ingevoegde scripts van buitenaf.
        De hash hoort bij het themascript hieronder: verander je dat script, draai dan python3 tools/csp_controle.py -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-WT1bYKm/NWWkQjbaYsOQJqDMYGrq1PYwWSH8eT/0v0w='; style-src 'self' 'unsafe-inline'; img-src 'self' https://*.goatcounter.com; font-src 'self'; connect-src 'self' https://*.goatcounter.com https://api.web3forms.com https://api.emailjs.com https://api.github.com https://raw.githubusercontent.com; object-src 'none'; base-uri 'none'; form-action 'self'">
-  <title>Tarieven cocktail bartender: vanaf €45 per uur · Beck on the Rocks</title>
-  <meta name="description" content="Wat kost een cocktail bartender inhuren? Vanaf €45 per uur, plus voorbereiding en cocktailmenu. Bereken direct de prijs van je feest. Geen aanbetaling, heel Nederland.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-WT1bYKm/NWWkQjbaYsOQJqDMYGrq1PYwWSH8eT/0v0w='; style-src 'self'; img-src 'self' https://*.goatcounter.com; font-src 'self'; connect-src 'self' https://*.goatcounter.com https://api.web3forms.com https://api.emailjs.com https://api.github.com https://raw.githubusercontent.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+  <title>Tarieven cocktailbartender: vanaf €45 per uur · Beck on the Rocks</title>
+  <meta name="description" content="Wat kost een cocktailbartender inhuren? Vanaf €45 per uur, plus voorbereiding en cocktailmenu. Bereken direct de prijs van je feest. Geen aanbetaling, heel Nederland.">
   <meta name="theme-color" content="#f1ebe1">
   <script>(function(d){d.classList.add('js');var t;try{t=localStorage.getItem('thema')}catch(e){}t=t==='licht'?'licht':'donker';d.setAttribute('data-thema',t);if(t==='donker'){var m=document.querySelector('meta[name=theme-color]');if(m)m.content='#1a1714'}})(document.documentElement)</script>
   <link rel="canonical" href="https://beckontherocks.nl/tarieven/">
@@ -15,8 +15,8 @@
   <meta property="og:site_name" content="Beck on the Rocks">
   <meta property="og:locale" content="nl_NL">
   <meta property="og:url" content="https://beckontherocks.nl/tarieven/">
-  <meta property="og:title" content="Tarieven cocktail bartender: vanaf €45 per uur">
-  <meta property="og:description" content="Wat kost een cocktail bartender inhuren? Vanaf €45 per uur, plus voorbereiding en cocktailmenu. Bereken direct de prijs van je feest. Geen aanbetaling, heel Nederland.">
+  <meta property="og:title" content="Tarieven cocktailbartender: vanaf €45 per uur">
+  <meta property="og:description" content="Wat kost een cocktailbartender inhuren? Vanaf €45 per uur, plus voorbereiding en cocktailmenu. Bereken direct de prijs van je feest. Geen aanbetaling, heel Nederland.">
   <meta property="og:image" content="https://beckontherocks.nl/assets/img/deelafbeelding.jpg?v=2">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -26,7 +26,7 @@
   {
     "@context": "https://schema.org",
     "@type": "Service",
-    "name": "Cocktail bartender op locatie",
+    "name": "Cocktailbartender op locatie",
     "url": "https://beckontherocks.nl/tarieven/",
     "areaServed": {
       "@type": "Country",
@@ -72,8 +72,9 @@
   </script>
   <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/jost-latin-300-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/cormorant-garamond-latin-300-normal.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/jost-latin-500-normal.woff2" crossorigin>
   <link rel="stylesheet" href="/assets/css/fonts.css">
-  <link rel="stylesheet" href="/assets/css/site.css?v=20261104a">
+  <link rel="stylesheet" href="/assets/css/site.css?v=20261110a">
   <link rel="icon" type="image/png" href="/assets/icons/favicon-48.png">
   <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
 </head>
@@ -84,7 +85,7 @@
 <header class="nav is-solid">
   <div class="container nav__inner">
     <a href="/" class="logo" aria-label="Beck on the Rocks, naar home">
-      <img class="logo__mark" src="/assets/img/w/logo-mark-80.png" alt="" width="40" height="41">
+      <img class="logo__mark" src="/assets/img/w/logo-mark-80.png" srcset="/assets/img/w/logo-mark-80.png 1x, /assets/img/w/logo-mark-160.png 2x" alt="" width="40" height="41">
       <span class="logo__text" aria-hidden="true">eck <em>on the</em> Rocks</span>
     </a>
     <nav class="nav__links" id="menu" aria-label="Hoofdmenu">
@@ -95,7 +96,7 @@
       <a href="/#over">Over mij</a>
       <a href="/faq/">FAQ</a>
       <p class="nav__extra"><a href="mailto:info@beckontherocks.nl">info@beckontherocks.nl</a></p>
-      <a href="/#boeken" class="btn btn--small">Offerte aanvragen</a>
+      <a href="/?via=tarieven#boeken" class="btn btn--small">Offerte aanvragen</a>
       <div class="nav__onder">
         <a href="/en/#prijzen" class="taal" hreflang="en" lang="en" aria-label="ENG, English version">ENG</a>
         <button type="button" class="thema-knop" aria-label="Wissel naar licht thema"><svg class="icoon-zon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.5 1.5M17.2 17.2l1.5 1.5M5.3 18.7l1.5-1.5M17.2 6.8l1.5-1.5"/></svg><svg class="icoon-maan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.6A8 8 0 0 1 9.4 4a8 8 0 1 0 10.6 10.6z"/></svg><span class="thema-knop__tekst">Licht</span></button>
@@ -113,13 +114,13 @@
     <div class="container">
       <div class="section__head reveal">
         <nav class="kruimel" aria-label="Kruimelpad"><ol><li><a href="/">Home</a></li><li aria-current="page">Tarieven</li></ol></nav>
-        <h1>Wat kost een cocktail bartender?</h1>
+        <h1>Wat kost een cocktailbartender?</h1>
         <p class="lead">Eén helder tarief, geen verrassingen. Je huurt mij in als bartender. Drank en ijs regel je zelf; ik neem mijn eigen bartools mee en zorg voor de cocktailkaart. Je ontvangt altijd een offerte op maat.</p>
       </div>
 
       <div class="rate reveal">
         <div class="rate__main">
-          <span class="rate__label">Uurtarief bartender</span>
+          <h2 class="rate__label">Uurtarief bartender</h2>
           <p class="rate__price"><span data-t="uur">€45</span> <small>per uur</small></p>
           <p>Voor elk uur dat ik achter de bar sta.</p>
         </div>
@@ -140,18 +141,18 @@
           <p class="optie__ex">Voorbeeld 4 uur: 4 × <span data-t="uurFp">€54</span> + <span data-t="prepFp">€54</span> + <span data-t="menuFp">€99</span> = <strong><span data-t="vbFp">€369</span></strong></p>
         </article>
         <article class="optie reveal">
-          <span class="optie__label">Reiskosten</span>
-          <h2><span data-t="km">€0,25</span> per km</h2>
+          <span class="optie__label" aria-hidden="true">Reiskosten</span>
+          <h2><span class="sr-only">Reiskosten: </span><span data-t="km">€0,25</span> per km</h2>
           <p>Ik werk in heel Nederland. Reiskosten reken ik per kilometer.</p>
         </article>
         <article class="optie reveal">
-          <span class="optie__label">Glazen</span>
-          <h2>In overleg</h2>
+          <span class="optie__label" aria-hidden="true">Glazen</span>
+          <h2><span class="sr-only">Glazen: </span>In overleg</h2>
           <p>Je regelt zelf glazen, of ik regel ze voor je tegen een meerprijs: vanaf <span data-t="glas">€0,50</span> per glas.</p>
         </article>
         <article class="optie reveal">
-          <span class="optie__label">Cocktail op maat</span>
-          <h2>Op aanvraag</h2>
+          <span class="optie__label" aria-hidden="true">Cocktail op maat</span>
+          <h2><span class="sr-only">Cocktail op maat: </span>Op aanvraag</h2>
           <p>Een eigen cocktail voor jullie feest, ontwikkeld en getest. Prijs in overleg.</p>
         </article>
       </div>
@@ -162,7 +163,7 @@
           <p>Vul je feest in voor een indicatie. Boek je binnen een maand voor het feest, dan rekent de calculator automatisch de spoedtoeslag mee.</p>
         </div>
         <form class="calc__form">
-          <label>Aantal uur achter de bar <output id="c-uren-out">4</output>
+          <label for="c-uren">Aantal uur achter de bar <output id="c-uren-out">4</output>
             <input type="range" id="c-uren" min="1" max="12" step="1" value="4">
           </label>
           <label>Datum van je feest
@@ -227,14 +228,14 @@
       </div>
     </div>
   </section>
-<a href="/#boeken" class="fab">Offerte aanvragen</a>
+<a href="/?via=tarieven#boeken" class="fab">Offerte aanvragen</a>
 </main>
 
 <footer class="footer">
   <div class="container footer__inner">
     <div>
-      <a href="/" class="logo" aria-label="Beck on the Rocks"><img class="logo__mark" src="/assets/img/w/logo-mark-80.png" alt="" width="40" height="41"><span class="logo__text" aria-hidden="true">eck <em>on the</em> Rocks</span></a>
-      <p>Cocktail bartender op locatie, voor feesten en evenementen in heel Nederland.</p>
+      <a href="/" class="logo" aria-label="Beck on the Rocks"><img class="logo__mark" src="/assets/img/w/logo-mark-80.png" srcset="/assets/img/w/logo-mark-80.png 1x, /assets/img/w/logo-mark-160.png 2x" alt="" width="40" height="41"><span class="logo__text" aria-hidden="true">eck <em>on the</em> Rocks</span></a>
+      <p>Cocktailbartender op locatie, voor feesten en evenementen in heel Nederland.</p>
       <p><a href="https://www.instagram.com/beckontherocks/" rel="noopener">Instagram</a> · <a href="https://www.facebook.com/share/19WvCcWvjy/" rel="noopener">Facebook</a></p>
     </div>
     <nav aria-label="Footer">
@@ -250,13 +251,13 @@
     <div class="footer__legal">
       <p>Geniet, maar drink met mate. <strong>18+</strong></p>
       <p>© <span data-jaar></span> Beck on the Rocks</p>
-      <p data-kvk hidden>KvK <span></span></p>
+      <p data-kvk>KvK <span>42212414</span></p>
     </div>
   </div>
 </footer>
 
-<script src="/assets/js/config.js?v=20261107" defer></script>
+<script src="/assets/js/config.js?v=20261110" defer></script>
 <script src="/assets/js/tarieven.js" defer></script>
-<script src="/assets/js/main.js?v=20261104a" defer></script>
+<script src="/assets/js/main.js?v=20261110a" defer></script>
 </body>
 </html>

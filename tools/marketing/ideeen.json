@@ -20,7 +20,7 @@
       "titel": "Vraag je laatste klanten om een Google-review",
       "doelgroep": "Klanten van de afgelopen maand",
       "waarom": "Reviews zijn de belangrijkste reden waarom nieuwe klanten je kiezen, en ze helpen je in Google Maps. Je hebt de reviewlink al.",
-      "tekst": "Hoi! Nog bedankt voor het feest, ik vond het erg leuk om bij jullie achter de bar te staan. Zou je in een paar woorden een review willen achterlaten? Dat helpt me enorm: https://g.page/r/CdSRBk_6B5glECE/review\n\nGroet, Rutger",
+      "tekst": "Hoi! Nog bedankt voor het feest, ik vond het erg leuk om bij jullie achter de bar te staan. Zou je in een paar woorden een review willen achterlaten? Dat helpt me enorm: {reviewlink}\n\nGroet, Rutger",
       "hashtags": [],
       "cta": "Review achterlaten",
       "pagina": "",

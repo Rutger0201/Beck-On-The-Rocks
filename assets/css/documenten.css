@@ -49,6 +49,7 @@ input[type=date], input[type=time] { color-scheme: light; }
 .link { background: none; border: 0; color: var(--gold); font: 500 .85rem var(--sans); cursor: pointer; padding: .3rem 0; }
 .danger { color: var(--fout); }
 .actions { display: grid; gap: .6rem; margin-top: 1.2rem; border-top: 1px solid var(--line); padding-top: 1.2rem; }
+.actions__totaal { display: none; margin: 0; font: 500 1.4rem var(--serif); }
 .btn { padding: .95em 1.2em; border-radius: 2px; border: 1px solid var(--ink); background: var(--ink); color: var(--paper); font: 500 .74rem/1.3 var(--sans); letter-spacing: .14em; text-transform: uppercase; cursor: pointer; transition: background .3s; }
 .btn:hover { background: #36322c; }
 .btn--ghost { background: transparent; color: var(--ink); border-color: rgba(28,26,23,.6); }
@@ -73,6 +74,7 @@ input[type=date], input[type=time] { color-scheme: light; }
 .slim__veld span { font-size: .72rem; color: var(--muted); }
 .slim__veld textarea, .slim__veld input:not([type=checkbox]) { grid-column: 2; font-size: .85rem; padding: .45em .6em; }
 .slim__veld small { grid-column: 2; font-size: .7rem; color: var(--muted); font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.slim__bron { margin: .6rem 0 0; font-size: .78rem; color: var(--muted); white-space: pre-line; overflow-wrap: anywhere; }
 .slim__knoppen { display: flex; gap: 1rem; align-items: center; margin-top: .6rem; }
 .app__uitleg { padding-left: 1.1em; margin: .6rem 0 0; font-size: .8rem; color: var(--muted); }
 .app__uitleg li { margin-bottom: .4rem; }
@@ -98,7 +100,7 @@ input[type=date], input[type=time] { color-scheme: light; }
 .backup__let { color: var(--spoed); }
 .backup.is-oud summary { color: var(--spoed); }
 .backup__knoppen { display: flex; flex-wrap: wrap; gap: .5rem; }
-.backup__knoppen label.btn { display: inline-flex; color: var(--ink); }
+.backup__knoppen label.btn { display: inline-flex; align-items: center; color: var(--ink); }
 .backup__uitleg { font-size: .75rem; color: var(--muted); margin: .7rem 0 0; }
 
 /* Overzicht */
@@ -223,6 +225,10 @@ input[type=date], input[type=time] { color-scheme: light; }
   .editor { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 20px 16px; }
   .stage { padding: 24px 0; justify-content: flex-start; }
   .paper { zoom: .46; margin: 0 auto; }
+  /* Totaal bij de knoppen (het A4 staat pas onderaan) en tikdoelen van minstens 44 px */
+  .actions__totaal { display: block; }
+  .btn, .seg button, .link { min-height: 44px; }
+  .check input, .bl__c input { width: 20px; height: 20px; }
 }
 
 /* ---------- Printen ---------- */

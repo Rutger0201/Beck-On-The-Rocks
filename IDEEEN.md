@@ -3,7 +3,7 @@
 Afvinklijst met verbeterpunten, ingedeeld volgens het menu van de site zoals het nu is
 (Privéfeesten, Bedrijfsfeesten, Cocktails, Tarieven, Over mij, FAQ, Offerte aanvragen),
 plus Home en Reviews (via de footer). Vink af met `[x]` als iets klaar is.
-Wat al op de site staat, is weggelaten; zie [Al gedaan](#al-gedaan) onderaan.
+Wat al op de site stond toen deze lijst begon, is weggelaten; zie [Al gedaan](#al-gedaan) onderaan.
 
 Inhoud: [Home](#home) · [Privéfeesten](#privéfeesten) · [Bedrijfsfeesten](#bedrijfsfeesten) ·
 [Cocktails](#cocktails) · [Tarieven](#tarieven) · [Over mij](#over-mij) · [FAQ](#faq) ·
@@ -17,13 +17,13 @@ Pas je een tekst aan, doe dat ook in `en/index.html`.
 ## Home
 
 - [ ] **Echte aantallen** – Zodra je er genoeg hebt: "x events gedraaid" of "x tevreden gasten" bij de hero.
-- [ ] **Beschikbaarheid tonen** – Een regel als "Nog vrij in december" om twijfelaars over de streep te trekken.
-- [ ] **Seizoensbanner** – Per seizoen een korte tekst, bijv. "Kerstborrel? Vraag op tijd een offerte aan".
+- [x] **Beschikbaarheid tonen** – Een regel onder de offerteknop, in te stellen met `beschikbaar` in `config.js`.
+- [x] **Seizoensbanner** – Tijdelijke regel onder de offerteknop met `data-tot`, nu voor de kerstborrel.
 - [ ] **Korte video** – Een paar seconden shaken of schenken, stil en licht, naast of onder de hero.
 - [ ] **Instagram-strip** – Een rij van 4–6 recente foto's, zodra je Instagram-account er is.
 - [ ] **Logo's of namen van locaties** – Toon (met toestemming) waar je hebt gestaan.
-- [ ] **Sticky offerteknop op mobiel** – Een knop die onderaan in beeld blijft tijdens het scrollen.
-- [ ] **Reviewscore bij de hero** – De sterren en het aantal reviews direct onder de koptekst.
+- [x] **Sticky offerteknop op mobiel** – Een knop die onderaan in beeld blijft tijdens het scrollen.
+- [x] **Reviewscore bij de hero** – De sterren en het aantal reviews direct onder de koptekst.
 - [ ] **Google Bedrijfsprofiel aanvullen** – Foto's, openingstijden "op afspraak" en werkgebied invullen.
 - [ ] **Search Console koppelen** – Zien op welke zoekwoorden je gevonden wordt en of alle pagina's in Google staan.
 - [ ] **Zoekwoorden per regio** – Kijk in Search Console welke plaatsen opkomen; die kunnen later een eigen pagina krijgen.
@@ -63,7 +63,7 @@ Pas je een tekst aan, doe dat ook in `en/index.html`.
 ## Bedrijfsfeesten
 
 - [ ] **Zakelijke referenties** – Een quote van een bedrijf met naam en functie, zodra je die hebt.
-- [ ] **Factuur en btw** – Zakelijke klanten willen weten dat ze een nette factuur krijgen met KvK en btw.
+- [x] **Factuur** – De FAQ op de bedrijfsfeestpagina noemt offerte, factuur en betaaltermijn; het KvK-nummer staat in de footer. Btw: zie *Btw-keuze* bij Tarieven.
 - [ ] **Cocktail in huisstijl** – Een voorbeeld of foto van een cocktail in de kleuren van een bedrijf.
 - [ ] **Teamuitje / masterclass** – Een cocktailworkshop als teambuilding, met prijs per persoon.
 - [ ] **Borrel-abonnement** – Vaste vrijdagmiddagborrel tegen een vast tarief per maand.
@@ -73,11 +73,11 @@ Pas je een tekst aan, doe dat ook in `en/index.html`.
 - [ ] **Beurzen en openingen** – Cocktails als blikvanger op een stand of bij een winkelopening.
 - [ ] **Representatieve kleding** – Een foto van hoe je eruitziet op een zakelijk event.
 - [ ] **Verzekering** – Noem dat je bedrijfsaansprakelijk verzekerd bent, zodra dat zo is.
-- [ ] **Offerte binnen 48 uur** – Voor bedrijven extra benadrukken, met online akkoord.
-- [ ] **Inkoop via de klant** – Uitleggen hoe de boodschappenlijst werkt voor een inkoper of facilitair team.
+- [x] **Reactie binnen 1 werkdag** – Staat op de bedrijfsfeestpagina (stappen en afsluiter); de FAQ daar noemt online akkoord.
+- [x] **Inkoop via de klant** – Uitleggen hoe de boodschappenlijst werkt voor een inkoper of facilitair team.
 - [ ] **Locaties en zalen** – Samenwerken met zalen in de buurt die geen eigen cocktailbar hebben.
 - [ ] **LinkedIn-pagina** – Een bedrijfspagina en link vanaf deze pagina; daar zitten de zakelijke klanten.
-- [ ] **Kerstborrels** – Een blok over de drukste periode, met oproep om vroeg aan te vragen.
+- [x] **Kerstborrels** – Tijdelijke regel met `data-tot` op de bedrijfsfeestpagina en de home.
 - [ ] **Alcoholbeleid** – Noemen hoe je omgaat met mocktails en verantwoord schenken, belangrijk voor werkgevers.
 - [ ] **Rekenvoorbeeld zakelijk** – Bijv. "borrel van 3 uur voor 50 collega's".
 - [ ] **Downloadbare one-pager** – Een PDF met aanbod en prijzen om intern door te sturen.
@@ -108,7 +108,7 @@ Pas je een tekst aan, doe dat ook in `en/index.html`.
 
 ## Tarieven
 
-- [ ] **Btw instellen** – Zet `btw` in `config.js` op `'kor'` of `'incl'`, zodat de btw-regel verschijnt.
+- [ ] **Btw-keuze** – Nu staat er geen btw-regel op de site (`btw` in `config.js` is leeg). Kies `'kor'` of `'incl'` als je hem wilt tonen, en zorg dat de instelling in de generator daarbij past.
 - [ ] **Meer rekenvoorbeelden** – Naast 4 uur ook 3, 6 en 8 uur.
 - [ ] **Reiskosten in de calculator** – Een veld voor de plaats of het aantal km, zodat de indicatie completer is.
 - [ ] **Glazen in de calculator** – Een schuifje voor het aantal glazen à €0,50.
@@ -146,7 +146,7 @@ Pas je een tekst aan, doe dat ook in `en/index.html`.
 - [ ] **Video-introductie** – Een korte "hoi, ik ben Rutger" van 30 seconden.
 - [ ] **Leuke weetjes** – Bijv. hoeveel cocktails je op een avond maakt.
 - [ ] **Mobiele bar (later)** – Een "binnenkort"-blok als je er een gaat aanschaffen.
-- [ ] **Instagram-link** – Zodra je account er is, in `config.js` en de footer.
+- [x] **Instagram-link** – Staat in het contactblok en in de footer van elke pagina.
 - [ ] **LinkedIn-link** – Voor zakelijke klanten.
 - [ ] **Mediakit** – Een downloadbare set foto's en logo voor organisatoren.
 - [ ] **Zakelijk telefoonnummer** – Nu staat je privénummer op de site; overweeg een apart nummer.
@@ -171,20 +171,20 @@ Pas je een tekst aan, doe dat ook in `en/index.html`.
 - [ ] **Zelf drank klaarzetten** – Moet de klant de drank koud zetten en wanneer?
 - [ ] **Vragen groeperen** – Bij 15+ vragen: indelen in Boeken, Kosten en Op de dag zelf.
 - [ ] **Zoekbalk** – Snel een vraag vinden als de lijst groeit.
-- [ ] **"Vraag niet gevonden?"** – Onderaan een knop naar WhatsApp en het formulier.
+- [ ] **"Vraag niet gevonden?"** – Onderaan een verwijzing naar het formulier (WhatsApp blijft alleen in het contactblok).
 - [ ] **Engelse FAQ gelijk houden** – Nieuwe vragen ook in `en/index.html` zetten.
 - [ ] **Vragen uit aanvragen halen** – Vragen die klanten vaak stellen in mails of appjes hier toevoegen.
 
 ## Offerte aanvragen
 
-- [ ] **Web3Forms-sleutel controleren** – Kijk of `web3forms` in `config.js` is ingevuld, anders opent het mailprogramma.
-- [ ] **Bevestigingsmail aanzetten** – EmailJS-gegevens invullen in `config.js`, zodat de klant direct een bevestiging krijgt.
-- [ ] **KvK-nummer** – Na je inschrijving `kvk` in `config.js` invullen, en daarna ook vast in de HTML.
+- [x] **Web3Forms-sleutel controleren** – Kijk of `web3forms` in `config.js` is ingevuld, anders opent het mailprogramma.
+- [x] **Bevestigingsmail aanzetten** – EmailJS-gegevens invullen in `config.js`, zodat de klant direct een bevestiging krijgt.
+- [x] **KvK-nummer** – Staat in `config.js` en vast in de footer van elke pagina.
 - [ ] **Start- en eindtijd** – In plaats van alleen het aantal uur, zodat je je planning kunt maken.
 - [ ] **Werkplek aanwezig?** – Een vinkje of er een tafel en gootsteen is, want dat regelt de klant.
 - [ ] **Geschat totaal** – In het formulier laten zien wat de aanvraag ongeveer kost.
 - [ ] **Hoe gevonden?** – Vraag hoe de klant je heeft gevonden, zodat je weet wat werkt.
-- [ ] **Datum te ver vooruit** – Een melding als de datum buiten je planning valt.
+- [ ] **Datum te ver vooruit** – Data in het verleden zijn al geblokkeerd; nog een melding als de datum te ver vooruit ligt.
 - [ ] **Volgeboekte data** – Data waarop je al vol zit grijs maken, zodat niemand voor niets aanvraagt.
 - [ ] **Kennismakingsbelletje plannen** – Een link naar een agenda-tool voor een kort gesprek.
 - [ ] **Bedrijfsnaam-veld** – Voor zakelijke aanvragen, zodat de offerte meteen goed staat.
@@ -192,7 +192,7 @@ Pas je een tekst aan, doe dat ook in `en/index.html`.
 - [ ] **Bijlage meesturen** – Ruimte voor een uitnodiging of plattegrond van de locatie.
 - [ ] **Stappen in het formulier** – Het formulier opdelen in 2–3 stappen, prettiger op mobiel.
 - [ ] **Bedankscherm met volgende stap** – Na verzenden: "Bekijk alvast de cocktails" of "Volg me op Instagram".
-- [ ] **Reactietijd bewaken** – Zelf bijhouden of je echt binnen 48 uur reageert.
+- [ ] **Reactietijd bewaken** – Zelf bijhouden of je echt binnen 1 werkdag reageert, zoals de site belooft.
 - [ ] **Vaste antwoordtekst** – Een sjabloon voor je eerste reactie met offerte.
 - [ ] **Aanvragen bijhouden** – In het overzicht van de generator ook aanvragen zonder offerte zien.
 - [ ] **Opvolgen** – Een herinnering als een klant na een week niet reageert op je offerte.
@@ -202,18 +202,18 @@ Pas je een tekst aan, doe dat ook in `en/index.html`.
 
 - [ ] **Google Places-sleutel** – Controleren of de actie *Google-reviews ophalen* groen draait.
 - [ ] **Review-verzoek na elk feest** – Standaard een kort berichtje met de reviewlink sturen.
-- [ ] **Datum bij een review** – Recente reviews wekken meer vertrouwen.
+- [x] **Datum bij een review** – Recente reviews wekken meer vertrouwen.
 - [ ] **Foto bij een review** – Een foto van dat feest erbij (met toestemming).
 - [ ] **Video-review** – Een kort filmpje van een tevreden klant.
 - [ ] **Filter op soort feest** – Bezoekers zien alleen reviews die bij hun feest passen.
-- [ ] **Reviews op de landingspagina's** – Particuliere reviews op Privéfeesten, zakelijke op Bedrijfsfeesten.
+- [x] **Reviews op de landingspagina's** – Uitgelichte review op Privéfeesten en Bedrijfsfeesten (nog niet per soort feest, zie *Filter op soort feest*).
 - [ ] **Reviewscore voor Google** – Sterren in de zoekresultaten via `aggregateRating` (let op de regels van Google).
 - [ ] **Reageren op reviews** – Een kort bedankje eronder oogt persoonlijk, ook op Google.
 - [ ] **Zakelijke quotes** – Reviews van bedrijven met functie erbij.
 - [ ] **Collega's aan het woord** – Een quote van een horeca-eigenaar of zaal waar je werkte.
 - [ ] **Reviews in het Engels** – Engelse reviews op de Engelse site tonen.
-- [ ] **Swipen op mobiel** – Reviews wegvegen met je vinger, als het een slider wordt.
-- [ ] **Uitgelichte review roteren** – Op Home elke keer een andere review tonen.
+- [x] **Swipen op mobiel** – Reviews wegvegen met je vinger, als het een slider wordt.
+- [x] **Uitgelichte review roteren** – Op Home en de landingspagina's wisselt de review elke 10 seconden.
 - [ ] **QR-code op de bar** – Een kaartje met de reviewlink op de bar tijdens het feest.
 - [ ] **Instagram-tags** – Foto's waarin gasten jou taggen als extra bewijs.
 - [ ] **Reviews in de offerte** – Een of twee korte quotes in je offerte-PDF.
@@ -229,7 +229,7 @@ Punten uit de eerste versie van deze lijst die de site al heeft, en die daarom z
 eigen domein, foto's (hero, portret, galerij), logo en favicon, deelafbeelding, statistieken met GoatCounter,
 privacypagina, Engelse versie, aparte pagina's voor tarieven, FAQ, privé- en bedrijfsfeesten, gegevens voor Google
 (ook de FAQ), tarieven op één plek in `tarieven.json`, reiskosten, glazen, fruitpers, calculator met spoed en
-datumcontrole, formulier via Web3Forms met spambescherming, WhatsApp-knop, telefoon- en locatieveld,
-cocktails kiezen in de aanvraag, reviewformulier met toestemming, Google-reviews, offerte- en factuurgenerator
+datumcontrole, formulier via Web3Forms met spambescherming, WhatsApp in het contactblok, telefoon- en locatieveld,
+aantal cocktails kiezen in de aanvraag, eigen reviews als bestanden in `reviews/`, Google-reviews, offerte- en factuurgenerator
 met online akkoord, boodschappenlijst en betaalherinnering, visitekaartje met NFC en QR, en het adminoverzicht
 met events en marketing.

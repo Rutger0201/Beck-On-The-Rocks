@@ -14,6 +14,7 @@ Gebruik:
   ADMIN_WACHTWOORD=... VERZOEK=... python3 tools/marketing ai-verzoek   verzoek van de adminpagina (Action "Marketing AI")
   python3 tools/marketing versleutel-onderzoek onderzoek.json     onderzoek controleren en versleuteld opslaan
                                                                  (geen wachtwoord nodig)
+  python3 tools/marketing controleer                              kalender.json en ideeen.json nalopen (geen wachtwoord nodig)
 Pakket: pip install cryptography
 """
 import hashlib
@@ -109,11 +110,19 @@ def score(k):
     return max(1, min(100, round((basis - 1) / 4 * 99 + 1)))
 
 
+def reviewlink():
+    """De Google-reviewlink staat op één plek: google.review in assets/js/config.js."""
+    m = re.search(r"\breview:\s*'([^']*)'", (ROOT / 'assets/js/config.js').read_text())
+    return m[1].strip() if m else ''
+
+
 def vul_in(k, ref, jaar, tarieven):
     k['ref'] = ref
     link = f'{SITE}{k["pagina"] or "/"}?ref={ref}'
     for veld in ('tekst', 'cta', 'titel'):
         k[veld] = k[veld].replace('{link}', link).replace('{jaar}', str(jaar)).replace('{uur}', str(tarieven.get('uur', '')))
+        if '{reviewlink}' in k[veld]:
+            k[veld] = k[veld].replace('{reviewlink}', reviewlink())
     k['link'] = link if k['pagina'] else ''
     return k
 
@@ -246,8 +255,8 @@ def laad_sleutels(wachtwoord, nieuw_mag=True):
     bestand = lees_json(SLEUTEL)
     geheim = sleutels.open_geheim(bestand, wachtwoord) if bestand else None
     if not geheim and not nieuw_mag:
-        sys.exit('Het wachtwoord past niet bij de sleutel. Draai eerst "Marketing bijwerken" (maakt een nieuwe sleutel) '
-                 'en probeer het daarna opnieuw.')
+        sys.exit('Het wachtwoord past niet bij de sleutel. Start "Marketing bijwerken" eerst handmatig (Actions, Run workflow, vink '
+                 '"Nieuw sleutelpaar" aan; maakt een nieuwe sleutel) en probeer het daarna opnieuw.')
     if not geheim:
         if bestand:
             print('LET OP: het wachtwoord past niet bij de bestaande sleutel (gewijzigd?). Nieuw sleutelpaar gemaakt;'
@@ -298,11 +307,13 @@ def publiceer():
     data = lees_versleuteld(UIT, geheim) or {}
     kansen = {k['id']: k for k in data.get('kansen', [])}
     tarieven = lees_json(ROOT / 'tarieven.json') or {}
-    for k in uit_eigen(statusbestand.get('eigen', {}), date.today() - timedelta(days=2), tarieven):
+    vandaag = datetime.now(ZoneInfo('Europe/Amsterdam')).date()
+    for k in uit_eigen(statusbestand.get('eigen', {}), vandaag - timedelta(days=2), tarieven):
         kansen.setdefault(k['id'], k)
     bestand = lees_versleuteld(PUBLICATIES, geheim) or {}
     log = bestand.get('publicaties', {})
-    if publiceren.publiceer(list(kansen.values()), status, log, proef='--proef' in sys.argv):
+    proef = '--proef' in sys.argv   # een proefrun laat alleen zien wat er zou gebeuren en schrijft niets
+    if publiceren.publiceer(list(kansen.values()), status, log, proef=proef) and not proef:
         PUBLICATIES.write_text(json.dumps(sleutels.versleutel({'publicaties': log}, publiek)) + '\n')
         print('Publicatielog bijgewerkt.')
 
@@ -311,7 +322,8 @@ def bijwerken():
     wachtwoord = os.environ.get('ADMIN_WACHTWOORD', '')
     if not wachtwoord:
         sys.exit('Geen ADMIN_WACHTWOORD ingesteld: niets opgeslagen (de lijst gaat nooit onversleuteld online).')
-    publiek, geheim = laad_sleutels(wachtwoord)
+    # Nieuw sleutelpaar alleen bij een handmatige run (zie marketing.yml); buiten GitHub Actions mag het altijd.
+    publiek, geheim = laad_sleutels(wachtwoord, nieuw_mag=os.environ.get('NIEUWE_SLEUTEL_MAG', 'true') == 'true')
     tarieven = lees_json(ROOT / 'tarieven.json') or {}
     van = datetime.now(ZoneInfo('Europe/Amsterdam')).date()
     tot = van + timedelta(days=DAGEN)
@@ -415,6 +427,56 @@ def versleutel_onderzoek(pad):
     print(f'Onderzoek opgeslagen: {len(kansen)} kansen, {len(onderzoek.get("trends", []))} trends → {ONDERZOEK.relative_to(ROOT)}')
 
 
+def _fout(waar, e):
+    return f'{waar}: veld {e} ontbreekt' if isinstance(e, KeyError) else f'{waar}: ongeldige waarde ({e})'
+
+
+def controleer_bronnen():
+    """Voor de controle bij een pull request en op main: kalender.json en ideeen.json gaan door dezelfde stappen
+    als in de nachtelijke run (uit_kalender, uit_ideeen), zodat een tikfout niet pas 's nachts opvalt. Geen wachtwoord nodig."""
+    jaar = datetime.now(ZoneInfo('Europe/Amsterdam')).year
+    tarieven = lees_json(ROOT / 'tarieven.json') or {}
+    fouten = [] if reviewlink() else ['assets/js/config.js: google.review niet gevonden (nodig voor {reviewlink} in ideeen.json)']
+    fout = (KeyError, TypeError, ValueError, AttributeError)
+    lijsten = {}
+    for naam, veld in (('kalender.json', 'momenten'), ('ideeen.json', 'ideeen')):
+        try:
+            lijsten[naam] = list(json.loads((HIER / naam).read_text())[veld])
+        except json.JSONDecodeError as e:
+            fouten.append(f"{naam}: geen geldige JSON bij regel {e.lineno}, kolom {e.colno} (kijk naar komma's, aanhalingstekens en haakjes)")
+        except fout as e:
+            fouten.append(_fout(naam, e))
+    for i, m in enumerate(lijsten.get('kalender.json', []), 1):
+        waar = f'kalender.json, moment {m.get("sleutel") or i if isinstance(m, dict) else i}'
+        try:
+            moment = [datum_van_moment(m['datum'], j) for j in (jaar, jaar + 1)][0]
+        except fout as e:
+            fouten.append(_fout(waar, e) + '; datum is "MM-DD" of {"maand": .., "weekdag": .., "nr": ..}')
+            continue
+        try:
+            m['sleutel'], m['naam']
+            for n, post in enumerate(m['posts'], 1):
+                try:
+                    moment - timedelta(days=post['voor'])
+                    KANAALCODE.get(post['kanaal'].lower())
+                    vul_in(normaliseer(post, 'kalender'), 'controle', jaar, tarieven)
+                except fout as e:
+                    fouten.append(_fout(f'{waar}, post {n}', e))
+        except fout as e:
+            fouten.append(_fout(waar, e))
+    for i, idee in enumerate(lijsten.get('ideeen.json', []), 1):
+        waar = f'ideeen.json, idee {idee.get("sleutel") or i if isinstance(idee, dict) else i}'
+        try:
+            idee['sleutel'], int(idee.get('pauze', 30)), int(idee.get('weekdag', 1))
+            KANAALCODE.get(idee['kanaal'].lower())
+            vul_in(normaliseer(idee, 'idee'), 'controle', jaar, tarieven)
+        except fout as e:
+            fouten.append(_fout(waar, e))
+    if fouten:
+        sys.exit('Marketingdata niet in orde:\n- ' + '\n- '.join(fouten))
+    print(f'kalender.json ({len(lijsten["kalender.json"])} momenten) en ideeen.json ({len(lijsten["ideeen.json"])} ideeën) in orde.')
+
+
 OPDRACHTEN = {
     'korter': 'Maak de tekst korter en krachtiger, ongeveer de helft van de lengte.',
     'zakelijker': 'Maak de toon zakelijker, gericht op office managers, HR en ondernemers.',
@@ -504,5 +566,7 @@ if __name__ == '__main__':
         ai_verzoek()
     elif len(sys.argv) > 1 and sys.argv[1] == 'publiceer':
         publiceer()
+    elif len(sys.argv) > 1 and sys.argv[1] == 'controleer':
+        controleer_bronnen()
     else:
         bijwerken()

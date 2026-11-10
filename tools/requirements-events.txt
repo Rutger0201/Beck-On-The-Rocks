@@ -1,0 +1,3 @@
+# Extra voor de eventzoeker (tools/events.py, Action "Events zoeken"); de andere Actions hebben genoeg aan requirements.txt.
+-r requirements.txt
+anthropic==2.3.0

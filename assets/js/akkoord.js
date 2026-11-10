@@ -46,6 +46,7 @@
     + (o.kor ? '<small>Geen btw: kleineondernemersregeling (KOR)</small>' : '')
     + (o.gt ? `<small>Geldig tot ${lang(o.gt)}</small>` : '');
   if (o.o) { $('#o-opm').hidden = false; $('#o-opm').textContent = o.o; }
+  // Dezelfde afspraken staan op de offerte zelf (assets/js/documenten.js): houd beide teksten gelijk
   $('#o-afspraken').innerHTML = [
     'Je huurt mij in als bartender. Drank, ijs en verse ingrediënten regel je zelf; je ontvangt van mij een boodschappenlijst.',
     'Je zorgt voor een werkplek: een stevige tafel of bar, met een gootsteen met stromend water in de buurt.',
@@ -102,7 +103,7 @@
       form.hidden = true; $('#verlopen').hidden = true;
       if (keuze === 'vraag') {
         $('#klaar-titel').textContent = 'Bedankt voor je bericht!';
-        $('#klaar-tekst').textContent = 'Ik kom zo snel mogelijk bij je terug, meestal binnen een dag.';
+        $('#klaar-tekst').textContent = 'Ik kom zo snel mogelijk bij je terug, binnen 1 werkdag.';
       } else if (opm) {
         $('#klaar-tekst').textContent = 'Bedankt voor je akkoord. Ik neem je opmerking mee en kom snel bij je terug met de boodschappenlijst en de laatste details.';
       }

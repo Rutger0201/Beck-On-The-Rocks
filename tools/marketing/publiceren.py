@@ -119,9 +119,9 @@ def plaats_instagram(k):
         time.sleep(3)
     post = _graph('POST', f'{env("META_IG_ID")}/media_publish', {'creation_id': media['id']})
     try:
-        return _graph('GET', post['id'], {'fields': 'permalink'}).get('permalink', '')
+        return _graph('GET', post['id'], {'fields': 'permalink'}).get('permalink', '') or 'https://www.instagram.com/'
     except Fout:
-        return ''
+        return 'https://www.instagram.com/'   # de post staat online: nooit leeg, anders plaatst de volgende run hem opnieuw
 
 
 def plaats_facebook(k):
@@ -240,7 +240,7 @@ def publiceer(kansen, status, log, nu=None, proef=False):
             log[k['id']] = {'kanaal': k['kanaal'], 'fout': reden, 'definitief': True, 'laatste': tijdstip,
                             'pogingen': (log.get(k['id']) or {}).get('pogingen', 0)}
             wijzigingen += 1
-        print(f'  overgeslagen: {k["kanaal"]} {k["titel"][:50]}: {reden}')
+        print(f'  overgeslagen: {k["kanaal"]} {k["id"]}: {reden}')   # het log is openbaar: geen titels of tekst
     for k in klaar:
         kanaal = k['kanaal'].lower()
         vorig = log.get(k['id']) or {}
@@ -250,16 +250,16 @@ def publiceer(kansen, status, log, nu=None, proef=False):
             regel.update(fout=f'{k["kanaal"]} is nog niet gekoppeld (zie Instellingen op de adminpagina).',
                          pogingen=vorig.get('pogingen', 0))
         elif proef:
-            print(f'  PROEF, niet geplaatst: {k["kanaal"]} {k["titel"][:50]}\n' + bijschrift(k, kanaal)[:300])
+            print(f'  PROEF, niet geplaatst: {k["kanaal"]} {k["id"]}')
             continue
         else:
             try:
                 regel['url'] = PLAATS[kanaal](k)
                 regel['geplaatst'] = tijdstip
-                print(f'  geplaatst: {k["kanaal"]} {k["titel"][:50]} {regel["url"]}')
+                print(f'  geplaatst: {k["kanaal"]} {k["id"]} {regel["url"]}')
             except (Fout, KeyError) as e:
                 regel['fout'] = f'Plaatsen mislukt: {e}'[:400]
-                print(f'  mislukt: {k["kanaal"]} {k["titel"][:50]}: {e}')
+                print(f'  mislukt: {k["kanaal"]} {k["id"]}: {e}')
         if {a: b for a, b in regel.items() if a != 'laatste'} != {a: b for a, b in vorig.items() if a != 'laatste'}:
             log[k['id']] = regel
             wijzigingen += 1

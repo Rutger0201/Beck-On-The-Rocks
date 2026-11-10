@@ -101,7 +101,7 @@ window.BeckAnalyse = (() => {
   }
 
   const htmlNaarTekst = html => {
-    const d = new DOMParser().parseFromString(html.replace(/<br\s*\/?>/gi, '\n').replace(/<\/(p|div|li|tr|h\d)>/gi, '\n'), 'text/html');
+    const d = new DOMParser().parseFromString(html.replace(/<br\s*\/?>/gi, '\n').replace(/<\/(td|th)>/gi, '\t').replace(/<\/(p|div|li|tr|h\d)>/gi, '\n'), 'text/html');
     return d.body.textContent || '';
   };
 
@@ -250,7 +250,7 @@ window.BeckAnalyse = (() => {
 
   const plusUren = (van, u) => {
     const [h, mm] = van.split(':').map(Number);
-    const tot = (h * 60 + mm + Math.round(u * 60)) % (24 * 60);
+    const tot = ((h * 60 + mm + Math.round(u * 60)) % 1440 + 1440) % 1440; // ook terugrekenen (negatieve uren)
     return `${pad(Math.floor(tot / 60))}:${pad(tot % 60)}`;
   };
 
@@ -259,7 +259,11 @@ window.BeckAnalyse = (() => {
   function label(t, namen) {
     const re = new RegExp(`^[ \\t>*-]*(?:${namen})[ \\t]*(?:[:=]|\\t)[ \\t]*(\\S.*)$`, 'im'); // ook tabel-kopie (tab)
     let m = re.exec(t);
-    if (m) return m[1].trim().replace(/\s{2,}/g, ' ');
+    if (m) {
+      const w1 = m[1].trim();
+      if (/^[-–—]$/.test(w1)) return null; // '-' = niet ingevuld in het formulier
+      return w1.replace(/\s{2,}/g, ' ');
+    }
     // Label alleen op een regel, waarde op de eerstvolgende niet-lege regel (mail als screenshot)
     const re2 = new RegExp(`^[ \\t>*-]*(?:${namen})[ \\t]*:?[ \\t]*\\n(?:[ \\t]*\\n)*[ \\t]*(\\S.*)$`, 'im');
     m = re2.exec(t);
@@ -365,6 +369,7 @@ window.BeckAnalyse = (() => {
     const uren = lUren ? parseFloat(lUren.replace(',', '.')) : ((/\b(\d{1,2}(?:[.,]5)?)[ \t]*uur\b(?!\s*(?:[:.]\d|tot|-))/i.exec(t) || [])[1] || '').replace(',', '.');
     if (+uren > 0 && +uren <= 16) {
       if (v['f-van'] && !v['f-tot']) zet('f-tot', plusUren(v['f-van'].waarde, +uren), `${uren} uur`);
+      else if (!v['f-van'] && v['f-tot']) zet('f-van', plusUren(v['f-tot'].waarde, -uren), `${uren} uur tot ${v['f-tot'].waarde}`);
       else if (!v['f-van']) {
         // Alleen een aantal uur bekend: starttijd 20:00 aannemen (in het overzicht aan te passen)
         zet('f-van', '20:00', `aanname: ${uren} uur, begintijd niet genoemd`);
@@ -382,6 +387,7 @@ window.BeckAnalyse = (() => {
 
     // Aantal cocktails, fruitpers en glazen (o.a. uit het boekingsformulier van de website)
     const lCocktails = label(t, 'cocktails op de kaart|aantal cocktails');
+    zet('bericht', label(t, 'bericht|opmerking(?:en)?|wensen'), 'Bericht:'); // alleen ter info in Slim invullen
     const nC = lCocktails ? parseInt(lCocktails, 10) : +((/\b([1-5])\s*(?:verschillende\s+)?cocktails\b/i.exec(t) || [])[1] || 0);
     if (nC >= 1 && nC <= 5) zet('f-cocktails', String(nC), `${nC} cocktails`);
     const lFruit = label(t, 'fruitpers');

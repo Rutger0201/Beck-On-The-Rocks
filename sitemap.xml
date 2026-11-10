@@ -4,11 +4,13 @@
     <loc>https://beckontherocks.nl/</loc>
     <xhtml:link rel="alternate" hreflang="nl" href="https://beckontherocks.nl/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://beckontherocks.nl/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://beckontherocks.nl/"/>
   </url>
   <url>
     <loc>https://beckontherocks.nl/en/</loc>
     <xhtml:link rel="alternate" hreflang="nl" href="https://beckontherocks.nl/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://beckontherocks.nl/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://beckontherocks.nl/"/>
   </url>
   <url>
     <loc>https://beckontherocks.nl/cocktail-bartender-privefeest/</loc>

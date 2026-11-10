@@ -23,11 +23,15 @@ De actie **Marketing bijwerken** (`.github/workflows/marketing.yml`) draait elke
 kansen verzamelen, dubbele en verlopen weghalen, scoren (relevantie 30%, impact 30%, uitvoerbaarheid 15%,
 tijd 15%, budget 10%), de beste kiezen (van elke soort minstens twee als die er zijn) en versleutelen.
 Afgewezen of gepubliceerde ideeën komen pas na hun pauze terug.
+`python3 tools/marketing controleer` loopt `kalender.json` en `ideeen.json` na zonder wachtwoord en meldt een tikfout
+met bestand en moment of idee; de PR-check en de controle op main draaien hem ook.
+`{reviewlink}` in een tekst (zoals in `ideeen.json`) wordt vervangen door `google.review` uit `assets/js/config.js`.
 
 **Versleuteling**: de `.enc.json`-bestanden zijn versleuteld met de publieke sleutel uit `marketing-sleutel.json`.
 Iedereen kan dus iets toevoegen (de Claude-run, je browser), maar alleen met `ADMIN_WACHTWOORD` is het te lezen.
-Wachtwoord veranderd? Draai *Marketing bijwerken* opnieuw: er komt een nieuw sleutelpaar en de planning wordt opnieuw
-gemaakt (goedkeuringen en het laatste onderzoek van vóór de wijziging vervallen).
+Wachtwoord veranderd? Start *Marketing bijwerken* handmatig (Actions, Run workflow, vink *Nieuw sleutelpaar* aan): er komt een nieuw sleutelpaar en de
+planning wordt opnieuw gemaakt (goedkeuringen en het laatste onderzoek van vóór de wijziging vervallen). De nachtelijke
+run, "Nu bijwerken" op de adminpagina en de andere marketingacties maken nooit zelf een nieuw sleutelpaar; ze blijven rood tot die handmatige run gedraaid heeft.
 
 **AI (gratis)**: "Verbeter met AI" en "Nieuw idee met AI" op de adminpagina starten de actie *Marketing AI*
 (`.github/workflows/marketing-ai.yml`). Die gebruikt Google Gemini (gratis sleutel van aistudio.google.com als secret
@@ -51,7 +55,10 @@ op de adminpagina met Actions: Read and write.
   `LINKEDIN_TOKEN` (60 dagen geldig; optioneel `LINKEDIN_AUTHOR` voor een bedrijfspagina). Stappen staan op de adminpagina
   onder Instellingen; de nachtelijke run controleert of de koppelingen nog werken;
 - de status moet gesynchroniseerd zijn (GitHub-token op de adminpagina), anders weet de actie niets van je akkoord;
-- proefrun zonder iets te plaatsen: *Actions → Marketing publiceren → Run workflow → proef*.
+- proefrun zonder iets te plaatsen: *Actions → Marketing publiceren → Run workflow → proef*; een proefrun schrijft en
+  commit niets;
+- de log van de actie is openbaar (publieke repository): per post alleen kanaal, id en na plaatsen de openbare link,
+  geen titels of tekst.
 
 **Groei** (tabblad Groei op de adminpagina):
 - *Betaalde campagnes*: per betaalde kans de advertentietekst, de link met meetcode, de instellingen en de stappen om hem

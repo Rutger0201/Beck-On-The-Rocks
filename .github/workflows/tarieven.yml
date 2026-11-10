@@ -13,6 +13,7 @@ jobs:
   controleren:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - name: Controleren (pull request)
@@ -21,9 +22,12 @@ jobs:
           python3 tools/csp_controle.py
           python3 -m py_compile tools/*.py tools/marketing/*.py
           python3 -m unittest discover -s tools -p 'test_*.py'
+          pip install --quiet -r tools/requirements.txt
+          python3 tools/marketing controleer
   bijwerken:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     # Alleen deze job mag commits terugzetten op main; één tegelijk
     concurrency: tarieven
     permissions:
