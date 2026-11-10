@@ -156,9 +156,10 @@ uitgegeven) en met samenwerkingen (partnerlijst en mailvoorbeelden; je verstuurt
   480, 800 en 1200 px breed van in `assets/img/w/`.
 - **Telefoonnummer**: in het contactblok staat nu je privénummer; eventueel een apart zakelijk nummer.
 - **Btw-keuze**: op de site staat geen btw-regel (`btw` in `assets/js/config.js` is leeg). Met `'kor'` (geen btw) of
-  `'incl'` (prijzen incl. btw) verschijnt de regel bij de tarieven. De generator zet standaard *Geen btw:
-  kleineondernemersregeling (KOR)* op offertes en facturen (Mijn gegevens & tarieven). Reken je 21%, dan moeten
-  consumentenprijzen inclusief btw zijn: bedragen eerst aanpassen.
+  `'incl'` (prijzen incl. btw) verschijnt de regel bij de tarieven. De generator rekent standaard met 21% btw,
+  inbegrepen in de bedragen: op offertes en facturen staan dan het totaal excl. btw, de btw en het totaal incl. btw
+  (Mijn gegevens & tarieven). Kies *Vrijgesteld van btw (KOR)* pas als de Belastingdienst je deelname schriftelijk
+  heeft bevestigd. Kies je *21% btw bovenop de bedragen*, let dan op: prijzen voor particulieren moeten inclusief btw zijn.
 
 Het KvK-nummer staat vast in elke footer. Verandert het, pas dan `kvk` in `assets/js/config.js` én de footers aan.
 

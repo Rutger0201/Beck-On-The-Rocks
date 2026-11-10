@@ -12,7 +12,7 @@
   /* ================= Instellingen ================= */
   const STANDAARD = {
     naam: 'Beck on the Rocks', contact: 'Rutger', adres: '', plaats: '', tel: '', email: 'info@beckontherocks.nl', web: 'beckontherocks.nl',
-    kvk: '42212414', iban: '', btw: 'kor', btwnr: '', review: window.BECK_CONFIG?.google?.review || 'https://g.page/r/CdSRBk_6B5glEBI/review',
+    kvk: '42212414', iban: '', btw: 'incl', btwnr: '', review: window.BECK_CONFIG?.google?.review || 'https://g.page/r/CdSRBk_6B5glEBI/review',
     uur: 45, prep: 1, menu: 75, fruitpers: 20, menuFp: 99, km: 0.25, glas: 0.5, spoed: 25, annul: 20, betaal: 14
   };
   // Tarieven van de website (tarieven.json → assets/js/tarieven.js) gaan voor
@@ -39,6 +39,32 @@
   if (ins.tel === '06 39 65 86 62') ins.tel = '';  // telefoonnummer staat niet meer op documenten
   if (!ins.kvk) ins.kvk = STANDAARD.kvk;
   if (!ins.review || ins.review === OUDE_REVIEW) ins.review = STANDAARD.review;
+  // Tarieven die een document bij opslaan vastlegt (zie bewaar)
+  const TARIEF = ['uur', 'prep', 'menu', 'fruitpers', 'menuFp', 'km', 'glas', 'spoed', 'annul', 'btw', 'betaal'];
+  // Tot 10 november 2026 stond de generator standaard op KOR (geen btw), maar de KOR geldt pas na schriftelijke
+  // bevestiging van de Belastingdienst. Eén keer omzetten, ook bij het terugzetten van een oudere back-up:
+  // de instelling en concepten gaan naar de nieuwe standaard. Verstuurde documenten blijven zoals ze zijn verstuurd
+  // (zonder eigen tarieven krijgen ze die van dit moment, met KOR). Daarna kies je KOR alleen nog zelf.
+  function herzieBtw(i, docs) {
+    const wasKor = i.btw === 'kor';
+    if (wasKor) {
+      const vast = Object.fromEntries(TARIEF.map(k => [k, i[k]]));
+      docs.forEach(d => { if (d && !d.tarief && d.status && d.status !== 'concept') d.tarief = { ...vast }; });
+      i.btw = STANDAARD.btw;
+    }
+    docs.forEach(d => { if (d && d.tarief && d.tarief.btw === 'kor' && (!d.status || d.status === 'concept')) d.tarief.btw = i.btw; });
+    i.btwHerzien = 1;
+    return wasKor;
+  }
+  if (!ins.btwHerzien) {
+    const docs = opslag.lees('beck-documenten', {}), concept = opslag.lees('beck-concept', null);
+    const wasKor = herzieBtw(ins, [...Object.values(docs), concept]);
+    opslag.schrijf('beck-instellingen', ins); opslag.schrijf('beck-documenten', docs);
+    if (concept) opslag.schrijf('beck-concept', concept);
+    if (wasKor) setTimeout(() => alert('De KOR (geen btw) geldt pas als de Belastingdienst je deelname schriftelijk heeft bevestigd. '
+      + 'Daarom rekent de generator nu met 21% btw, inbegrepen in je bedragen. Concepten zijn mee omgezet; verstuurde documenten blijven zoals ze zijn. '
+      + 'Heb je die bevestiging, kies dan KOR bij Mijn gegevens & tarieven.'), 300);
+  }
   $$('[data-set]').forEach(el => {
     el.value = ins[el.dataset.set];
     el.addEventListener('input', () => {
@@ -75,8 +101,19 @@
   let type = 'offerte', extra = [];
   // Tarieven van het geopende document (vastgelegd bij opslaan); null = actuele instellingen
   let tarief = null;
-  const TARIEF = ['uur', 'prep', 'menu', 'fruitpers', 'menuFp', 'km', 'glas', 'spoed', 'annul', 'btw', 'betaal'];
   const tarievenVan = d => d.tarief ? { ...ins, ...d.tarief } : ins;
+  // Btw per instelling: 'incl' = 21% zit in de bedragen, '21' = 21% komt erbovenop, 'kor' = vrijgesteld (KOR)
+  function btwVan(modus, sub) {
+    if (modus === 'incl') {
+      const totaal = Math.round(sub * 100) / 100, btw = Math.round(totaal * 21 / 121 * 100) / 100;
+      return { btw, excl: Math.round((totaal - btw) * 100) / 100, totaal };
+    }
+    const btw = modus === '21' ? sub * .21 : 0;
+    return { btw, excl: sub, totaal: sub + btw };
+  }
+  // Nieuw document uit een bestaand (bijv. factuur uit een offerte): de afgesproken prijzen blijven, maar stond de bron
+  // nog op KOR terwijl je nu btw rekent, dan krijgt het nieuwe document je huidige btw-instelling.
+  const btwVoorNieuw = () => { if (tarief && tarief.btw === 'kor' && ins.btw !== 'kor') tarief = { ...tarief, btw: ins.btw }; };
 
   const alleDocs = () => opslag.lees('beck-documenten', {});
   const prefix = t => (t === 'offerte' ? 'O' : 'F') + '-' + new Date().getFullYear() + '-';
@@ -215,16 +252,15 @@
     const d = leesForm(), t = tarievenVan(d);
     $('#fp-uitleg').textContent = `uurtarief +${getal(t.fruitpers)}%, menu vanaf €${getal(t.menuFp)}`;
     const b = bereken(d);
-    const btw = t.btw === '21';
-    const btwBedrag = btw ? b.sub * .21 : 0;
-    const totaal = b.sub + btwBedrag;
+    const btw = t.btw === '21' || t.btw === 'incl';
+    const { btw: btwBedrag, excl, totaal } = btwVan(t.btw, b.sub);
     const mt = $('#m-totaal'); if (mt) mt.textContent = 'Totaal ' + euro(totaal); // alleen zichtbaar op mobiel
     const factuur = type !== 'offerte';
     const termijn = +d.termijn || (factuur ? t.betaal : 14);
     const tot = d.datum ? plusDagen(d.datum, termijn) : '';
     $('#lbl-spoed-hand').hidden = d.spoedAuto;
     $('#naar-factuur').hidden = type !== 'offerte';
-    $('[data-show=btw21]').hidden = ins.btw !== '21';
+    $('[data-show=btw21]').hidden = ins.btw !== '21' && ins.btw !== 'incl';
 
     // Afzender
     $('#d-me').innerHTML = [ins.naam, ins.contact, ins.adres, ins.plaats, ins.tel, ins.email, ins.web].filter(Boolean).map(esc).join('<br>');
@@ -261,12 +297,16 @@
       </tr>`).join('');
 
     // Totalen
-    $('#d-totaal').innerHTML = btw
+    $('#d-totaal').innerHTML = t.btw === 'incl'
+      ? `<div><span>Totaal excl. btw</span><span>${euro(excl)}</span></div>
+         <div><span>Btw 21%</span><span>${euro(btwBedrag)}</span></div>
+         <div class="tot"><span>Totaal incl. btw</span><span>${euro(totaal)}</span></div>`
+      : btw
       ? `<div><span>Subtotaal</span><span>${euro(b.sub)}</span></div>
          <div><span>Btw 21%</span><span>${euro(btwBedrag)}</span></div>
          <div class="tot"><span>Totaal</span><span>${euro(totaal)}</span></div>`
-      : `<div class="tot"><span>Totaal</span><span>${euro(totaal)}</span></div>
-         <div class="muted"><span>Geen btw: kleineondernemersregeling (KOR)</span></div>`;
+      : `<div class="tot"><span>Totaal</span><span>${euro(totaal)}</span></div>`
+        + (t.btw === 'kor' ? `<div class="muted"><span>Vrijgesteld van btw op grond van de kleineondernemersregeling (KOR)</span></div>` : '');
 
     // Opmerking
     $('#d-opmerking').hidden = !d.opmerking;
@@ -301,7 +341,7 @@
     // Voet
     $('#d-foot').innerHTML = [
       ins.kvk && 'KvK ' + esc(ins.kvk),
-      btw ? (ins.btwnr && 'Btw ' + esc(ins.btwnr)) : 'KOR: vrijgesteld van btw',
+      btw ? (ins.btwnr && 'Btw ' + esc(ins.btwnr)) : t.btw === 'kor' && 'KOR: vrijgesteld van btw',
       ins.iban && 'IBAN ' + esc(ins.iban)
     ].filter(Boolean).map(s => `<span>${s}</span>`).join('');
 
@@ -366,6 +406,7 @@
     const vanOfferte = type === 'offerte' && b.dataset.type !== 'offerte';
     const zetSpoed = spoedVastzetten();
     zetType(b.dataset.type, true);
+    btwVoorNieuw();
     if (vanOfferte) zetSpoed();
     if (b.dataset.type !== 'offerte' && ref && !$('#referentie').value) $('#referentie').value = ref;
     $('#opgeslagen').value = '';
@@ -376,6 +417,7 @@
     const ref = $('#nummer').value;
     const zetSpoed = spoedVastzetten();
     zetType('factuur', true);
+    btwVoorNieuw();
     zetSpoed();
     $('#referentie').value = ref;
     $('#opgeslagen').value = '';
@@ -421,9 +463,9 @@
   /* ================= Bedragen, versturen en online akkoord ================= */
   function cijfers(d) {
     const b = bereken(d), t = tarievenVan(d);
-    const btw = t.btw === '21' ? b.sub * .21 : 0;
+    const { btw, totaal } = btwVan(t.btw, b.sub);
     const termijn = +d.termijn || (d.type !== 'offerte' ? t.betaal : 14);
-    return { b, btw, totaal: b.sub + btw, verval: d.datum ? plusDagen(d.datum, termijn) : '' };
+    return { b, btw, totaal, verval: d.datum ? plusDagen(d.datum, termijn) : '' };
   }
   const voornaam = d => (d['k-naam'] || '').trim().split(/\s+/)[0] || '';
 
@@ -450,7 +492,7 @@
       t: d['f-van'] && d['f-tot'] ? `${d['f-van']} – ${d['f-tot']}` : '', u: c.b.u, g: d['f-gasten'], l: d['f-locatie'],
       r: c.b.regels.map(r => [r.oms, r.sub || '', `${getal(r.aantal)}${r.eenheid ? ' ' + r.eenheid : ''}`, Math.round(r.bedrag * 100) / 100]),
       sub: Math.round(c.b.sub * 100) / 100, btw: Math.round(c.btw * 100) / 100, tot: Math.round(c.totaal * 100) / 100,
-      kor: t.btw !== '21', sp: t.spoed, an: t.annul, ad: ANNUL_DAGEN, bt: t.betaal, o: d.opmerking || ''
+      kor: t.btw === 'kor', bi: t.btw === 'incl', sp: t.spoed, an: t.annul, ad: ANNUL_DAGEN, bt: t.betaal, o: d.opmerking || ''
     };
     const basis = location.href.replace(/[?#].*$/, '').replace(/documenten\.html$/, '');
     const o = b64(JSON.stringify(data));
@@ -736,13 +778,18 @@
       if (!confirm(`Back-up van ${lang(isoVan(new Date(data.gemaakt)))} met ${nieuw_.length} documenten terugzetten?`
         + (dubbel ? `\n${dubbel} daarvan bestaan al en worden vervangen door de versie uit de back-up.` : '')
         + '\nJe gegevens & tarieven worden ook teruggezet.')) return;
+      // Back-up van vóór 10 november 2026 (toen stond KOR standaard aan): net zo omzetten als bij het openen
+      if (data.instellingen && !data.instellingen.btwHerzien) {
+        data.instellingen = { ...STANDAARD, ...data.instellingen };
+        herzieBtw(data.instellingen, Object.values(data.documenten));
+      }
       opslag.schrijf('beck-documenten', { ...bestaand, ...data.documenten });
       // Teller per reeks: hoogste van beide, zodat een verwijderd nummer niet terugkomt
       const tellers = opslag.lees('beck-tellers', {});
       Object.entries(data.tellers || {}).forEach(([p, n]) => { tellers[p] = Math.max(tellers[p] || 0, +n || 0); });
       opslag.schrijf('beck-tellers', tellers);
       if (data.instellingen) {
-        ins = { ...STANDAARD, ...data.instellingen };
+        ins = { ...STANDAARD, ...data.instellingen, btwHerzien: 1 };
         if (ins.review === OUDE_REVIEW) ins.review = STANDAARD.review;
         opslag.schrijf('beck-instellingen', ins);
         $$('[data-set]').forEach(el => { el.value = ins[el.dataset.set] ?? ''; });
