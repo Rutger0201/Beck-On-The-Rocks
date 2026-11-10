@@ -8,3 +8,5 @@ __pycache__/
 *.p12
 *service-account*.json
 .lighthouseci/
+# Claude Code local settings can contain API keys
+.claude/settings.local.json
