@@ -255,7 +255,7 @@ window.BeckAnalyse = (() => {
   };
 
   // Labels zoals ze in de aanvraagmail staan: waarde mag op dezelfde regel of op de regel eronder
-  const LABELS_MAIL = /^(naam|e-?mail|telefoon(?: klant)?|datum|aantal uur|gasten|soort feest|locatie|cocktails op de kaart|fruitpers|glazen via \w+|spoedboeking|bericht)$/i;
+  const LABELS_MAIL = /^(naam|e-?mail|telefoon(?: klant)?|bedrijf|datum|begintijd|aantal uur|gasten|soort feest|locatie|cocktails op de kaart|fruitpers|glazen via \w+|spoedboeking|bericht)$/i;
   function label(t, namen) {
     const re = new RegExp(`^[ \\t>*-]*(?:${namen})[ \\t]*(?:[:=]|\\t)[ \\t]*(\\S.*)$`, 'im'); // ook tabel-kopie (tab)
     let m = re.exec(t);
@@ -364,7 +364,10 @@ window.BeckAnalyse = (() => {
     if (fd) zet('f-datum', fd.waarde, (lDatum ? lDatum + '\n' + t : t).substr(fd.idx, fd.len));
 
     // Tijden en uren
-    const tijden = vindTijden(t);
+    let tijden = vindTijden(t);
+    // Het veld Begintijd uit de aanvraag gaat voor op een ander tijdvak dat in het bericht staat
+    const lBegin = /^(\d{1,2})[:.](\d{2})$/.exec(label(t, 'begintijd') || ''), begin = lBegin && tijd(+lBegin[1], +lBegin[2]);
+    if (begin && (!tijden || tijden.van !== begin)) tijden = { van: begin, snippet: 'Begintijd: ' + lBegin[0] };
     if (tijden) { zet('f-van', tijden.van, tijden.snippet); zet('f-tot', tijden.tot, tijden.snippet); }
     const uren = lUren ? parseFloat(lUren.replace(',', '.')) : ((/\b(\d{1,2}(?:[.,]5)?)[ \t]*uur\b(?!\s*(?:[:.]\d|tot|-))/i.exec(t) || [])[1] || '').replace(',', '.');
     if (+uren > 0 && +uren <= 16) {

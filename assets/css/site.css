@@ -112,7 +112,7 @@
    voordat er iets getekend wordt, zodat er geen lichte flits is. */
 :root[data-thema="donker"] {
   --bg: #1a1714;
-  --bg-alt: #1f1c18;
+  --bg-alt: #221e1a;
   --surface: #27231e;
   --text: var(--op-donker);
   --muted: var(--op-donker-zacht);
@@ -167,7 +167,7 @@ code { font-size: .9em; }
 
 .container { width: min(var(--container), 100% - 2 * var(--gutter)); margin-inline: auto; }
 .narrow { width: min(var(--container-smal), 100% - 2 * var(--gutter)); }
-.eyebrow, .label { font: 500 var(--fs-xs)/1.5 var(--sans); letter-spacing: var(--label-spacing); text-transform: uppercase; color: var(--accent); margin: 0 0 1.4rem; }
+.eyebrow, .label { font: 500 var(--fs-xs)/1.5 var(--sans); letter-spacing: var(--label-spacing); text-transform: uppercase; color: var(--accent); margin: 0 0 1.4rem; text-wrap: balance; }
 .lead { font-size: var(--fs-lg); line-height: 1.6; color: var(--text); max-width: 40ch; }
 :focus-visible { outline: 1.5px solid var(--accent); outline-offset: 4px; }
 h1[tabindex="-1"]:focus { outline: none; }
@@ -191,6 +191,7 @@ h1[tabindex="-1"]:focus { outline: none; }
 .btn--ghost:hover { background: var(--accent-vlak); border-color: var(--text); color: var(--text); }
 .btn--small { min-height: 44px; padding: .5em 18px; gap: 12px; }
 .btn--small::after { width: 14px; }
+.nav__inner > .btn--small { white-space: nowrap; margin-left: auto; }
 .btn--full { width: 100%; }
 .btn--full::after { display: none; }
 .btn:disabled { opacity: .6; cursor: wait; }
@@ -247,11 +248,13 @@ h1[tabindex="-1"]:focus { outline: none; }
 .hero .lead { color: var(--muted); max-width: 36ch; }
 .hero__notitie { margin: 1.2rem 0 0; font-size: var(--fs-sm); color: var(--muted); }
 .hero__notitie:not([hidden]) + .hero__notitie { margin-top: .5rem; }
-.hero__zegel { display: inline-flex; align-items: center; gap: .7rem; margin-top: 1.6rem; padding-top: 1.1rem; border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--muted); text-decoration: none; transition: color .3s; }
+.hero__zegel { display: flex; max-width: 25rem; align-items: center; gap: .7rem; margin-top: 1.6rem; padding-top: 1.1rem; border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--muted); text-decoration: none; transition: color .3s; }
 .hero__zegel .stars { margin: 0; font-size: .95rem; letter-spacing: .12em; }
 .hero__zegel strong { font-weight: 500; color: var(--text); }
 .hero__zegel:hover { color: var(--text); }
 .hero__cta { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 28px; margin: 2.2rem 0 0; }
+/* Home: tarievenlink met prijs onder de knop, zodat hij niet onder de kleine foto loopt */
+.hero .hero__cta { flex-direction: column; align-items: flex-start; }
 .hero__art { grid-column: 8 / span 5; position: relative; min-width: 0; margin: 0; }
 .hero__foto { aspect-ratio: 4 / 5; overflow: hidden; background: var(--houtskool); }
 .hero__foto img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; }
@@ -441,7 +444,7 @@ div.signature { display: block; margin: .2rem 0 1.6rem; }
 .term li::before, .lp-terms details > ul > li::before { content: ""; position: absolute; left: 0; top: 1.25em; width: 12px; height: 1px; background: var(--accent); }
 .term li strong { color: var(--text); }
 .lp-terms { margin-top: clamp(56px, 7vw, 96px); }
-.lp-terms > h3 { margin: 0 0 .6rem; font-size: var(--fs-tussenkop); }
+.lp-terms > h3 { margin: 0 0 1.4rem; font-size: var(--fs-tussenkop); }
 /* Uitklapblok op de landingspagina's: FAQ-afstanden niet laten doorwerken in de stappen, lijsten zoals op /tarieven/ */
 .faq .steps { margin: .4rem 0 1.8rem; }
 .faq .steps p { padding-bottom: 0; }
@@ -461,7 +464,7 @@ div.signature { display: block; margin: .2rem 0 1.6rem; }
 .calc__lines b { color: var(--text); font-weight: 500; white-space: nowrap; }
 .calc__lines .is-spoed, .calc__lines .is-spoed b { color: var(--spoed); }
 .calc__noot { margin: 0; font-size: var(--fs-sm); }
-.calc__result { padding: 2.2rem 1.6rem; text-align: center; display: grid; gap: .6rem; }
+.calc__result { padding: 2.2rem 1.6rem; text-align: center; display: grid; gap: .6rem; align-self: stretch; align-content: center; }
 .calc__result span { font: 500 var(--fs-xs)/1.5 var(--sans); letter-spacing: var(--label-spacing); text-transform: uppercase; color: var(--accent); }
 .calc__result strong { font: 300 3.4rem/1 var(--display); color: var(--text); }
 .calc__result small { color: var(--muted); font-size: var(--fs-sm); margin-bottom: 1rem; }
@@ -511,6 +514,10 @@ div.signature { display: block; margin: .2rem 0 1.6rem; }
 /* FAQ als accordeon */
 .faq details { border-bottom: 1px solid var(--line); }
 .faq details:first-child { border-top: 1px solid var(--line-sterk); }
+.faq + .faq { margin-top: 2.4rem; }
+.faq__groep { font-size: var(--fs-tussenkop); margin: 0 0 .6rem; }
+.faq__groep + details { border-top: 1px solid var(--line-sterk); }
+.faq__meer { margin: 2.4rem 0 0; }
 .faq summary { list-style: none; cursor: pointer; padding: 1.5rem 3rem 1.5rem 0; font: 400 var(--fs-item)/1.25 var(--display); color: var(--text); position: relative; transition: color var(--kort); }
 .faq summary:hover { color: var(--accent); }
 .faq summary::-webkit-details-marker { display: none; }
@@ -542,7 +549,11 @@ div.signature { display: block; margin: .2rem 0 1.6rem; }
 .cta-band__knoppen { grid-column: 9 / span 4; display: grid; gap: .8rem; min-width: 0; }
 
 /* Contact */
-.split--contact { align-items: start; }
+.split--contact { align-items: start; grid-template-rows: auto 1fr; row-gap: 0; }
+/* Volgorde in de pagina: intro, formulier, contactgegevens (zo loopt Tab ook). Breed staan de contactgegevens links onder de intro. */
+.split--contact > .form { grid-column: 2; grid-row: 1 / span 2; }
+.split--contact > .contact-list { grid-column: 1; grid-row: 2; }
+.split--contact .lead { margin-bottom: 0; } /* de lijst eronder heeft zelf al ruimte boven */
 .contact-list { list-style: none; padding: 0; margin: 2.4rem 0 0; }
 .contact-list li { position: relative; padding: 1rem 0 1rem 136px; border-top: 1px solid var(--line); color: var(--text); }
 .contact-list li:last-child { border-bottom: 1px solid var(--line); }
@@ -581,10 +592,13 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]), select, textarea
   color: var(--text); font: 300 var(--fs-base) var(--sans); padding: .75em .9em; transition: border-color var(--kort), box-shadow var(--kort);
 }
 textarea { min-height: 96px; resize: vertical; }
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-vlak), 0 1px 0 var(--accent); }
+input:not([type=range]):not([type=checkbox]):not([type=radio]):focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-vlak), 0 1px 0 var(--accent); }
 input::placeholder, textarea::placeholder { color: var(--muted); opacity: .7; }
 input[type=date] { color-scheme: light; }
+[data-thema="donker"] input[type=date] { color-scheme: dark; }
 input[type=checkbox], input[type=radio] { accent-color: var(--inkt); width: 18px; height: 18px; }
+/* Begintijd even hoog als het urenveld ernaast */
+input[type=time]::-webkit-datetime-edit-fields-wrapper { padding-block: 0; }
 input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 1px; background: var(--line-sterk); margin: 12px 0; }
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--inkt); cursor: pointer; border: 5px solid var(--surface); box-shadow: 0 0 0 1px var(--inkt); }
 input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--inkt); border: 5px solid var(--surface); cursor: pointer; }
@@ -625,7 +639,7 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
 .verplicht { color: var(--accent); }
 
 /* ---------- 8. Footer ---------- */
-.footer { padding: clamp(72px, 8vw, 110px) 0 clamp(88px, 8vw, 48px); }
+.footer { padding: clamp(72px, 8vw, 110px) 0 48px; }
 .footer__inner { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(12px, 2vw, 32px); row-gap: 2.4rem; align-items: start; }
 .footer__inner > div:first-child { grid-column: 1 / span 5; }
 .footer__inner > nav { grid-column: 7 / span 3; display: grid; grid-template-columns: 1fr 1fr; gap: .6rem 1.6rem; }
@@ -660,6 +674,11 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
   .nav__links { gap: 14px; }
   .nav__links a:not(.btn) { font-size: .86rem; }
   .logo__text { font-size: 1.3rem; }
+}
+@media (max-width: 900px) and (min-width: 821px) { /* smal venster met volledig menu: anders valt de themaknop rechts buiten beeld */
+  .nav__links { gap: 8px; }
+  .nav__links .btn--small { padding-inline: 12px; }
+  .nav__links .btn--small::after { display: none; }
 }
 @media (max-width: 820px) {
   :root { --nav-h: 72px; --nav-h-klein: 64px; }
@@ -718,7 +737,14 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
   .portrait { max-width: 440px; }
   .form__row { grid-template-columns: 1fr; }
   .contact-list li { padding-left: 110px; }
+  /* Offerte aanvragen: formulier direct onder de intro, contactgegevens eronder */
+  .split--contact { grid-template-rows: none; }
+  .split--contact > .form, .split--contact > .contact-list { grid-column: auto; grid-row: auto; }
+  .split--contact .lead { margin-bottom: 2.4rem; }
   .fab { display: inline-block; }
+  .footer { padding-bottom: 88px; } /* ruimte voor de zwevende offerteknop */
+  .nav__inner > .btn--small { display: none; } /* privacypagina: kop zonder menu, knop past niet naast logo en themaknop */
+  .nav__inner > .thema-knop { width: 44px; height: 44px; } /* zelfde raakvlak als de themaknop op de andere pagina's */
 }
 @media (max-width: 560px) {
   .timeline, .steps, .opties { grid-template-columns: 1fr; }

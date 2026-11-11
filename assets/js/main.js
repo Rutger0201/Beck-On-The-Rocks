@@ -218,7 +218,7 @@
   // Afdrukken: dichte uitklapblokken (FAQ, formulier) gaan open en daarna weer dicht
   addEventListener('beforeprint', () => $$('details:not([open])').forEach(d => { d.open = true; d.dataset.printOpen = ''; }));
   addEventListener('afterprint', () => $$('details[data-print-open]').forEach(d => { d.open = false; delete d.dataset.printOpen; }));
-  // Zwevende offerteknop (mobiel): alleen als er geen andere offerteknop of het formulier in beeld is
+  // Zwevende offerteknop (mobiel): alleen als er geen andere offerteknop (ook die onder de calculator) of het formulier in beeld is
   const fabRedenen = new Set();
   const zetFab = () => { if (fab) fab.classList.toggle('is-hidden', fabRedenen.size > 0); };
   if (fab && 'IntersectionObserver' in window) {
@@ -226,7 +226,7 @@
       entries.forEach(e => { if (e.isIntersecting) fabRedenen.add(e.target); else fabRedenen.delete(e.target); });
       zetFab();
     });
-    $$('.hero__cta, .cta-band, #boek-form, .footer').forEach(el => fabIo.observe(el));
+    $$('.hero__cta, .cta-band, .calc__result, #boek-form, .footer').forEach(el => fabIo.observe(el));
   }
   if (nav) addEventListener('scroll', () => nav.classList.toggle('is-scrolled', scrollY > 40), { passive: true });
   // Bovenaan een pagina staat de kop: daar geen zwevende knop overheen
@@ -333,13 +333,15 @@
     el.classList.toggle('is-invalid', !!tekst);
     if (tekst) el.setAttribute('aria-invalid', 'true'); else el.removeAttribute('aria-invalid');
   }
-  const isGeldig = el => el.type === 'checkbox' ? el.checked : el.checkValidity() && el.value.trim() !== '';
+  const isGeldig = el => el.type === 'checkbox' ? el.checked : el.checkValidity() && (!el.required || el.value.trim() !== '');
   const foutTekst = el => el.dataset.fout || t('Dit veld is verplicht.', 'This field is required.');
   function valideer(form) {
     let eerste = null;
-    $$('[required]', form).forEach(el => {
+    // Verplichte velden, plus optionele velden die wel zijn ingevuld (bijv. gasten 0 of 40 uur)
+    $$('input, select, textarea', form).filter(el => el.required || (el.type !== 'checkbox' && (el.value.trim() || el.validity.badInput))).forEach(el => {
       const ok = isGeldig(el);
       zetFout(el, ok ? '' : foutTekst(el));
+      if (!ok && el.closest('details')) el.closest('details').open = true; // fout in 'Meer details': blok openklappen
       if (!ok && !eerste) eerste = el;
     });
     if (eerste) eerste.focus();
@@ -402,6 +404,14 @@
 
   /* ================= Prijscalculator ================= */
   const boekForm = $('#boek-form');
+  // Na overname uit de calculator: bovenin het formulier melden wat er al staat (die velden zitten in 'Meer details')
+  const formKop = boekForm && $('.form__note--links', boekForm), formKopHtml = formKop ? formKop.innerHTML : '';
+  let cocktailsZelf = false; // het aantal cocktails is zelf gekozen (in het formulier of via de calculator)
+  const meldOvername = metDatum => {
+    if (formKop) formKop.textContent = metDatum
+      ? t('Je uren, cocktails en datum uit de calculator staan al ingevuld. Vul nog je naam, e-mail en het type feest aan.', 'Your hours, cocktails and date from the calculator are already filled in. Just add your name, email and the type of event.')
+      : t('Je uren en cocktails uit de calculator staan al ingevuld. Vul nog je naam, e-mail, de datum en het type feest aan.', 'Your hours and cocktails from the calculator are already filled in. Just add your name, email, the date and the type of event.');
+  };
   const cU = $('#c-uren');
   if (cU) {
     const cD = $('#c-datum'), cC = $('#c-cocktails'), cF = $('#c-fruitpers');
@@ -447,11 +457,12 @@
       }
       const f = boekForm.elements;
       f.uren.value = cU.value;
-      f.cocktails.value = cC.value;
+      f.cocktails.value = cC.value; cocktailsZelf = true;
       f.fruitpers.checked = cF.checked;
       if (cD.value) f.datum.value = cD.value;
       f.datum.dispatchEvent(new Event('input'));
       const meer = $('.form__meer', boekForm); if (meer) meer.open = true;
+      meldOvername(!!cD.value);
     });
   }
 
@@ -680,6 +691,7 @@
     const SFEER = EN
       ? { strand: 'With your toes in the sand:', lounge: 'Sunk deep into a jazz lounge:', feest: 'Between two dances:' }
       : { strand: 'Met je tenen in het zand,', lounge: 'Lekker weggezakt bij de jazz,', feest: 'Tussen twee dansjes door,' };
+    let quizZin = ''; // wat de quiz zelf in het bericht heeft gezet
     quiz.addEventListener('submit', e => {
       e.preventDefault();
       const f = new FormData(quiz);
@@ -695,6 +707,11 @@
       res.innerHTML = `<p class="eyebrow">${t('Jouw match', 'Your match')}</p><h3>${c.titel || c.naam}</h3><p>${SFEER[f.get('q2')]} ${c.tekst.charAt(0).toLowerCase() + c.tekst.slice(1)}</p>`
         + `<a class="btn btn--small" href="#boeken">${t('Zet hem op jouw kaart', 'Put it on your menu')}</a>`;
       res.hidden = false; res.focus();
+      // De uitslag gaat mee naar het aanvraagformulier, als daar nog geen bericht staat
+      $('a', res).addEventListener('click', () => {
+        const b = boekForm && boekForm.elements.bericht;
+        if (b && (!b.value || b.value === quizZin)) b.value = quizZin = t(`Graag de ${c.titel || c.naam} op de kaart.`, `I'd like the ${c.titel || c.naam} on the menu.`);
+      });
     });
   }
 
@@ -718,17 +735,20 @@
     const VIA_SOORT = { privefeest: 'Privéfeest', private: 'Privéfeest', bedrijfsfeest: 'Bedrijfsfeest', corporate: 'Bedrijfsfeest', kerst: 'Bedrijfsborrel', christmas: 'Bedrijfsborrel' };
     const soort = params.get('soort') || VIA_SOORT[params.get('via')] || '';
     if (soort && [...boekForm.elements.soort.options].some(o => o.value === soort)) boekForm.elements.soort.value = soort;
+    boekForm.elements.cocktails.addEventListener('change', () => { cocktailsZelf = true; });
     // Vanuit de calculator op /tarieven/: uren, cocktails, fruitpers en datum alvast invullen
     if (params.get('via') === 'calculator') {
       const f = boekForm.elements;
       if (/^\d{1,2}$/.test(params.get('uren') || '')) f.uren.value = params.get('uren');
-      if (/^[1-5]$/.test(params.get('cocktails') || '')) f.cocktails.value = params.get('cocktails');
+      if (/^[1-5]$/.test(params.get('cocktails') || '')) { f.cocktails.value = params.get('cocktails'); cocktailsZelf = true; }
       f.fruitpers.checked = params.get('fruitpers') === 'ja';
       if (/^\d{4}-\d{2}-\d{2}$/.test(params.get('datum') || '')) { f.datum.value = params.get('datum'); f.datum.dispatchEvent(new Event('input')); }
       const meer = $('.form__meer', boekForm); if (meer) meer.open = true;
+      if (f.uren.value) meldOvername(!!f.datum.value && f.datum.checkValidity());
     }
 
-    const note = $('#form-note'), noteTekst = note.textContent;
+    // Vaste HTML uit de pagina (met de maillink), geen invoer van de bezoeker
+    const note = $('#form-note'), noteHtml = note.innerHTML;
     boekForm.addEventListener('submit', async e => {
       e.preventDefault();
       note.classList.remove('is-fout');
@@ -739,11 +759,17 @@
       }
       const d = Object.fromEntries(new FormData(boekForm));
       if (d.botcheck) return; // spambot
+      // Aantal cocktails alleen als echte keuze melden: zelf gekozen of een andere waarde dan de standaard
+      const cSel = boekForm.elements.cocktails;
+      const cocktailsGekozen = cocktailsZelf || !cSel.options[cSel.selectedIndex].defaultSelected;
 
       const velden = {
-        'Naam': d.naam.trim(), 'E-mail': d.email.trim(), 'Telefoon klant': d.telefoon || '-', 'Datum': d.datum, 'Aantal uur': d.uren || '-',
+        'Naam': d.naam.trim(), 'E-mail': d.email.trim(), 'Telefoon klant': d.telefoon || '-',
+        // Bedrijf en begintijd alleen als ze zijn ingevuld: een '-' zou de generator als bedrijfsnaam overnemen
+        ...((d.bedrijf || '').trim() ? { 'Bedrijf': d.bedrijf.trim() } : {}),
+        'Datum': d.datum, ...(d.begintijd ? { 'Begintijd': d.begintijd } : {}), 'Aantal uur': d.uren || '-',
         'Gasten': d.gasten || '-', 'Soort feest': d.soort, 'Locatie': d.locatie || '-',
-        'Cocktails op de kaart': d.cocktails, 'Fruitpers': d.fruitpers ? 'ja' : 'nee', 'Glazen via Rutger': d.glazen ? 'ja' : 'nee',
+        'Cocktails op de kaart': cocktailsGekozen ? d.cocktails : `${d.cocktails} (standaard)`, 'Fruitpers': d.fruitpers ? 'ja' : 'nee', 'Glazen via Rutger': d.glazen ? 'ja' : 'nee',
         'Spoedboeking': isSpoed(d.datum) ? 'ja (binnen 1 maand)' : 'nee', 'Bericht': d.bericht || '-',
         // Alleen een gewone paginacode (privefeest, bedrijfsfeest, calculator), geen vrije tekst uit de link in je mail
         ...(/^[a-z0-9-]{1,40}$/i.test(params.get('via') || '') ? { 'Via pagina': params.get('via') } : {}),
@@ -773,9 +799,10 @@
           const gelukt = await stuurBevestiging(d);
           if (gelukt) $('#form-klaar-mail').hidden = false;
         }
-        boekForm.reset();
+        boekForm.reset(); cocktailsZelf = false;
+        if (formKop) formKop.innerHTML = formKopHtml;
         $('#form-spoed').hidden = true;
-        note.textContent = noteTekst;
+        note.innerHTML = noteHtml;
       } catch {
         note.innerHTML = t('Het versturen is niet gelukt. Je gegevens staan er nog. Probeer het opnieuw, of <a href="#" id="form-mail">verstuur je aanvraag via je mail</a>.',
           'Sending failed. Your details are still there. Please try again, or <a href="#" id="form-mail">send your request by email</a>.');
@@ -803,7 +830,7 @@
       const KOP_NL = { 'Soort feest': 'Type feest' };
       const waarde = k => k === 'Datum' ? new Date(velden[k] + 'T00:00').toLocaleDateString(LOCALE, { day: 'numeric', month: 'long', year: 'numeric' })
         : k === 'Soort feest' ? soortTekst(velden[k]) : velden[k];
-      $('#form-samenvatting').innerHTML = toon.filter(k => velden[k] && velden[k] !== '-')
+      $('#form-samenvatting').innerHTML = toon.filter(k => velden[k] && velden[k] !== '-' && !(k === 'Cocktails op de kaart' && /\(standaard\)$/.test(velden[k])))
         .map(k => `<li><span>${EN ? KOP_EN[k] : KOP_NL[k] || k}</span><b>${esc(waarde(k))}</b></li>`).join('');
       boekForm.hidden = true;
       const klaar = $('#form-klaar');

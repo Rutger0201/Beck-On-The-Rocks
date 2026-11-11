@@ -56,7 +56,7 @@
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jost-latin-500-normal.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/cormorant-garamond-latin-300-italic.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/fonts.css">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261110a">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261111a">
   <link rel="preload" as="image" type="image/webp" href="assets/img/w/galerij-lachen-800.webp" imagesrcset="assets/img/w/galerij-lachen-480.webp 480w, assets/img/w/galerij-lachen-800.webp 800w, assets/img/w/galerij-lachen-1200.webp 1200w" imagesizes="(max-width: 820px) 80vw, 520px">
   <link rel="icon" type="image/png" href="assets/icons/favicon-48.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
@@ -107,7 +107,7 @@
           <p class="lead">Van verjaardag en tuinfeest tot bedrijfsborrel en personeelsfeest. Een cocktailkaart op maat, mijn eigen bartools en persoonlijke service: jij geniet, ik sta achter de bar.</p>
           <div class="hero__cta">
             <a href="#boeken" class="btn">Vraag vrijblijvend een offerte aan</a>
-            <a href="tarieven/" class="tekstlink">Bekijk de tarieven</a>
+            <a href="tarieven/" class="tekstlink">Bekijk de tarieven · vanaf <span data-t="uur">€45</span> per uur</a>
           </div>
           <p class="hero__notitie" data-beschikbaar hidden></p>
           <p class="hero__notitie" data-tot="2026-11-15" hidden>Kerstborrel met je team? <a class="tekstlink" href="?via=kerst#boeken">Vraag vóór 15 november een offerte aan</a></p>
@@ -230,7 +230,7 @@
         <div class="portrait__frame">
           <picture><source type="image/webp" srcset="assets/img/w/beck-portret-480.webp 480w, assets/img/w/beck-portret-800.webp 800w, assets/img/w/beck-portret-1200.webp 1200w" sizes="(max-width: 820px) 420px, 560px"><img class="portrait__img" src="assets/img/w/beck-portret-800.jpg" alt="Rutger schenkt tonic in een glas" width="1200" height="1500" loading="lazy" decoding="async"></picture>
         </div>
-        <div class="portrait__quote">"Jouw feest, jouw smaak. Ik zorg voor de rest."</div>
+        <div class="portrait__quote">"Jouw feest, jouw smaak. Ik maak de&nbsp;cocktails."</div>
       </div>
       <div class="reveal">
         <h2>Hoi, ik ben <em>Rutger.</em></h2>
@@ -373,13 +373,6 @@
       <div class="reveal">
         <h2>Zullen we proosten?</h2>
         <p class="lead">Vertel kort over je feest of evenement. Binnen 1 werkdag ontvang je persoonlijk bericht van mij.</p>
-        <ul class="contact-list">
-          <li><span>E-mail</span><a href="mailto:info@beckontherocks.nl">info@beckontherocks.nl</a></li>
-          <li><span>WhatsApp</span><a href="https://wa.me/31645212758" rel="noopener">06 45212758</a></li>
-          <li><span>Socials</span><a href="https://www.instagram.com/beckontherocks/" rel="noopener">Instagram</a> · <a href="https://www.facebook.com/share/19WvCcWvjy/" rel="noopener">Facebook</a></li>
-          <li><span>Tarief</span>Vanaf <span data-t="uur">€45</span> per uur · <a href="tarieven/">alle tarieven</a></li>
-          <li><span>Werkgebied</span>Heel Nederland</li>
-        </ul>
       </div>
       <form class="form reveal" id="boek-form" novalidate>
         <p class="form__note form__note--links">Velden met <span class="verplicht" aria-hidden="true">*</span> zijn verplicht.</p>
@@ -397,8 +390,8 @@
                 <option>Tuinfeest</option>
                 <option>Bruiloft</option>
                 <option>Jubileum</option>
-                <option value="Privéfeest">Ander privéfeest</option>
                 <option>Diner</option>
+                <option value="Privéfeest">Ander privéfeest</option>
               </optgroup>
               <optgroup label="Zakelijk">
                 <option>Bedrijfsborrel</option>
@@ -412,15 +405,19 @@
         </div>
         <div class="form__row">
           <label>Locatie (plaats)<input name="locatie" autocomplete="address-level2" placeholder="bijv. Utrecht"></label>
-          <label>Aantal gasten (ongeveer)<input name="gasten" type="number" min="1" inputmode="numeric" placeholder="bijv. 60"></label>
+          <label>Aantal gasten (ongeveer)<input name="gasten" type="number" min="1" inputmode="numeric" placeholder="bijv. 60" data-fout="Vul een aantal vanaf 1 in."></label>
         </div>
-        <label>Bericht (optioneel)<textarea name="bericht" rows="3" placeholder="Sfeer, favoriete drankjes, vragen..."></textarea></label>
+        <label>Bericht (optioneel)<textarea name="bericht" rows="3" placeholder="Welke cocktails je wilt, de sfeer, vragen..."></textarea></label>
         <details class="form__meer">
           <summary><span>Meer details <small>(optioneel)</small></span></summary>
           <div>
             <div class="form__row">
+              <label>Bedrijf of organisatie<input name="bedrijf" autocomplete="organization" placeholder="Bij een zakelijk evenement"></label>
               <label>Telefoon<input name="telefoon" type="tel" autocomplete="tel" placeholder="Handig voor snel overleg"></label>
-              <label>Aantal uur achter de bar<input name="uren" type="number" min="1" max="24" inputmode="numeric" placeholder="bijv. 4"></label>
+            </div>
+            <div class="form__row">
+              <label>Begintijd<input name="begintijd" type="time" data-fout="Vul de begintijd volledig in."></label>
+              <label>Aantal uur achter de bar<input name="uren" type="number" min="1" max="24" step="0.5" inputmode="decimal" placeholder="bijv. 4" data-fout="Vul 1 tot 24 uur in."></label>
             </div>
             <label>Cocktails op de kaart
               <select name="cocktails"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select>
@@ -436,7 +433,7 @@
         <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
         <button class="btn btn--full" type="submit" id="form-knop">Vraag vrijblijvend een offerte aan</button>
         <ul class="form__beloftes"><li>Vrijblijvend</li><li>Reactie in 1 werkdag</li><li>Geen aanbetaling</li></ul>
-        <p class="form__note" id="form-note" role="status">Liever direct contact? Mail naar info@beckontherocks.nl.</p>
+        <p class="form__note" id="form-note" role="status">Liever direct contact? Mail naar <a href="mailto:info@beckontherocks.nl">info@beckontherocks.nl</a>.</p>
         <p class="form__privacy">Je gegevens gebruik ik alleen om je aanvraag te beantwoorden. Lees mijn <a href="/privacy/">privacyverklaring</a>.</p>
       </form>
       <div class="form form__klaar" id="form-klaar" hidden tabindex="-1" role="status">
@@ -448,6 +445,13 @@
         <p class="form__note">Vergeten iets te vermelden? Mail naar <a href="mailto:info@beckontherocks.nl">info@beckontherocks.nl</a>.</p>
         <button type="button" class="btn btn--ghost" id="form-opnieuw">Nog een aanvraag doen</button>
       </div>
+      <ul class="contact-list reveal">
+        <li><span>E-mail</span><a href="mailto:info@beckontherocks.nl">info@beckontherocks.nl</a></li>
+        <li><span>WhatsApp</span><a href="https://wa.me/31645212758" rel="noopener">06 45 21 27 58</a></li>
+        <li><span>Socials</span><a href="https://www.instagram.com/beckontherocks/" rel="noopener">Instagram</a> · <a href="https://www.facebook.com/share/19WvCcWvjy/" rel="noopener">Facebook</a></li>
+        <li><span>Tarief</span>Vanaf <span data-t="uur">€45</span> per uur · <a href="tarieven/">alle tarieven</a></li>
+        <li><span>Werkgebied</span>Heel Nederland</li>
+      </ul>
     </div>
   </section>
 </div>
@@ -483,6 +487,6 @@
 
 <script src="assets/js/config.js?v=20261110b" defer></script>
 <script src="assets/js/tarieven.js" defer></script>
-<script src="assets/js/main.js?v=20261110a" defer></script>
+<script src="assets/js/main.js?v=20261111a" defer></script>
 </body>
 </html>
