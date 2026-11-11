@@ -549,7 +549,11 @@ div.signature { display: block; margin: .2rem 0 1.6rem; }
 .cta-band__knoppen { grid-column: 9 / span 4; display: grid; gap: .8rem; min-width: 0; }
 
 /* Contact */
-.split--contact { align-items: start; }
+.split--contact { align-items: start; grid-template-rows: auto 1fr; row-gap: 0; }
+/* Volgorde in de pagina: intro, formulier, contactgegevens (zo loopt Tab ook). Breed staan de contactgegevens links onder de intro. */
+.split--contact > .form { grid-column: 2; grid-row: 1 / span 2; }
+.split--contact > .contact-list { grid-column: 1; grid-row: 2; }
+.split--contact .lead { margin-bottom: 0; } /* de lijst eronder heeft zelf al ruimte boven */
 .contact-list { list-style: none; padding: 0; margin: 2.4rem 0 0; }
 .contact-list li { position: relative; padding: 1rem 0 1rem 136px; border-top: 1px solid var(--line); color: var(--text); }
 .contact-list li:last-child { border-bottom: 1px solid var(--line); }
@@ -671,6 +675,11 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
   .nav__links a:not(.btn) { font-size: .86rem; }
   .logo__text { font-size: 1.3rem; }
 }
+@media (max-width: 900px) and (min-width: 821px) { /* smal venster met volledig menu: anders valt de themaknop rechts buiten beeld */
+  .nav__links { gap: 8px; }
+  .nav__links .btn--small { padding-inline: 12px; }
+  .nav__links .btn--small::after { display: none; }
+}
 @media (max-width: 820px) {
   :root { --nav-h: 72px; --nav-h-klein: 64px; }
   .nav__toggle { display: block; }
@@ -729,13 +738,13 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
   .form__row { grid-template-columns: 1fr; }
   .contact-list li { padding-left: 110px; }
   /* Offerte aanvragen: formulier direct onder de intro, contactgegevens eronder */
-  .split--contact { row-gap: 0; }
-  .split--contact > .reveal:first-child { display: contents; }
+  .split--contact { grid-template-rows: none; }
+  .split--contact > .form, .split--contact > .contact-list { grid-column: auto; grid-row: auto; }
   .split--contact .lead { margin-bottom: 2.4rem; }
-  .split--contact .contact-list { order: 1; }
   .fab { display: inline-block; }
   .footer { padding-bottom: 88px; } /* ruimte voor de zwevende offerteknop */
   .nav__inner > .btn--small { display: none; } /* privacypagina: kop zonder menu, knop past niet naast logo en themaknop */
+  .nav__inner > .thema-knop { width: 44px; height: 44px; } /* zelfde raakvlak als de themaknop op de andere pagina's */
 }
 @media (max-width: 560px) {
   .timeline, .steps, .opties { grid-template-columns: 1fr; }

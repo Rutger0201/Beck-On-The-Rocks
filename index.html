@@ -373,13 +373,6 @@
       <div class="reveal">
         <h2>Zullen we proosten?</h2>
         <p class="lead">Vertel kort over je feest of evenement. Binnen 1 werkdag ontvang je persoonlijk bericht van mij.</p>
-        <ul class="contact-list">
-          <li><span>E-mail</span><a href="mailto:info@beckontherocks.nl">info@beckontherocks.nl</a></li>
-          <li><span>WhatsApp</span><a href="https://wa.me/31645212758" rel="noopener">06 45 21 27 58</a></li>
-          <li><span>Socials</span><a href="https://www.instagram.com/beckontherocks/" rel="noopener">Instagram</a> · <a href="https://www.facebook.com/share/19WvCcWvjy/" rel="noopener">Facebook</a></li>
-          <li><span>Tarief</span>Vanaf <span data-t="uur">€45</span> per uur · <a href="tarieven/">alle tarieven</a></li>
-          <li><span>Werkgebied</span>Heel Nederland</li>
-        </ul>
       </div>
       <form class="form reveal" id="boek-form" novalidate>
         <p class="form__note form__note--links">Velden met <span class="verplicht" aria-hidden="true">*</span> zijn verplicht.</p>
@@ -423,8 +416,8 @@
               <label>Telefoon<input name="telefoon" type="tel" autocomplete="tel" placeholder="Handig voor snel overleg"></label>
             </div>
             <div class="form__row">
-              <label>Begintijd<input name="begintijd" type="time"></label>
-              <label>Aantal uur achter de bar<input name="uren" type="number" min="1" max="24" inputmode="numeric" placeholder="bijv. 4" data-fout="Vul 1 tot 24 uur in."></label>
+              <label>Begintijd<input name="begintijd" type="time" data-fout="Vul de begintijd volledig in."></label>
+              <label>Aantal uur achter de bar<input name="uren" type="number" min="1" max="24" step="0.5" inputmode="decimal" placeholder="bijv. 4" data-fout="Vul 1 tot 24 uur in."></label>
             </div>
             <label>Cocktails op de kaart
               <select name="cocktails"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select>
@@ -452,6 +445,13 @@
         <p class="form__note">Vergeten iets te vermelden? Mail naar <a href="mailto:info@beckontherocks.nl">info@beckontherocks.nl</a>.</p>
         <button type="button" class="btn btn--ghost" id="form-opnieuw">Nog een aanvraag doen</button>
       </div>
+      <ul class="contact-list reveal">
+        <li><span>E-mail</span><a href="mailto:info@beckontherocks.nl">info@beckontherocks.nl</a></li>
+        <li><span>WhatsApp</span><a href="https://wa.me/31645212758" rel="noopener">06 45 21 27 58</a></li>
+        <li><span>Socials</span><a href="https://www.instagram.com/beckontherocks/" rel="noopener">Instagram</a> · <a href="https://www.facebook.com/share/19WvCcWvjy/" rel="noopener">Facebook</a></li>
+        <li><span>Tarief</span>Vanaf <span data-t="uur">€45</span> per uur · <a href="tarieven/">alle tarieven</a></li>
+        <li><span>Werkgebied</span>Heel Nederland</li>
+      </ul>
     </div>
   </section>
 </div>

@@ -595,13 +595,6 @@
       <div class="reveal">
         <h2>Shall we raise a glass?</h2>
         <p class="lead">Tell me briefly about your party or event. Within 1 business day you'll receive a personal message from me.</p>
-        <ul class="contact-list">
-          <li><span>Email</span><a href="mailto:info@beckontherocks.nl">info@beckontherocks.nl</a></li>
-          <li><span>WhatsApp</span><a href="https://wa.me/31645212758" rel="noopener">+31 6 45 21 27 58</a></li>
-          <li><span>Socials</span><a href="https://www.instagram.com/beckontherocks/" rel="noopener">Instagram</a> · <a href="https://www.facebook.com/share/19WvCcWvjy/" rel="noopener">Facebook</a></li>
-          <li><span>Rate</span>From <span data-t="uur">€45</span> per hour · <a href="#prijzen">all prices</a></li>
-          <li><span>Area</span>All of the Netherlands</li>
-        </ul>
       </div>
       <form class="form reveal" id="boek-form" novalidate>
         <p class="form__note form__note--links">Fields marked <span class="verplicht" aria-hidden="true">*</span> are required.</p>
@@ -634,7 +627,7 @@
         </div>
         <div class="form__row">
           <label>Location (town or city)<input name="locatie" autocomplete="address-level2" placeholder="e.g. Amsterdam"></label>
-          <label>Number of guests (approx.)<input name="gasten" type="number" min="1" inputmode="numeric" placeholder="e.g. 60" data-fout="Enter a number from 1."></label>
+          <label>Number of guests (approx.)<input name="gasten" type="number" min="1" inputmode="numeric" placeholder="e.g. 60" data-fout="Please enter a number of 1 or more."></label>
         </div>
         <label>Message (optional)<textarea name="bericht" rows="3" placeholder="Which cocktails you'd like, the vibe, questions..."></textarea></label>
         <details class="form__meer">
@@ -645,8 +638,8 @@
               <label>Phone<input name="telefoon" type="tel" autocomplete="tel" placeholder="Handy for a quick chat"></label>
             </div>
             <div class="form__row">
-              <label>Start time<input name="begintijd" type="time"></label>
-              <label>Hours behind the bar<input name="uren" type="number" min="1" max="24" inputmode="numeric" placeholder="e.g. 4" data-fout="Enter 1 to 24 hours."></label>
+              <label>Start time<input name="begintijd" type="time" data-fout="Please enter the full start time."></label>
+              <label>Hours behind the bar<input name="uren" type="number" min="1" max="24" step="0.5" inputmode="decimal" placeholder="e.g. 4" data-fout="Please enter 1 to 24 hours."></label>
             </div>
             <label>Cocktails on the menu
               <select name="cocktails"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select>
@@ -674,6 +667,13 @@
         <p class="form__note">Forgot to mention something? Email <a href="mailto:info@beckontherocks.nl">info@beckontherocks.nl</a>.</p>
         <button type="button" class="btn btn--ghost" id="form-opnieuw">Send another request</button>
       </div>
+      <ul class="contact-list reveal">
+        <li><span>Email</span><a href="mailto:info@beckontherocks.nl">info@beckontherocks.nl</a></li>
+        <li><span>WhatsApp</span><a href="https://wa.me/31645212758" rel="noopener">+31 6 45 21 27 58</a></li>
+        <li><span>Socials</span><a href="https://www.instagram.com/beckontherocks/" rel="noopener">Instagram</a> · <a href="https://www.facebook.com/share/19WvCcWvjy/" rel="noopener">Facebook</a></li>
+        <li><span>Rate</span>From <span data-t="uur">€45</span> per hour · <a href="#prijzen">all prices</a></li>
+        <li><span>Area</span>All of the Netherlands</li>
+      </ul>
     </div>
   </section>
 </div>

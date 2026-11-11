@@ -364,7 +364,10 @@ window.BeckAnalyse = (() => {
     if (fd) zet('f-datum', fd.waarde, (lDatum ? lDatum + '\n' + t : t).substr(fd.idx, fd.len));
 
     // Tijden en uren
-    const tijden = vindTijden(t);
+    let tijden = vindTijden(t);
+    // Het veld Begintijd uit de aanvraag gaat voor op een ander tijdvak dat in het bericht staat
+    const lBegin = /^(\d{1,2})[:.](\d{2})$/.exec(label(t, 'begintijd') || ''), begin = lBegin && tijd(+lBegin[1], +lBegin[2]);
+    if (begin && (!tijden || tijden.van !== begin)) tijden = { van: begin, snippet: 'Begintijd: ' + lBegin[0] };
     if (tijden) { zet('f-van', tijden.van, tijden.snippet); zet('f-tot', tijden.tot, tijden.snippet); }
     const uren = lUren ? parseFloat(lUren.replace(',', '.')) : ((/\b(\d{1,2}(?:[.,]5)?)[ \t]*uur\b(?!\s*(?:[:.]\d|tot|-))/i.exec(t) || [])[1] || '').replace(',', '.');
     if (+uren > 0 && +uren <= 16) {

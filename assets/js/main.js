@@ -338,7 +338,7 @@
   function valideer(form) {
     let eerste = null;
     // Verplichte velden, plus optionele velden die wel zijn ingevuld (bijv. gasten 0 of 40 uur)
-    $$('input, select, textarea', form).filter(el => el.required || (el.type !== 'checkbox' && el.value.trim())).forEach(el => {
+    $$('input, select, textarea', form).filter(el => el.required || (el.type !== 'checkbox' && (el.value.trim() || el.validity.badInput))).forEach(el => {
       const ok = isGeldig(el);
       zetFout(el, ok ? '' : foutTekst(el));
       if (!ok && el.closest('details')) el.closest('details').open = true; // fout in 'Meer details': blok openklappen
@@ -406,6 +406,7 @@
   const boekForm = $('#boek-form');
   // Na overname uit de calculator: bovenin het formulier melden wat er al staat (die velden zitten in 'Meer details')
   const formKop = boekForm && $('.form__note--links', boekForm), formKopHtml = formKop ? formKop.innerHTML : '';
+  let cocktailsZelf = false; // het aantal cocktails is zelf gekozen (in het formulier of via de calculator)
   const meldOvername = metDatum => {
     if (formKop) formKop.textContent = metDatum
       ? t('Je uren, cocktails en datum uit de calculator staan al ingevuld. Vul nog je naam, e-mail en het type feest aan.', 'Your hours, cocktails and date from the calculator are already filled in. Just add your name, email and the type of event.')
@@ -456,7 +457,7 @@
       }
       const f = boekForm.elements;
       f.uren.value = cU.value;
-      f.cocktails.value = cC.value;
+      f.cocktails.value = cC.value; cocktailsZelf = true;
       f.fruitpers.checked = cF.checked;
       if (cD.value) f.datum.value = cD.value;
       f.datum.dispatchEvent(new Event('input'));
@@ -690,6 +691,7 @@
     const SFEER = EN
       ? { strand: 'With your toes in the sand:', lounge: 'Sunk deep into a jazz lounge:', feest: 'Between two dances:' }
       : { strand: 'Met je tenen in het zand,', lounge: 'Lekker weggezakt bij de jazz,', feest: 'Tussen twee dansjes door,' };
+    let quizZin = ''; // wat de quiz zelf in het bericht heeft gezet
     quiz.addEventListener('submit', e => {
       e.preventDefault();
       const f = new FormData(quiz);
@@ -707,7 +709,8 @@
       res.hidden = false; res.focus();
       // De uitslag gaat mee naar het aanvraagformulier, als daar nog geen bericht staat
       $('a', res).addEventListener('click', () => {
-        if (boekForm && !boekForm.elements.bericht.value) boekForm.elements.bericht.value = t(`Graag de ${c.titel || c.naam} op de kaart.`, `I'd like the ${c.titel || c.naam} on the menu.`);
+        const b = boekForm && boekForm.elements.bericht;
+        if (b && (!b.value || b.value === quizZin)) b.value = quizZin = t(`Graag de ${c.titel || c.naam} op de kaart.`, `I'd like the ${c.titel || c.naam} on the menu.`);
       });
     });
   }
@@ -732,15 +735,16 @@
     const VIA_SOORT = { privefeest: 'Privéfeest', private: 'Privéfeest', bedrijfsfeest: 'Bedrijfsfeest', corporate: 'Bedrijfsfeest', kerst: 'Bedrijfsborrel', christmas: 'Bedrijfsborrel' };
     const soort = params.get('soort') || VIA_SOORT[params.get('via')] || '';
     if (soort && [...boekForm.elements.soort.options].some(o => o.value === soort)) boekForm.elements.soort.value = soort;
+    boekForm.elements.cocktails.addEventListener('change', () => { cocktailsZelf = true; });
     // Vanuit de calculator op /tarieven/: uren, cocktails, fruitpers en datum alvast invullen
     if (params.get('via') === 'calculator') {
       const f = boekForm.elements;
       if (/^\d{1,2}$/.test(params.get('uren') || '')) f.uren.value = params.get('uren');
-      if (/^[1-5]$/.test(params.get('cocktails') || '')) f.cocktails.value = params.get('cocktails');
+      if (/^[1-5]$/.test(params.get('cocktails') || '')) { f.cocktails.value = params.get('cocktails'); cocktailsZelf = true; }
       f.fruitpers.checked = params.get('fruitpers') === 'ja';
       if (/^\d{4}-\d{2}-\d{2}$/.test(params.get('datum') || '')) { f.datum.value = params.get('datum'); f.datum.dispatchEvent(new Event('input')); }
       const meer = $('.form__meer', boekForm); if (meer) meer.open = true;
-      meldOvername(!!f.datum.value);
+      if (f.uren.value) meldOvername(!!f.datum.value && f.datum.checkValidity());
     }
 
     // Vaste HTML uit de pagina (met de maillink), geen invoer van de bezoeker
@@ -755,14 +759,14 @@
       }
       const d = Object.fromEntries(new FormData(boekForm));
       if (d.botcheck) return; // spambot
-      // Aantal cocktails alleen als echte keuze melden: 'Meer details' open of een andere waarde dan de standaard
-      const cSel = boekForm.elements.cocktails, meerOpen = ($('.form__meer', boekForm) || {}).open;
-      const cocktailsGekozen = meerOpen || !cSel.options[cSel.selectedIndex].defaultSelected;
+      // Aantal cocktails alleen als echte keuze melden: zelf gekozen of een andere waarde dan de standaard
+      const cSel = boekForm.elements.cocktails;
+      const cocktailsGekozen = cocktailsZelf || !cSel.options[cSel.selectedIndex].defaultSelected;
 
       const velden = {
         'Naam': d.naam.trim(), 'E-mail': d.email.trim(), 'Telefoon klant': d.telefoon || '-',
         // Bedrijf en begintijd alleen als ze zijn ingevuld: een '-' zou de generator als bedrijfsnaam overnemen
-        ...(d.bedrijf.trim() ? { 'Bedrijf': d.bedrijf.trim() } : {}),
+        ...((d.bedrijf || '').trim() ? { 'Bedrijf': d.bedrijf.trim() } : {}),
         'Datum': d.datum, ...(d.begintijd ? { 'Begintijd': d.begintijd } : {}), 'Aantal uur': d.uren || '-',
         'Gasten': d.gasten || '-', 'Soort feest': d.soort, 'Locatie': d.locatie || '-',
         'Cocktails op de kaart': cocktailsGekozen ? d.cocktails : `${d.cocktails} (standaard)`, 'Fruitpers': d.fruitpers ? 'ja' : 'nee', 'Glazen via Rutger': d.glazen ? 'ja' : 'nee',
@@ -795,7 +799,7 @@
           const gelukt = await stuurBevestiging(d);
           if (gelukt) $('#form-klaar-mail').hidden = false;
         }
-        boekForm.reset();
+        boekForm.reset(); cocktailsZelf = false;
         if (formKop) formKop.innerHTML = formKopHtml;
         $('#form-spoed').hidden = true;
         note.innerHTML = noteHtml;
