@@ -12,7 +12,7 @@
   /* ================= Instellingen ================= */
   const STANDAARD = {
     naam: 'Beck on the Rocks', contact: 'Rutger', adres: '', plaats: '', tel: '', email: 'info@beckontherocks.nl', web: 'beckontherocks.nl',
-    kvk: '42212414', iban: '', btw: 'kor', btwnr: '', review: window.BECK_CONFIG?.google?.review || 'https://g.page/r/CdSRBk_6B5glEBI/review',
+    kvk: '42212414', iban: '', btw: 'incl', btwnr: '', review: window.BECK_CONFIG?.google?.review || 'https://g.page/r/CdSRBk_6B5glEBI/review',
     uur: 45, prep: 1, menu: 75, fruitpers: 20, menuFp: 99, km: 0.25, glas: 0.5, spoed: 25, annul: 20, betaal: 14
   };
   // Tarieven van de website (tarieven.json → assets/js/tarieven.js) gaan voor
@@ -39,11 +39,43 @@
   if (ins.tel === '06 39 65 86 62') ins.tel = '';  // telefoonnummer staat niet meer op documenten
   if (!ins.kvk) ins.kvk = STANDAARD.kvk;
   if (!ins.review || ins.review === OUDE_REVIEW) ins.review = STANDAARD.review;
+  // Tarieven die een document bij opslaan vastlegt (zie bewaar)
+  const TARIEF = ['uur', 'prep', 'menu', 'fruitpers', 'menuFp', 'km', 'glas', 'spoed', 'annul', 'btw', 'betaal'];
+  // Tot 10 november 2026 stond de generator standaard op KOR (geen btw), maar de KOR geldt pas na schriftelijke
+  // bevestiging van de Belastingdienst. Eén keer omzetten, ook bij het terugzetten van een oudere back-up:
+  // de instelling en concepten gaan naar de nieuwe standaard. Verstuurde documenten blijven zoals ze zijn verstuurd
+  // (zonder eigen tarieven krijgen ze die van dit moment, met KOR), ook met de KOR-zin van toen (korOud).
+  // Daarna kies je KOR alleen nog zelf.
+  function herzieBtw(i, docs) {
+    const wasKor = i.btw === 'kor';
+    if (wasKor) {
+      const vast = Object.fromEntries(TARIEF.map(k => [k, i[k]]));
+      docs.forEach(d => { if (d && !d.tarief && d.status && d.status !== 'concept') d.tarief = { ...vast }; });
+      i.btw = STANDAARD.btw;
+    }
+    docs.forEach(d => {
+      if (!d || !d.tarief || d.tarief.btw !== 'kor') return;
+      if (!d.status || d.status === 'concept') d.tarief.btw = i.btw; else d.tarief.korOud = 1;
+    });
+    i.btwHerzien = 1;
+    return wasKor;
+  }
+  if (!ins.btwHerzien) {
+    const docs = opslag.lees('beck-documenten', {}), concept = opslag.lees('beck-concept', null);
+    const wasKor = herzieBtw(ins, [...Object.values(docs), concept]);
+    opslag.schrijf('beck-instellingen', ins); opslag.schrijf('beck-documenten', docs);
+    if (concept) opslag.schrijf('beck-concept', concept);
+    if (wasKor) setTimeout(() => alert('De KOR (geen btw) geldt pas als de Belastingdienst je deelname schriftelijk heeft bevestigd. '
+      + 'Daarom rekent de generator nu met 21% btw, inbegrepen in je bedragen. Concepten zijn mee omgezet; verstuurde documenten blijven zoals ze zijn. '
+      + 'Heb je die bevestiging, kies dan KOR bij Mijn gegevens & tarieven.'), 300);
+  }
   $$('[data-set]').forEach(el => {
     el.value = ins[el.dataset.set];
     el.addEventListener('input', () => {
       ins[el.dataset.set] = el.type === 'number' ? +el.value : el.value;
       opslag.schrijf('beck-instellingen', ins);
+      // Steeds opnieuw vanaf het document zelf: heen en terug wisselen verandert het dan niet
+      if (el.dataset.set === 'btw' && $('#status').value === 'concept') { tarief = tariefBron && { ...tariefBron }; btwVoorNieuw(); }
       teken();
     });
   });
@@ -73,10 +105,26 @@
   const VELDEN = ['nummer', 'datum', 'termijn', 'referentie', 'k-naam', 'k-bedrijf', 'k-adres', 'k-plaats', 'k-email', 'k-tel',
     'f-datum', 'f-soort', 'f-van', 'f-tot', 'f-gasten', 'f-locatie', 'f-cocktails', 'f-km', 'f-glazen', 'opmerking', 'status'];
   let type = 'offerte', extra = [];
-  // Tarieven van het geopende document (vastgelegd bij opslaan); null = actuele instellingen
-  let tarief = null;
-  const TARIEF = ['uur', 'prep', 'menu', 'fruitpers', 'menuFp', 'km', 'glas', 'spoed', 'annul', 'btw', 'betaal'];
+  // Tarieven van het geopende document (vastgelegd bij opslaan); null = actuele instellingen.
+  // tariefBron: dezelfde, zoals geopend, gemaakt of opgeslagen (vóór een btw-omzetting)
+  let tarief = null, tariefBron = null;
   const tarievenVan = d => d.tarief ? { ...ins, ...d.tarief } : ins;
+  // Btw per instelling: 'incl' = 21% zit in de bedragen, '21' = 21% komt erbovenop, 'kor' = vrijgesteld (KOR)
+  function btwVan(modus, sub) {
+    if (modus === 'incl') {
+      const totaal = Math.round(sub * 100) / 100, btw = Math.round(totaal * 21 / 121 * 100) / 100;
+      return { btw, excl: Math.round((totaal - btw) * 100) / 100, totaal };
+    }
+    const btw = modus === '21' ? sub * .21 : 0;
+    return { btw, excl: sub, totaal: sub + btw };
+  }
+  // Nieuw document uit een bestaand (bijv. factuur uit een offerte), een concept of een aangepaste offerte: de afgesproken
+  // prijzen blijven, maar wel of geen btw (KOR) volgt je huidige instelling. Inbegrepen of bovenop wisselt niet vanzelf.
+  const btwVoorNieuw = () => {
+    if (!tarief) return;
+    if ((tarief.btw === 'kor') !== (ins.btw === 'kor')) tarief = { ...tarief, btw: ins.btw };
+    delete tarief.korOud;
+  };
 
   const alleDocs = () => opslag.lees('beck-documenten', {});
   const prefix = t => (t === 'offerte' ? 'O' : 'F') + '-' + new Date().getFullYear() + '-';
@@ -103,6 +151,8 @@
   }
   function vulForm(d) {
     tarief = d.tarief ? { ...d.tarief } : null;
+    tariefBron = tarief && { ...tarief };
+    if (!d.status || d.status === 'concept') btwVoorNieuw();
     zetType(d.type, false);
     VELDEN.forEach(id => { if (d[id] !== undefined) $('#' + id).value = d[id]; });
     $('#spoed-auto').checked = d.spoedAuto !== false;
@@ -115,7 +165,7 @@
     tekenExtra(); teken();
   }
   function nieuw(t = type) {
-    tarief = null;
+    tarief = tariefBron = null;
     VELDEN.forEach(id => { $('#' + id).value = ''; });
     $('#f-van').value = '20:00'; $('#f-tot').value = '00:00'; $('#f-soort').selectedIndex = 0;
     $('#spoed-auto').checked = true; $('#spoed-hand').checked = false;
@@ -172,7 +222,9 @@
   });
   $('#extra').addEventListener('click', e => {
     if (e.target.tagName !== 'BUTTON') return;
-    extra.splice(+e.target.closest('.extra-row').dataset.i, 1); tekenExtra(); teken();
+    extra.splice(+e.target.closest('.extra-row').dataset.i, 1); tekenExtra();
+    if (type === 'offerte') btwVoorNieuw();
+    teken();
   });
   $('#extra-plus').addEventListener('click', () => { extra.push({ oms: '', aantal: '1', prijs: '' }); tekenExtra(); teken(); });
 
@@ -215,16 +267,15 @@
     const d = leesForm(), t = tarievenVan(d);
     $('#fp-uitleg').textContent = `uurtarief +${getal(t.fruitpers)}%, menu vanaf €${getal(t.menuFp)}`;
     const b = bereken(d);
-    const btw = t.btw === '21';
-    const btwBedrag = btw ? b.sub * .21 : 0;
-    const totaal = b.sub + btwBedrag;
+    const btw = t.btw === '21' || t.btw === 'incl';
+    const { btw: btwBedrag, excl, totaal } = btwVan(t.btw, b.sub);
     const mt = $('#m-totaal'); if (mt) mt.textContent = 'Totaal ' + euro(totaal); // alleen zichtbaar op mobiel
     const factuur = type !== 'offerte';
     const termijn = +d.termijn || (factuur ? t.betaal : 14);
     const tot = d.datum ? plusDagen(d.datum, termijn) : '';
     $('#lbl-spoed-hand').hidden = d.spoedAuto;
     $('#naar-factuur').hidden = type !== 'offerte';
-    $('[data-show=btw21]').hidden = ins.btw !== '21';
+    $('[data-show=btw21]').hidden = !btw && ins.btw !== '21' && ins.btw !== 'incl';
 
     // Afzender
     $('#d-me').innerHTML = [ins.naam, ins.contact, ins.adres, ins.plaats, ins.tel, ins.email, ins.web].filter(Boolean).map(esc).join('<br>');
@@ -251,22 +302,33 @@
     ].filter(Boolean);
     $('#d-feest').innerHTML = feest.map(esc).join('<br>');
 
-    // Regels
+    // Regels. Bij 'incl' zijn prijs en bedrag incl. btw; een factuur noemt dan ook de stuksprijs excl. btw (verplicht)
+    const incl = t.btw === 'incl';
+    if ($('#th-prijs')) { // een oude documenten.html uit de cache heeft deze kopjes niet
+      $('#th-prijs').textContent = incl ? 'Prijs incl.' : 'Prijs';
+      $('#th-bedrag').textContent = incl ? 'Bedrag incl.' : 'Bedrag';
+    }
+    // Compactere totalen (zie documenten.css), niet bij 21% bovenop en de oude KOR-zin: die printen zoals toen
+    $('#d-totaal').classList.toggle('is-strak', incl || (t.btw === 'kor' && !t.korOud));
     $('#d-regels').innerHTML = b.regels.map(r => `
       <tr>
         <td>${esc(r.oms)}${r.sub ? `<small>${esc(r.sub)}</small>` : ''}</td>
         <td class="num">${getal(r.aantal)}${r.eenheid ? ' ' + r.eenheid : ''}</td>
-        <td class="num">${euro(r.prijs)}</td>
+        <td class="num">${euro(r.prijs)}${incl && factuur ? `<small>excl. btw ${euro(r.prijs / 1.21)}</small>` : ''}</td>
         <td class="num">${euro(r.bedrag)}</td>
       </tr>`).join('');
 
     // Totalen
-    $('#d-totaal').innerHTML = btw
+    $('#d-totaal').innerHTML = t.btw === 'incl'
+      ? `<div><span>Totaal excl. btw</span><span>${euro(excl)}</span></div>
+         <div><span>Btw 21%</span><span>${euro(btwBedrag)}</span></div>
+         <div class="tot"><span>Totaal incl. btw</span><span>${euro(totaal)}</span></div>`
+      : btw
       ? `<div><span>Subtotaal</span><span>${euro(b.sub)}</span></div>
          <div><span>Btw 21%</span><span>${euro(btwBedrag)}</span></div>
          <div class="tot"><span>Totaal</span><span>${euro(totaal)}</span></div>`
-      : `<div class="tot"><span>Totaal</span><span>${euro(totaal)}</span></div>
-         <div class="muted"><span>Geen btw: kleineondernemersregeling (KOR)</span></div>`;
+      : `<div class="tot"><span>Totaal</span><span>${euro(totaal)}</span></div>`
+        + (t.btw === 'kor' ? `<div class="muted"><span>${t.korOud ? 'Geen btw: kleineondernemersregeling (KOR)' : 'Vrijgesteld van btw op grond van de kleineondernemersregeling (KOR)'}</span></div>` : '');
 
     // Opmerking
     $('#d-opmerking').hidden = !d.opmerking;
@@ -301,9 +363,22 @@
     // Voet
     $('#d-foot').innerHTML = [
       ins.kvk && 'KvK ' + esc(ins.kvk),
-      btw ? (ins.btwnr && 'Btw ' + esc(ins.btwnr)) : 'KOR: vrijgesteld van btw',
+      btw ? (ins.btwnr && 'Btw ' + esc(ins.btwnr)) : t.btw === 'kor' && 'KOR: vrijgesteld van btw',
       ins.iban && 'IBAN ' + esc(ins.iban)
     ].filter(Boolean).map(s => `<span>${s}</span>`).join('');
+
+    // Past het niet op één A4? Dan compacter zetten (verhouding is onafhankelijk van zoom)
+    const paper = $('#paper');
+    paper.classList.remove('is-compact');
+    if (paper.offsetHeight / paper.offsetWidth > 297 / 210 + 0.002) paper.classList.add('is-compact');
+    // Valt de voet (KvK, btw-nummer, IBAN) ook dan nog buiten de A4 (de print knipt af op 296 mm)? Dan een melding.
+    // Gemeten op het A4 zoals het geprint wordt: op het scherm kan het verkleind of uitgerekt zijn
+    const y = scrollY;
+    paper.classList.add('is-meten');
+    const pr = paper.getBoundingClientRect();
+    const teLang = pr.width > 0 && ($('#d-foot').getBoundingClientRect().bottom - pr.top) / pr.width * 210 > 296;
+    paper.classList.remove('is-meten');
+    if (scrollY !== y) scrollTo(scrollX, y);
 
     // Ontbrekende gegevens: alleen als melding in het bewerkpaneel, niet op het document
     const mist = [
@@ -312,15 +387,11 @@
       factuur && (!ins.adres || !ins.plaats) && 'je adres',
       btw && !ins.btwnr && 'btw-nummer'
     ].filter(Boolean);
-    $('#ontbreekt').hidden = !mist.length;
-    $('#ontbreekt').innerHTML = mist.length
-      ? `Nog niet ingevuld: <strong>${mist.join(', ')}</strong>. ${factuur ? 'Dit is verplicht op een factuur. ' : ''}Vul het in onder "Mijn gegevens & tarieven".`
-      : '';
-
-    // Past het niet op één A4? Dan compacter zetten (verhouding is onafhankelijk van zoom)
-    const paper = $('#paper');
-    paper.classList.remove('is-compact');
-    if (paper.offsetHeight / paper.offsetWidth > 297 / 210 + 0.002) paper.classList.add('is-compact');
+    $('#ontbreekt').hidden = !mist.length && !teLang;
+    $('#ontbreekt').innerHTML = [
+      mist.length && `Nog niet ingevuld: <strong>${mist.join(', ')}</strong>. ${factuur ? 'Dit is verplicht op een factuur. ' : ''}Vul het in onder "Mijn gegevens & tarieven".`,
+      teLang && '<strong>Past niet op één A4:</strong> bij printen valt de onderste regel (met je KvK-nummer) weg. Maak de opmerking korter of haal een regel weg.'
+    ].filter(Boolean).join(' ');
 
     blTeken(d, b);
 
@@ -344,7 +415,7 @@
     d.bijgewerkt = new Date().toISOString();
     // Tarieven vastleggen: een later gewijzigd uurtarief verandert dit document niet meer
     if (!d.tarief) d.tarief = Object.fromEntries(TARIEF.map(k => [k, ins[k]]));
-    tarief = { ...d.tarief };
+    tarief = { ...d.tarief }; tariefBron = { ...tarief };
     const docs = alleDocs();
     if (docs[d.nummer]?.herinnerd) d.herinnerd = docs[d.nummer].herinnerd;
     docs[d.nummer] = d; opslag.schrijf('beck-documenten', docs);
@@ -366,6 +437,7 @@
     const vanOfferte = type === 'offerte' && b.dataset.type !== 'offerte';
     const zetSpoed = spoedVastzetten();
     zetType(b.dataset.type, true);
+    btwVoorNieuw();
     if (vanOfferte) zetSpoed();
     if (b.dataset.type !== 'offerte' && ref && !$('#referentie').value) $('#referentie').value = ref;
     $('#opgeslagen').value = '';
@@ -376,6 +448,7 @@
     const ref = $('#nummer').value;
     const zetSpoed = spoedVastzetten();
     zetType('factuur', true);
+    btwVoorNieuw();
     zetSpoed();
     $('#referentie').value = ref;
     $('#opgeslagen').value = '';
@@ -411,6 +484,13 @@
   });
   // Concept bewaren bij elke wijziging: na herladen van de pagina komt het terug (zie Start)
   const bewaarConcept = () => opslag.schrijf('beck-concept', leesForm());
+  // Een offerte aanpassen maakt er een nieuwe versie van: die volgt je huidige btw-keuze (zie btwVoorNieuw).
+  // Alleen velden van het document zelf; status, boodschappenlijst en instellingen niet.
+  $('.editor').addEventListener('input', e => {
+    const el = e.target;
+    if (type === 'offerte' && (el.closest('#extra') || ['f-fruitpers', 'spoed-auto', 'spoed-hand'].includes(el.id)
+      || (VELDEN.includes(el.id) && el.id !== 'status'))) btwVoorNieuw();
+  }, true);
   $('.editor').addEventListener('input', e => {
     if (e.target.dataset.set || e.target.closest('.slim')) return;
     if (!e.target.closest('#extra')) teken();
@@ -421,9 +501,9 @@
   /* ================= Bedragen, versturen en online akkoord ================= */
   function cijfers(d) {
     const b = bereken(d), t = tarievenVan(d);
-    const btw = t.btw === '21' ? b.sub * .21 : 0;
+    const { btw, totaal } = btwVan(t.btw, b.sub);
     const termijn = +d.termijn || (d.type !== 'offerte' ? t.betaal : 14);
-    return { b, btw, totaal: b.sub + btw, verval: d.datum ? plusDagen(d.datum, termijn) : '' };
+    return { b, btw, totaal, verval: d.datum ? plusDagen(d.datum, termijn) : '' };
   }
   const voornaam = d => (d['k-naam'] || '').trim().split(/\s+/)[0] || '';
 
@@ -450,7 +530,7 @@
       t: d['f-van'] && d['f-tot'] ? `${d['f-van']} – ${d['f-tot']}` : '', u: c.b.u, g: d['f-gasten'], l: d['f-locatie'],
       r: c.b.regels.map(r => [r.oms, r.sub || '', `${getal(r.aantal)}${r.eenheid ? ' ' + r.eenheid : ''}`, Math.round(r.bedrag * 100) / 100]),
       sub: Math.round(c.b.sub * 100) / 100, btw: Math.round(c.btw * 100) / 100, tot: Math.round(c.totaal * 100) / 100,
-      kor: t.btw !== '21', sp: t.spoed, an: t.annul, ad: ANNUL_DAGEN, bt: t.betaal, o: d.opmerking || ''
+      kor: t.btw === 'kor', bi: t.korOud ? undefined : t.btw === 'incl', sp: t.spoed, an: t.annul, ad: ANNUL_DAGEN, bt: t.betaal, o: d.opmerking || ''
     };
     const basis = location.href.replace(/[?#].*$/, '').replace(/documenten\.html$/, '');
     const o = b64(JSON.stringify(data));
@@ -464,18 +544,23 @@
       const b = atob(o.replace(/-/g, '+').replace(/_/g, '/'));
       data = JSON.parse(new TextDecoder().decode(Uint8Array.from(b, c => c.charCodeAt(0))));
     } catch { alert('Deze controlelink is beschadigd of niet volledig gekopieerd.'); return; }
-    const doc = alleDocs()[data.n];
+    // Zonder controlecode is een link nooit te vertrouwen: alle links zijn sinds 23 oktober 2026 ondertekend
+    const echt = !!s && s === await onderteken(o);
+    // Een concept volgt bij openen je btw-keuze (zie vulForm). Is die keuze daarna gewijzigd, dan telt wat de klant zag
+    // (alleen bij een echte link). Een link van vóór 10 november (zonder bi) toonde de KOR-zin van toen.
+    const d0 = alleDocs()[data.n];
+    const doc = echt && d0 && d0.tarief && (!d0.status || d0.status === 'concept') && (d0.tarief.btw === 'kor') !== !!data.kor
+      ? { ...d0, tarief: { ...d0.tarief, btw: data.kor ? 'kor' : data.bi ? 'incl' : '21', korOud: data.kor && !('bi' in data) ? 1 : undefined } } : d0;
     const nu = doc ? cijfers(doc).totaal : null;
     const verschilt = nu != null && Math.abs(nu - data.tot) > 0.01;
-    // Zonder controlecode is een link nooit te vertrouwen: alle links zijn sinds 23 oktober 2026 ondertekend
-    if (!s || s !== await onderteken(o)) {
+    if (!echt) {
       alert(`✗ LET OP: deze akkoordlink is aangepast, of niet met jouw generator gemaakt.\n\nBedrag in de link: ${euro(data.tot)}`
         + (nu != null ? `\nJouw offerte ${data.n}: ${euro(nu)}` : '') + '\n\nNeem contact op met de klant voordat je de datum bevestigt.');
     } else {
       const tekst = `✓ Offerte ${data.n} is ongewijzigd: ${euro(data.tot)} voor ${data.k || 'de klant'}.`
         + (verschilt ? `\n\nLet op: je hebt de offerte daarna nog aangepast (nu ${euro(nu)}). De klant gaf akkoord op ${euro(data.tot)}.` : '');
       if (doc && doc.status !== 'akkoord' && confirm(tekst + '\n\nStatus van deze offerte op Akkoord zetten?')) {
-        const docs = alleDocs(); docs[data.n].status = 'akkoord'; opslag.schrijf('beck-documenten', docs);
+        const docs = alleDocs(); docs[data.n] = { ...doc, status: 'akkoord' }; opslag.schrijf('beck-documenten', docs);
         telNummer(data.n, 'akkoord');
       } else if (!doc || doc.status === 'akkoord') alert(tekst);
     }
@@ -633,15 +718,19 @@
     o.value = /^Cocktails?:.*$/m.test(o.value) || /^Gewenste cocktails:.*$/m.test(o.value)
       ? o.value.replace(/^(Gewenste )?[Cc]ocktails?:.*$/m, regel) : (o.value ? o.value + '\n' : '') + regel;
     $('#f-cocktails').value = String(Math.min(5, Math.max(1, c.length)));
+    if (type === 'offerte') btwVoorNieuw();
     teken();
   });
 
   /* ================= Overzicht ================= */
   let ovFilter = 'alle';
+  // Een concept volgt bij openen je huidige btw-keuze (zie vulForm): het overzicht rekent net zo
+  const alsNu = d => d.tarief && (!d.status || d.status === 'concept') && (d.tarief.btw === 'kor') !== (ins.btw === 'kor')
+    ? { ...d, tarief: { ...d.tarief, btw: ins.btw } } : d;
   function overzichtRijen() {
     const nu = vandaag();
     return Object.values(alleDocs()).map(d => {
-      const c = cijfers(d);
+      const c = cijfers(alsNu(d));
       const st = d.status || 'concept';
       const isFactuur = d.type !== 'offerte';
       const teLaat = isFactuur && st !== 'betaald' && st !== 'concept' && c.verval && c.verval < nu;
@@ -736,13 +825,18 @@
       if (!confirm(`Back-up van ${lang(isoVan(new Date(data.gemaakt)))} met ${nieuw_.length} documenten terugzetten?`
         + (dubbel ? `\n${dubbel} daarvan bestaan al en worden vervangen door de versie uit de back-up.` : '')
         + '\nJe gegevens & tarieven worden ook teruggezet.')) return;
+      // Back-up van vóór 10 november 2026 (toen stond KOR standaard aan): net zo omzetten als bij het openen
+      if (data.instellingen && !data.instellingen.btwHerzien) {
+        data.instellingen = { ...STANDAARD, ...data.instellingen };
+        herzieBtw(data.instellingen, Object.values(data.documenten));
+      }
       opslag.schrijf('beck-documenten', { ...bestaand, ...data.documenten });
       // Teller per reeks: hoogste van beide, zodat een verwijderd nummer niet terugkomt
       const tellers = opslag.lees('beck-tellers', {});
       Object.entries(data.tellers || {}).forEach(([p, n]) => { tellers[p] = Math.max(tellers[p] || 0, +n || 0); });
       opslag.schrijf('beck-tellers', tellers);
       if (data.instellingen) {
-        ins = { ...STANDAARD, ...data.instellingen };
+        ins = { ...STANDAARD, ...data.instellingen, btwHerzien: 1 };
         if (ins.review === OUDE_REVIEW) ins.review = STANDAARD.review;
         opslag.schrijf('beck-instellingen', ins);
         $$('[data-set]').forEach(el => { el.value = ins[el.dataset.set] ?? ''; });
@@ -821,6 +915,7 @@
     });
     $('#slim-result').hidden = true; $('#plak').value = '';
     status('Overgenomen ✓');
+    if (type === 'offerte') btwVoorNieuw();
     teken(); bewaarConcept();
   });
   $('#slim-weg').addEventListener('click', () => { $('#slim-result').hidden = true; status(''); });

@@ -41,9 +41,13 @@
   $('#o-feest').innerHTML = feest.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('');
   $('#o-regels').innerHTML = o.r.map(([oms, sub, aantal, bedrag]) =>
     `<tr><td>${esc(oms)}${sub ? `<small>${esc(sub)}</small>` : ''}</td><td>${esc(aantal)}</td><td>${euro(bedrag)}</td></tr>`).join('');
-  $('#o-totaal').innerHTML = (o.btw ? `<div><span>Subtotaal</span><span>${euro(o.sub)}</span></div><div><span>Btw 21%</span><span>${euro(o.btw)}</span></div>` : '')
-    + `<div class="tot"><span>Totaal</span><span>${euro(o.tot)}</span></div>`
-    + (o.kor ? '<small>Geen btw: kleineondernemersregeling (KOR)</small>' : '')
+  // Btw zoals op de offerte zelf (assets/js/documenten.js): bi = 21% zit in de bedragen
+  $('#o-totaal').innerHTML = (o.btw ? (o.bi
+      ? `<div><span>Totaal excl. btw</span><span>${euro(o.tot - o.btw)}</span></div><div><span>Btw 21%</span><span>${euro(o.btw)}</span></div>`
+      : `<div><span>Subtotaal</span><span>${euro(o.sub)}</span></div><div><span>Btw 21%</span><span>${euro(o.btw)}</span></div>`) : '')
+    + `<div class="tot"><span>${o.bi ? 'Totaal incl. btw' : 'Totaal'}</span><span>${euro(o.tot)}</span></div>`
+    // Links van vóór 10 november 2026 hebben geen bi: die houden de KOR-zin van toen
+    + (o.kor ? `<small>${'bi' in o ? 'Vrijgesteld van btw op grond van de kleineondernemersregeling (KOR)' : 'Geen btw: kleineondernemersregeling (KOR)'}</small>` : '')
     + (o.gt ? `<small>Geldig tot ${lang(o.gt)}</small>` : '');
   if (o.o) { $('#o-opm').hidden = false; $('#o-opm').textContent = o.o; }
   // Dezelfde afspraken staan op de offerte zelf (assets/js/documenten.js): houd beide teksten gelijk
