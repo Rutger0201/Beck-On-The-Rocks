@@ -51,7 +51,7 @@
     if (wasKor) {
       const vast = Object.fromEntries(TARIEF.map(k => [k, i[k]]));
       docs.forEach(d => { if (d && !d.tarief && d.status && d.status !== 'concept') d.tarief = { ...vast }; });
-      i.btw = STANDAARD.btw;
+      i.btw = 'incl';  // zoals op 10 november; btwErbovenop zet de instelling daarna op 21% bovenop
     }
     docs.forEach(d => {
       if (!d || !d.tarief || d.tarief.btw !== 'kor') return;
@@ -60,13 +60,14 @@
     i.btwHerzien = 1;
     return wasKor;
   }
+  let wasKor = false;
   if (!ins.btwHerzien) {
     const docs = opslag.lees('beck-documenten', {}), concept = opslag.lees('beck-concept', null);
-    const wasKor = herzieBtw(ins, [...Object.values(docs), concept]);
+    wasKor = herzieBtw(ins, [...Object.values(docs), concept]);
     opslag.schrijf('beck-instellingen', ins); opslag.schrijf('beck-documenten', docs);
     if (concept) opslag.schrijf('beck-concept', concept);
     if (wasKor) setTimeout(() => alert('De KOR (geen btw) geldt pas als de Belastingdienst je deelname schriftelijk heeft bevestigd. '
-      + 'Daarom rekent de generator nu met 21% btw bovenop je bedragen. Concepten zijn mee omgezet; verstuurde documenten blijven zoals ze zijn. '
+      + 'Daarom komt er op nieuwe offertes en facturen nu 21% btw bovenop je bedragen. Concepten houden hun bedragen, met de btw inbegrepen; verstuurde documenten blijven zoals ze zijn. '
       + 'Heb je die bevestiging, kies dan KOR bij Mijn gegevens & tarieven.'), 300);
   }
   // Sinds 14 november 2026 is €45 per uur exclusief btw: 21% komt erbovenop. Eén keer omzetten, ook bij het terugzetten
@@ -87,7 +88,7 @@
     const wasIncl = btwErbovenop(ins, [...Object.values(docs), concept]);
     opslag.schrijf('beck-instellingen', ins); opslag.schrijf('beck-documenten', docs);
     if (concept) opslag.schrijf('beck-concept', concept);
-    if (wasIncl) setTimeout(() => alert('Je tarieven zijn vanaf nu exclusief btw: op nieuwe offertes en facturen komt 21% btw bovenop de bedragen. '
+    if (wasIncl && !wasKor) setTimeout(() => alert('Je tarieven zijn vanaf nu exclusief btw: op nieuwe offertes en facturen komt 21% btw bovenop de bedragen. '
       + 'Bestaande documenten en concepten houden hun bedragen, met de btw inbegrepen.'), 300);
   }
   $$('[data-set]').forEach(el => {
