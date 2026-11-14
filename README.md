@@ -156,10 +156,12 @@ uitgegeven) en met samenwerkingen (partnerlijst en mailvoorbeelden; je verstuurt
   480, 800 en 1200 px breed van in `assets/img/w/`.
 - **Telefoonnummer**: in het contactblok staat nu je privénummer; eventueel een apart zakelijk nummer.
 - **Btw-keuze**: op de site staat geen btw-regel (`btw` in `assets/js/config.js` is leeg). Met `'kor'` (geen btw) of
-  `'incl'` (prijzen incl. btw) verschijnt de regel bij de tarieven. De generator rekent standaard met 21% btw,
-  inbegrepen in de bedragen: op offertes en facturen staan dan het totaal excl. btw, de btw en het totaal incl. btw
-  (Mijn gegevens & tarieven). Kies *Vrijgesteld van btw (KOR)* pas als de Belastingdienst je deelname schriftelijk
-  heeft bevestigd. Kies je *21% btw bovenop de bedragen*, let dan op: prijzen voor particulieren moeten inclusief btw zijn.
+  `'incl'` (prijzen incl. btw) verschijnt de regel bij de tarieven. Sinds 14 november 2026 zijn de tarieven exclusief
+  btw: de generator rekent standaard met 21% btw bovenop de bedragen (€45 per uur wordt €54,45 incl. btw). Op offertes
+  en facturen staan het totaal excl. btw, de btw en het totaal incl. btw (Mijn gegevens & tarieven). Bij de eerste
+  opening daarna gaat de instelling eenmalig van *inbegrepen* naar *bovenop*; bestaande documenten en concepten houden
+  hun bedragen. Kies *Vrijgesteld van btw (KOR)* pas als de Belastingdienst je deelname schriftelijk heeft bevestigd.
+  Let op: prijzen voor particulieren moeten op de site inclusief btw staan.
   Wissel je tussen btw en KOR, dan volgen nieuwe documenten, concepten, facturen uit een offerte en aangepaste offertes
   die keuze, met dezelfde afgesproken prijzen; bij 21% btw inbegrepen blijft het totaal gelijk, bij 21% btw bovenop
   komt de btw erbij of gaat hij eraf. Documenten met status Verstuurd, Akkoord of Betaald blijven zoals ze zijn

@@ -12,7 +12,7 @@
   /* ================= Instellingen ================= */
   const STANDAARD = {
     naam: 'Beck on the Rocks', contact: 'Rutger', adres: '', plaats: '', tel: '', email: 'info@beckontherocks.nl', web: 'beckontherocks.nl',
-    kvk: '42212414', iban: '', btw: 'incl', btwnr: '', review: window.BECK_CONFIG?.google?.review || 'https://g.page/r/CdSRBk_6B5glEBI/review',
+    kvk: '42212414', iban: '', btw: '21', btwnr: '', review: window.BECK_CONFIG?.google?.review || 'https://g.page/r/CdSRBk_6B5glEBI/review',
     uur: 45, prep: 1, menu: 75, fruitpers: 20, menuFp: 99, km: 0.25, glas: 0.5, spoed: 25, annul: 20, betaal: 14
   };
   // Tarieven van de website (tarieven.json → assets/js/tarieven.js) gaan voor
@@ -66,8 +66,29 @@
     opslag.schrijf('beck-instellingen', ins); opslag.schrijf('beck-documenten', docs);
     if (concept) opslag.schrijf('beck-concept', concept);
     if (wasKor) setTimeout(() => alert('De KOR (geen btw) geldt pas als de Belastingdienst je deelname schriftelijk heeft bevestigd. '
-      + 'Daarom rekent de generator nu met 21% btw, inbegrepen in je bedragen. Concepten zijn mee omgezet; verstuurde documenten blijven zoals ze zijn. '
+      + 'Daarom rekent de generator nu met 21% btw bovenop je bedragen. Concepten zijn mee omgezet; verstuurde documenten blijven zoals ze zijn. '
       + 'Heb je die bevestiging, kies dan KOR bij Mijn gegevens & tarieven.'), 300);
+  }
+  // Sinds 14 november 2026 is €45 per uur exclusief btw: 21% komt erbovenop. Eén keer omzetten, ook bij het terugzetten
+  // van een oudere back-up: de instelling 'incl' wordt '21'. Bestaande documenten en concepten houden hun bedragen
+  // (zonder eigen tarieven krijgen ze die van dit moment, met btw inbegrepen). De nieuwe keuze geldt voor nieuwe documenten.
+  function btwErbovenop(i, docs) {
+    const wasIncl = i.btw === 'incl';
+    if (wasIncl) {
+      const vast = Object.fromEntries(TARIEF.map(k => [k, i[k]]));
+      docs.forEach(d => { if (d && !d.tarief) d.tarief = { ...vast }; });
+      i.btw = '21';
+    }
+    i.btwExcl = 1;
+    return wasIncl;
+  }
+  if (!ins.btwExcl) {
+    const docs = opslag.lees('beck-documenten', {}), concept = opslag.lees('beck-concept', null);
+    const wasIncl = btwErbovenop(ins, [...Object.values(docs), concept]);
+    opslag.schrijf('beck-instellingen', ins); opslag.schrijf('beck-documenten', docs);
+    if (concept) opslag.schrijf('beck-concept', concept);
+    if (wasIncl) setTimeout(() => alert('Je tarieven zijn vanaf nu exclusief btw: op nieuwe offertes en facturen komt 21% btw bovenop de bedragen. '
+      + 'Bestaande documenten en concepten houden hun bedragen, met de btw inbegrepen.'), 300);
   }
   $$('[data-set]').forEach(el => {
     el.value = ins[el.dataset.set];
@@ -308,8 +329,8 @@
       $('#th-prijs').textContent = incl ? 'Prijs incl.' : 'Prijs';
       $('#th-bedrag').textContent = incl ? 'Bedrag incl.' : 'Bedrag';
     }
-    // Compactere totalen (zie documenten.css), niet bij 21% bovenop en de oude KOR-zin: die printen zoals toen
-    $('#d-totaal').classList.toggle('is-strak', incl || (t.btw === 'kor' && !t.korOud));
+    // Compactere totalen (zie documenten.css) bij btw (inbegrepen of bovenop) en de KOR-zin van nu; de oude KOR-zin print zoals toen
+    $('#d-totaal').classList.toggle('is-strak', btw || (t.btw === 'kor' && !t.korOud));
     $('#d-regels').innerHTML = b.regels.map(r => `
       <tr>
         <td>${esc(r.oms)}${r.sub ? `<small>${esc(r.sub)}</small>` : ''}</td>
@@ -324,9 +345,9 @@
          <div><span>Btw 21%</span><span>${euro(btwBedrag)}</span></div>
          <div class="tot"><span>Totaal incl. btw</span><span>${euro(totaal)}</span></div>`
       : btw
-      ? `<div><span>Subtotaal</span><span>${euro(b.sub)}</span></div>
+      ? `<div><span>Totaal excl. btw</span><span>${euro(b.sub)}</span></div>
          <div><span>Btw 21%</span><span>${euro(btwBedrag)}</span></div>
-         <div class="tot"><span>Totaal</span><span>${euro(totaal)}</span></div>`
+         <div class="tot"><span>Totaal incl. btw</span><span>${euro(totaal)}</span></div>`
       : `<div class="tot"><span>Totaal</span><span>${euro(totaal)}</span></div>`
         + (t.btw === 'kor' ? `<div class="muted"><span>${t.korOud ? 'Geen btw: kleineondernemersregeling (KOR)' : 'Vrijgesteld van btw op grond van de kleineondernemersregeling (KOR)'}</span></div>` : '');
 
@@ -830,13 +851,18 @@
         data.instellingen = { ...STANDAARD, ...data.instellingen };
         herzieBtw(data.instellingen, Object.values(data.documenten));
       }
+      // Back-up van vóór 14 november 2026 (toen was €45 inclusief btw): net zo omzetten als bij het openen
+      if (data.instellingen && !data.instellingen.btwExcl) {
+        data.instellingen = { ...STANDAARD, ...data.instellingen };
+        btwErbovenop(data.instellingen, Object.values(data.documenten));
+      }
       opslag.schrijf('beck-documenten', { ...bestaand, ...data.documenten });
       // Teller per reeks: hoogste van beide, zodat een verwijderd nummer niet terugkomt
       const tellers = opslag.lees('beck-tellers', {});
       Object.entries(data.tellers || {}).forEach(([p, n]) => { tellers[p] = Math.max(tellers[p] || 0, +n || 0); });
       opslag.schrijf('beck-tellers', tellers);
       if (data.instellingen) {
-        ins = { ...STANDAARD, ...data.instellingen, btwHerzien: 1 };
+        ins = { ...STANDAARD, ...data.instellingen, btwHerzien: 1, btwExcl: 1 };
         if (ins.review === OUDE_REVIEW) ins.review = STANDAARD.review;
         opslag.schrijf('beck-instellingen', ins);
         $$('[data-set]').forEach(el => { el.value = ins[el.dataset.set] ?? ''; });

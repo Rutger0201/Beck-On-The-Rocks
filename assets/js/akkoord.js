@@ -44,8 +44,8 @@
   // Btw zoals op de offerte zelf (assets/js/documenten.js): bi = 21% zit in de bedragen
   $('#o-totaal').innerHTML = (o.btw ? (o.bi
       ? `<div><span>Totaal excl. btw</span><span>${euro(o.tot - o.btw)}</span></div><div><span>Btw 21%</span><span>${euro(o.btw)}</span></div>`
-      : `<div><span>Subtotaal</span><span>${euro(o.sub)}</span></div><div><span>Btw 21%</span><span>${euro(o.btw)}</span></div>`) : '')
-    + `<div class="tot"><span>${o.bi ? 'Totaal incl. btw' : 'Totaal'}</span><span>${euro(o.tot)}</span></div>`
+      : `<div><span>Totaal excl. btw</span><span>${euro(o.sub)}</span></div><div><span>Btw 21%</span><span>${euro(o.btw)}</span></div>`) : '')
+    + `<div class="tot"><span>${o.btw ? 'Totaal incl. btw' : 'Totaal'}</span><span>${euro(o.tot)}</span></div>`
     // Links van vóór 10 november 2026 hebben geen bi: die houden de KOR-zin van toen
     + (o.kor ? `<small>${'bi' in o ? 'Vrijgesteld van btw op grond van de kleineondernemersregeling (KOR)' : 'Geen btw: kleineondernemersregeling (KOR)'}</small>` : '')
     + (o.gt ? `<small>Geldig tot ${lang(o.gt)}</small>` : '');
