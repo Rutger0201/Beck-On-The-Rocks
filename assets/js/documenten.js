@@ -12,7 +12,7 @@
   /* ================= Instellingen ================= */
   const STANDAARD = {
     naam: 'Beck on the Rocks', contact: 'Rutger', adres: '', plaats: '', tel: '', email: 'info@beckontherocks.nl', web: 'beckontherocks.nl',
-    kvk: '42212414', iban: '', btw: '21', btwnr: '', review: window.BECK_CONFIG?.google?.review || 'https://g.page/r/CdSRBk_6B5glEBI/review',
+    kvk: '42212414', iban: '', btw: '21', btwnr: 'NL005588229B27', review: window.BECK_CONFIG?.google?.review || 'https://g.page/r/CdSRBk_6B5glEBI/review',
     uur: 45, prep: 1, menu: 75, fruitpers: 20, menuFp: 99, km: 0.25, glas: 0.5, spoed: 25, annul: 20, betaal: 14
   };
   // Tarieven van de website (tarieven.json → assets/js/tarieven.js) gaan voor
@@ -38,6 +38,7 @@
   if (!ins.web) ins.web = STANDAARD.web;
   if (ins.tel === '06 39 65 86 62') ins.tel = '';  // telefoonnummer staat niet meer op documenten
   if (!ins.kvk) ins.kvk = STANDAARD.kvk;
+  if (!ins.btwnr) ins.btwnr = STANDAARD.btwnr;
   if (!ins.review || ins.review === OUDE_REVIEW) ins.review = STANDAARD.review;
   // Tarieven die een document bij opslaan vastlegt (zie bewaar)
   const TARIEF = ['uur', 'prep', 'menu', 'fruitpers', 'menuFp', 'km', 'glas', 'spoed', 'annul', 'btw', 'betaal'];
