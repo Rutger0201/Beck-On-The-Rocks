@@ -849,7 +849,8 @@
   if (CONFIG.kvk) $$('[data-kvk]').forEach(el => { el.querySelector('span').textContent = CONFIG.kvk; el.hidden = false; });
   const BTW = {
     kor: t('Ik val onder de kleineondernemersregeling (KOR): je betaalt geen btw.', 'I use the Dutch small business scheme (KOR): no VAT is charged.'),
-    incl: t('Alle prijzen zijn inclusief btw.', 'All prices include VAT.')
+    incl: t('Alle prijzen zijn inclusief btw.', 'All prices include VAT.'),
+    excl: t('Alle prijzen zijn exclusief 21% btw.', 'All prices exclude 21% VAT.')
   };
   if (BTW[CONFIG.btw]) $$('[data-btw]').forEach(el => { el.textContent = BTW[CONFIG.btw]; el.hidden = false; });
 

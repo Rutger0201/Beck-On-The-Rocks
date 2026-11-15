@@ -155,8 +155,8 @@ uitgegeven) en met samenwerkingen (partnerlijst en mailvoorbeelden; je verstuurt
 - **Foto's**: meer foto's van echte events voor de galerij (Over mij) en de landingspagina's; maak er versies van
   480, 800 en 1200 px breed van in `assets/img/w/`.
 - **Telefoonnummer**: in het contactblok staat nu je privénummer; eventueel een apart zakelijk nummer.
-- **Btw-keuze**: op de site staat geen btw-regel (`btw` in `assets/js/config.js` is leeg). Met `'kor'` (geen btw) of
-  `'incl'` (prijzen incl. btw) verschijnt de regel bij de tarieven. Sinds 14 november 2026 zijn de tarieven exclusief
+- **Btw-keuze**: `btw` in `assets/js/config.js` staat op `'excl'`: bij de tarieven en op de home staat "Alle prijzen zijn
+  exclusief 21% btw." Met `'incl'` (prijzen incl. btw), `'kor'` (geen btw) of leeg (geen regel) verandert die regel. Sinds 14 november 2026 zijn de tarieven exclusief
   btw: de generator rekent standaard met 21% btw bovenop de bedragen (€45 per uur wordt €54,45 incl. btw). Op offertes
   en facturen staan het totaal excl. btw, de btw en het totaal incl. btw (Mijn gegevens & tarieven). Bij de eerste
   opening daarna gaat de instelling eenmalig van *inbegrepen* naar *bovenop*; bestaande documenten en concepten houden
