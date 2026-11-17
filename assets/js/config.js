@@ -7,8 +7,8 @@ window.BECK_CONFIG = {
   goatcounter: 'botr',
   // KvK-nummer: verschijnt in de footer zodra je het invult, bijv. '12345678'
   kvk: '42212414',
-  // Btw-regel bij de tarieven: 'kor' (geen btw), 'incl' (prijzen incl. btw) of leeg (geen regel)
-  btw: '',
+  // Btw-regel bij de tarieven: 'excl' (prijzen excl. btw), 'incl' (prijzen incl. btw), 'kor' (geen btw) of leeg (geen regel)
+  btw: 'excl',
   // Regel bij de offerteknop op de home. Noem alleen beschikbaarheid die klopt. Leeg ('') = geen regel.
   beschikbaar: { nl: 'Plan je kerstborrel? Vraag nu je datum aan.', en: 'Planning Christmas drinks? Request your date now.' },
   // EmailJS (emailjs.com): automatische bevestigingsmail aan de klant na een aanvraag.
