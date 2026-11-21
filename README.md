@@ -16,6 +16,8 @@ of zet de map op een host als Netlify, Vercel of GitHub Pages.
   kan tonen. Oude links (`/#prijzen`, `/#faq`) sturen automatisch door. In de Engelse versie staan ze nog als onderdeel van `en/`.
 - `privacy/`: privacyverklaring, gelinkt in de footer en bij elk formulier. Gebruik je een nieuwe dienst
   (ander formulier, mailprogramma, statistieken), pas deze tekst dan aan.
+- `cookies/`: cookieverklaring (de site plaatst geen cookies; lijst van wat in de browser wordt bewaard), gelinkt in de footer.
+  Ga je iets nieuws in localStorage/sessionStorage zetten of een dienst van derden inladen, pas deze tekst dan aan.
 - `kaart/`: digitaal visitekaartje (niet in Google) voor je NFC-tag en QR-code, met
   "Opslaan in contacten" (`kaart/rutger-beck-on-the-rocks.vcf`). Het kaartje is installeerbaar en werkt offline
   (`kaart/manifest.webmanifest`, `kaart/sw.js`).
