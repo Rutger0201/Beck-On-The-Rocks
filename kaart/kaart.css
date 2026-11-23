@@ -1,0 +1,2 @@
+/* Alleen voor het visitekaartje. Geopend via de QR-code of NFC-tag (link eindigt op #contact): de QR-code verbergen, de bezoeker heeft hem al gescand. */
+.kaart:target .kaart__qr { display: none; }

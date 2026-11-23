@@ -27,9 +27,15 @@ of zet de map op een host als Netlify, Vercel of GitHub Pages.
 
 ### NFC-tag en QR-code
 - **NFC-tag of -kaartje**: schrijf met de gratis app *NFC Tools* de link
-  `https://beckontherocks.nl/kaart/?ref=nfc` op de tag (Schrijven → Record toevoegen → URL).
-- **QR-code**: `assets/img/qr-beckontherocks.svg` (of `.png`) linkt naar `https://beckontherocks.nl/?ref=qr`.
-  Staat ook op het visitekaartje, zodat iemand hem van je scherm kan scannen.
+  `https://beckontherocks.nl/kaart/?ref=nfc#contact` op de tag (Schrijven → Record toevoegen → URL).
+- **QR-code naar het visitekaartje**: `assets/img/qr-kaart.svg` linkt naar
+  `https://beckontherocks.nl/kaart/?ref=qr#contact` en staat op het visitekaartje, zodat iemand hem van je scherm kan
+  scannen. Door `#contact` ziet de bezoeker de QR-code zelf niet meer, alleen het kaartje met de knoppen.
+- **Google Wallet**: `kaart/qr-google-wallet.png` is dezelfde QR-code in zwart-wit. Bewaar hem op je telefoon en kies
+  in Google Wallet *Toevoegen aan Wallet → Foto* (of *Al het andere*); Wallet maakt er een pas met deze QR-code van.
+- **Telefoonnummer toevoegen**: zet in `kaart/rutger-beck-on-the-rocks.vcf` onder de regel `EMAIL` een regel
+  `TEL;TYPE=CELL:+316…` (internationaal, zonder spaties) en verhoog `CACHE` in `kaart/sw.js`.
+- **QR-code naar de homepage**: `assets/img/qr-beckontherocks.svg` (of `.png`) linkt naar `https://beckontherocks.nl/?ref=qr`.
 - Met GoatCounter aan zie je bij de bronnen hoeveel bezoekers via `nfc` en `qr` kwamen.
 
 ### Engelse versie (`en/index.html`)
