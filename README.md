@@ -33,8 +33,8 @@ of zet de map op een host als Netlify, Vercel of GitHub Pages.
   scannen. Door `#contact` ziet de bezoeker de QR-code zelf niet meer, alleen het kaartje met de knoppen.
 - **Google Wallet**: `kaart/qr-google-wallet.png` is dezelfde QR-code in zwart-wit. Bewaar hem op je telefoon en kies
   in Google Wallet *Toevoegen aan Wallet → Foto* (of *Al het andere*); Wallet maakt er een pas met deze QR-code van.
-- **Telefoonnummer toevoegen**: zet in `kaart/rutger-beck-on-the-rocks.vcf` onder de regel `EMAIL` een regel
-  `TEL;TYPE=CELL:+316…` (internationaal, zonder spaties) en verhoog `CACHE` in `kaart/sw.js`.
+- **Telefoonnummer wijzigen**: pas in `kaart/rutger-beck-on-the-rocks.vcf` de regel `TEL;TYPE=CELL:+316…` aan
+  (internationaal, zonder spaties) en verhoog `CACHE` in `kaart/sw.js`.
 - **QR-code naar de homepage**: `assets/img/qr-beckontherocks.svg` (of `.png`) linkt naar `https://beckontherocks.nl/?ref=qr`.
 - Met GoatCounter aan zie je bij de bronnen hoeveel bezoekers via `nfc` en `qr` kwamen.
 
