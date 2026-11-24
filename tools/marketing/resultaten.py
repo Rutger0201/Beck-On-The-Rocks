@@ -183,9 +183,9 @@ def seo_controle():
             punt('middel', f'{p.zonder_alt} afbeelding(en) zonder alt-tekst.')
         if not p.canoniek:
             punt('laag', 'Geen canonical-link.')
-        if not p.jsonld and pad not in ('/privacy/',):
+        if not p.jsonld and pad not in ('/privacy/', '/cookies/'):
             punt('laag', 'Geen gestructureerde gegevens (JSON-LD) voor Google.')
-        if p.woorden < 300 and pad not in ('/privacy/',):
+        if p.woorden < 300 and pad not in ('/privacy/', '/cookies/'):
             punt('middel', f'Weinig tekst ({p.woorden} woorden); Google beoordeelt pagina\'s met 400+ woorden vaak beter.')
     if not any('almere' in u for u in urls):
         bevindingen.append({'pagina': '(nieuw)', 'ernst': 'middel',
