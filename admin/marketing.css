@@ -1,5 +1,7 @@
 /* Adminpagina: tabbladen en het marketingcentrum (admin/marketing.js). Kleuren en lettertypes uit assets/css/site.css. */
-:root { --m-snel: var(--gold); --m-structureel: #4f7a64; --m-betaald: var(--amber); --m-event: #56648a; }
+:root { --m-snel: var(--gold); --m-structureel: #4f7a64; --m-betaald: var(--amber); --m-event: #56648a; --m-ok: #3d6b3a; }
+/* Donker thema (admin/thema.js): lichtere tinten, zodat labels en stippen leesbaar blijven */
+:root[data-thema="donker"] { --m-structureel: #8fbca2; --m-event: #a3afd6; --m-ok: #9ccb94; }
 
 .a-tabs { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; border-bottom: 1px solid var(--line); margin: 0 0 1.6rem; }
 .a-tab { background: none; border: 0; border-bottom: 2px solid transparent; color: var(--muted); font: 500 .9375rem var(--sans);
@@ -13,7 +15,7 @@
 .m-chips { display: flex; gap: 6px; flex-wrap: wrap; }
 .m-chip { background: transparent; border: 1px solid var(--line); color: var(--muted); border-radius: var(--radius); padding: .3em .9em;
   font: 400 .8125rem var(--sans); cursor: pointer; }
-.m-chip.is-aan { border-color: var(--text); color: var(--papier); background: var(--inkt); }
+.m-chip.is-aan { border-color: var(--btn-bg); color: var(--btn-fg); background: var(--btn-bg); }
 .m-leeg { color: var(--muted); padding: 1rem 0; }
 .m-stil { color: var(--muted); font-size: .875rem; }
 .m-sync { color: var(--muted); font-size: .8125rem; margin-top: 2rem; }
@@ -29,7 +31,7 @@
 .m-kans h2 { font-family: var(--serif); font-weight: 400; font-size: 1.55rem; margin: 0; line-height: 1.2; }
 .m-romp { min-width: 0; }
 .m-labels { display: flex; gap: 6px; flex-wrap: wrap; margin: .35em 0; }
-.m-label { font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; border-radius: var(--radius); padding: .15em .7em; color: var(--papier); background: var(--m-snel); font-weight: 500; }
+.m-label { font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; border-radius: var(--radius); padding: .15em .7em; color: var(--btn-fg); background: var(--m-snel); font-weight: 500; }
 .m-label--structureel { background: var(--m-structureel); }
 .m-label--betaald { background: var(--m-betaald); }
 .m-label--status { background: var(--text); }
@@ -164,7 +166,7 @@
 .m-auto { margin: .6em 0 .2em; padding: .55em .8em; border-left: 2px solid var(--accent); background: var(--accent-vlak); font-size: .875rem; }
 .m-auto p { margin: .15em 0; }
 .m-auto .btn { margin-top: .4em; }
-.m-auto--ok { color: #3d6b3a; }
+.m-auto--ok { color: var(--m-ok); }
 p.m-auto--ok { margin: .6em 0 .2em; font-size: .875rem; }
 .m-auto--fout { color: var(--fout); }
 .m-auto--let { color: var(--spoed); }
