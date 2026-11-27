@@ -1,5 +1,8 @@
 /* Adminpagina: inlogscherm en lijst met mogelijke klussen */
-.admin { max-width: 960px; margin: 0 auto; padding: 48px 16px 80px; }
+.admin { max-width: 960px; margin: 0 auto; padding: 48px 16px 80px; position: relative; }
+.a-thema { position: absolute; top: 16px; right: 16px; background: none; border: 1px solid var(--line); border-radius: 999px; color: var(--muted);
+  font: 500 .8125rem var(--sans); padding: .45em 1.1em; min-height: 36px; cursor: pointer; }
+.a-thema:hover { color: var(--text); border-color: var(--line-sterk); }
 .admin h1 { font-family: var(--serif); font-weight: 300; font-size: clamp(2.4rem, 5vw, 3.2rem); margin: 0 0 .2em; }
 .admin__sub { color: var(--muted); margin: 0 0 2rem; }
 .slot { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -16,6 +19,6 @@
 .event__meta { color: var(--muted); font-size: .9rem; }
 .event__waarom { margin: .2em 0 .4em; }
 .event__knoppen { grid-column: 2; display: flex; gap: 8px; flex-wrap: wrap; }
-.label { display: inline-block; font-size: .75rem; letter-spacing: .04em; text-transform: uppercase; color: var(--papier);
+.label { display: inline-block; font-size: .75rem; letter-spacing: .04em; text-transform: uppercase; color: var(--btn-fg);
   background: var(--spoed); border-radius: var(--radius); padding: .15em .7em; margin: 0 0 0 .4em; font-weight: 500; vertical-align: middle; }
 @media (max-width: 520px) { .event { grid-template-columns: 1fr; } .punten { grid-row: auto; width: auto; height: auto; padding: .3em .9em; border-radius: 999px; justify-self: start; } .event__knoppen { grid-column: 1; } }
